@@ -1,35 +1,14 @@
 services:
+  # nginx-прокси к docker.sock с перезаписью устаревшей API-версии URL.
+  # Нужен из-за Traefik v3.5: его docker SDK хардкодит /v1.24/, а daemon 29.x требует >=1.40.
   socket-proxy:
-    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    image: nginx:alpine
     container_name: socket-proxy
     restart: unless-stopped
-    environment:
-      # права read-only для Traefik discovery
-      CONTAINERS: 1
-      NETWORKS: 1
-      SERVICES: 1
-      TASKS: 1
-      INFO: 1
-      VERSION: 1
-      EVENTS: 1
-      PING: 1
-      # запреты — Traefik не должен мочь модифицировать docker
-      POST: 0
-      BUILD: 0
-      COMMIT: 0
-      CONFIGS: 0
-      DELETE: 0
-      EXEC: 0
-      IMAGES: 0
-      NODES: 0
-      PLUGINS: 0
-      SECRETS: 0
-      SESSION: 0
-      SWARM: 0
-      SYSTEM: 0
-      VOLUMES: 0
+    user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./nginx-socket-proxy.conf:/etc/nginx/nginx.conf:ro
     networks:
       - proxy
 

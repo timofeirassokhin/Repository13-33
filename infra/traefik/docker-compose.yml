@@ -1,0 +1,74 @@
+services:
+  traefik:
+    image: traefik:v3.2
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      # Dashboard
+      - --api.dashboard=true
+      - --api.insecure=false
+
+      # Entrypoints
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+
+      # ACME / Let's Encrypt (HTTP-01 challenge)
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=proxy
+
+      # Logs
+      - --log.level=INFO
+      - --accesslog=true
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+
+    networks:
+      - proxy
+
+    env_file:
+      - ../.env
+
+    labels:
+      - traefik.enable=true
+
+      # --- Dashboard router ---
+      - traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.tls.certresolver=letsencrypt
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.middlewares=admin-auth,admin-ipallow,secure-headers
+
+      # --- Middleware: basic auth ---
+      - traefik.http.middlewares.admin-auth.basicauth.users=${TRAEFIK_BASIC_AUTH}
+
+      # --- Middleware: IP allow list ---
+      - traefik.http.middlewares.admin-ipallow.ipallowlist.sourcerange=${ADMIN_IP}/32
+
+      # --- Middleware: secure headers (используем в других сервисах тоже) ---
+      - traefik.http.middlewares.secure-headers.headers.stsincludesubdomains=true
+      - traefik.http.middlewares.secure-headers.headers.stspreload=true
+      - traefik.http.middlewares.secure-headers.headers.stsseconds=31536000
+      - traefik.http.middlewares.secure-headers.headers.contenttypenosniff=true
+      - traefik.http.middlewares.secure-headers.headers.browserxssfilter=true
+      - traefik.http.middlewares.secure-headers.headers.referrerpolicy=same-origin
+
+networks:
+  proxy:
+    external: true

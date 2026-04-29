@@ -1,0 +1,8 @@
+# Секреты
+.env
+*/letsencrypt/acme.json
+*/data/
+
+# Бэкапы
+*.bak
+*.backup

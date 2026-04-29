@@ -1,0 +1,18 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - proxy
+    # Внутренний сервис — без Traefik labels, доступен другим контейнерам
+    # на proxy network как http://qdrant:6333
+
+volumes:
+  qdrant_data:
+
+networks:
+  proxy:
+    external: true

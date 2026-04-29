@@ -1,0 +1,29 @@
+# LiteLLM роутинг моделей.
+# Документация: https://docs.litellm.ai/docs/proxy/configs
+#
+# Подключаем локальный Ollama (поднят на хосте — host.docker.internal:11434).
+# Для облачных моделей (OpenAI, Anthropic, …) — добавь свой API-ключ в .env
+# и расширь список ниже.
+
+model_list:
+  # --- Локальные через Ollama ---
+  - model_name: ollama/qwen2.5
+    litellm_params:
+      model: ollama/qwen2.5:0.5b
+      api_base: http://host.docker.internal:11434
+
+  # --- Anthropic Claude (раскомментируй и добавь ANTHROPIC_API_KEY в env) ---
+  # - model_name: claude-opus-4-7
+  #   litellm_params:
+  #     model: anthropic/claude-opus-4-7
+  #     api_key: os.environ/ANTHROPIC_API_KEY
+
+  # --- OpenAI (если нужно) ---
+  # - model_name: gpt-4o
+  #   litellm_params:
+  #     model: openai/gpt-4o
+  #     api_key: os.environ/OPENAI_API_KEY
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false

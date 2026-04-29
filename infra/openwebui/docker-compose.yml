@@ -1,0 +1,36 @@
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    restart: unless-stopped
+    environment:
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+      # Прямой доступ к локальному Ollama
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      # OpenAI-совместимый endpoint (LiteLLM как хаб для всех моделей)
+      OPENAI_API_BASE_URL: http://litellm:4000
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
+      # Поведение
+      ENABLE_SIGNUP: "false"
+      DEFAULT_USER_ROLE: "pending"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - openwebui_data:/app/backend/data
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.openwebui.rule=Host(`chat.${DOMAIN}`)
+      - traefik.http.routers.openwebui.entrypoints=websecure
+      - traefik.http.routers.openwebui.tls.certresolver=letsencrypt
+      - traefik.http.routers.openwebui.middlewares=secure-headers@docker
+      - traefik.http.services.openwebui.loadbalancer.server.port=8080
+
+volumes:
+  openwebui_data:
+
+networks:
+  proxy:
+    external: true

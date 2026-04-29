@@ -1,0 +1,85 @@
+services:
+  twenty-server:
+    image: twentycrm/twenty:latest
+    container_name: twenty-server
+    restart: unless-stopped
+    depends_on:
+      twenty-db:
+        condition: service_healthy
+      twenty-redis:
+        condition: service_started
+    environment:
+      NODE_PORT: 3000
+      SERVER_URL: https://crm.${DOMAIN}
+      PG_DATABASE_URL: postgres://postgres:${TWENTY_PG_PASSWORD}@twenty-db:5432/default
+      REDIS_URL: redis://twenty-redis:6379
+      APP_SECRET: ${TWENTY_APP_SECRET}
+      STORAGE_TYPE: local
+      SIGN_IN_PREFILLED: "false"
+      DISABLE_DB_MIGRATIONS: "false"
+    volumes:
+      - twenty_server_data:/app/.local-storage
+    networks:
+      - proxy
+      - twenty_internal
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.twenty.rule=Host(`crm.${DOMAIN}`)
+      - traefik.http.routers.twenty.entrypoints=websecure
+      - traefik.http.routers.twenty.tls.certresolver=letsencrypt
+      - traefik.http.routers.twenty.middlewares=secure-headers@docker
+      - traefik.http.services.twenty.loadbalancer.server.port=3000
+
+  twenty-worker:
+    image: twentycrm/twenty:latest
+    container_name: twenty-worker
+    restart: unless-stopped
+    depends_on:
+      twenty-server:
+        condition: service_started
+    environment:
+      PG_DATABASE_URL: postgres://postgres:${TWENTY_PG_PASSWORD}@twenty-db:5432/default
+      REDIS_URL: redis://twenty-redis:6379
+      APP_SECRET: ${TWENTY_APP_SECRET}
+      STORAGE_TYPE: local
+      DISABLE_DB_MIGRATIONS: "true"
+    command: ["yarn", "worker:prod"]
+    volumes:
+      - twenty_server_data:/app/.local-storage
+    networks:
+      - twenty_internal
+
+  twenty-db:
+    image: postgres:16
+    container_name: twenty-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${TWENTY_PG_PASSWORD}
+      POSTGRES_DB: default
+    volumes:
+      - twenty_db_data:/var/lib/postgresql/data
+    networks:
+      - twenty_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  twenty-redis:
+    image: redis:7-alpine
+    container_name: twenty-redis
+    restart: unless-stopped
+    networks:
+      - twenty_internal
+
+volumes:
+  twenty_db_data:
+  twenty_server_data:
+
+networks:
+  proxy:
+    external: true
+  twenty_internal:

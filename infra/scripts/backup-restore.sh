@@ -10,6 +10,11 @@
 
 set -euo pipefail
 
+if [[ "${EUID}" -ne 0 ]]; then
+  echo "Запускай через sudo: sudo $0 $*" >&2
+  exit 1
+fi
+
 export RESTIC_REPOSITORY="${RESTIC_REPOSITORY:-/opt/backups/restic}"
 export RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-/opt/backups/.restic-password}"
 

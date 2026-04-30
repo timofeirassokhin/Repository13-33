@@ -11,8 +11,10 @@ services:
       OPENAI_API_BASE_URL: http://litellm:4000
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
       # Поведение
-      ENABLE_SIGNUP: "false"
-      DEFAULT_USER_ROLE: "pending"
+      # Первый зарегистрированный пользователь автоматически становится админом.
+      # После того, как ты создашь свой аккаунт, можно вернуть SIGNUP=false и USER_ROLE=pending.
+      ENABLE_SIGNUP: "true"
+      DEFAULT_USER_ROLE: "admin"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

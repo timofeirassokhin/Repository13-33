@@ -1,0 +1,31 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Layout title={post.data.title} description={post.data.description}>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p class="meta">
+      <time datetime={post.data.date.toISOString()}>
+        {post.data.date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </time>
+      {post.data.tags && post.data.tags.length > 0 && (
+        <span> · {post.data.tags.join(', ')}</span>
+      )}
+    </p>
+    <Content />
+  </article>
+  <p style="margin-top: 3rem;"><a href="/">← На главную</a></p>
+</Layout>

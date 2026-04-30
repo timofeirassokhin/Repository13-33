@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const posts = await getCollection('posts');
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout title="13-33.pro" description="Личный сайт и заметки">
+  <h1>13-33.pro</h1>
+  <p>Личное пространство — заметки, проекты, мысли. Страницы появляются по мере появления.</p>
+
+  {posts.length > 0 ? (
+    <ul class="posts">
+      {posts.map((p) => (
+        <li>
+          <a href={`/${p.id}/`}>{p.data.title}</a>
+          <div class="meta">
+            <time datetime={p.data.date.toISOString()}>
+              {p.data.date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+            {p.data.description && <span> — {p.data.description}</span>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="meta">Пока пусто.</p>
+  )}
+</Layout>

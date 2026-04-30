@@ -1,0 +1,29 @@
+services:
+  bot:
+    build:
+      context: ../..        # репозиторий целиком (нужен src/ и requirements.txt)
+      dockerfile: infra/bot/Dockerfile
+    image: pa-bot:local
+    container_name: pa-bot
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - bot_data:/app/data
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.bot.rule=Host(`bot.${DOMAIN}`)
+      - traefik.http.routers.bot.entrypoints=websecure
+      - traefik.http.routers.bot.tls.certresolver=letsencrypt
+      - traefik.http.routers.bot.middlewares=secure-headers@docker
+      - traefik.http.services.bot.loadbalancer.server.port=8443
+
+volumes:
+  bot_data:
+
+networks:
+  proxy:
+    external: true

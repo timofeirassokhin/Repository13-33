@@ -6,7 +6,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-for d in traefik twenty n8n qdrant litellm openwebui openclaw; do
+for d in traefik twenty n8n qdrant litellm openwebui openclaw bot; do
   if [[ -d "$d" ]]; then
     if [[ -L "$d/.env" || -e "$d/.env" ]]; then
       echo "skip $d/.env (уже есть)"

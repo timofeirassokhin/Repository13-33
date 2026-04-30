@@ -1,0 +1,25 @@
+# Telegram bot
+python-telegram-bot[ext]==22.6
+
+# Google APIs
+google-api-python-client==2.166.0
+google-auth==2.38.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+
+# Async database
+aiosqlite==0.21.0
+
+# Config and validation
+pydantic==2.10.6
+pydantic-settings==2.8.1
+
+# Webhook server for OAuth callback
+aiohttp==3.11.14
+
+# Dev / Testing
+pytest==8.3.4
+pytest-asyncio==0.25.3
+pytest-cov==6.0.0
+ruff==0.9.6
+mypy==1.15.0

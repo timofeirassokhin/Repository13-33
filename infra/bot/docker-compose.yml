@@ -1,11 +1,38 @@
 services:
+  # Cloudflare WARP в виде SOCKS5-прокси (порт 1080).
+  # Нужен потому, что российский хостинг режет прямой outbound к api.telegram.org.
+  warp:
+    image: caomingjun/warp:latest
+    container_name: warp
+    restart: unless-stopped
+    cap_add:
+      - MKNOD
+      - AUDIT_WRITE
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - warp_data:/var/lib/cloudflare-warp
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS --max-time 5 --proxy socks5://127.0.0.1:1080 https://api.cloudflare.com/cdn-cgi/trace || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   bot:
     build:
-      context: ../..        # репозиторий целиком (нужен src/ и requirements.txt)
+      context: ../..
       dockerfile: infra/bot/Dockerfile
     image: pa-bot:local
     container_name: pa-bot
     restart: unless-stopped
+    depends_on:
+      warp:
+        condition: service_healthy
     env_file:
       - ../.env
     volumes:
@@ -23,6 +50,7 @@ services:
 
 volumes:
   bot_data:
+  warp_data:
 
 networks:
   proxy:

@@ -26,11 +26,19 @@ class TelegramBot:
         self._app: Application | None = None  # type: ignore[type-arg]
 
     async def start(self) -> None:
-        self._app = (
+        builder = (
             ApplicationBuilder()
             .token(self._settings.telegram_bot_token.get_secret_value())
-            .build()
         )
+
+        # Прокси для outbound к api.telegram.org (нужен на хостингах,
+        # где прямой доступ к Telegram заблокирован).
+        proxy = self._settings.telegram_proxy
+        if proxy:
+            logger.info("Telegram bot will use proxy: %s", proxy)
+            builder = builder.proxy(proxy).get_updates_proxy(proxy)
+
+        self._app = builder.build()
 
         # Store shared objects in bot_data
         self._app.bot_data["dispatcher"] = self._dispatcher

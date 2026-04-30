@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # Telegram
     telegram_bot_token: SecretStr
     telegram_allowed_user_ids: list[int] = []
+    # Опциональный прокси для api.telegram.org (если хостинг режет outbound).
+    # Поддерживается socks5://, socks5h://, http://, https:// (см. httpx).
+    telegram_proxy: str = ""
 
     # Google OAuth2
     google_client_id: str = ""

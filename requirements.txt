@@ -1,5 +1,5 @@
-# Telegram bot
-python-telegram-bot[ext]==22.6
+# Telegram bot ([socks] добавляет socksio для SOCKS5-прокси через Cloudflare WARP)
+python-telegram-bot[ext,socks]==22.6
 
 # Google APIs
 google-api-python-client==2.166.0

@@ -1,6 +1,6 @@
 services:
   twenty-server:
-    image: twentycrm/twenty:latest
+    image: twentycrm/twenty:v2.1
     container_name: twenty-server
     restart: unless-stopped
     depends_on:
@@ -32,7 +32,7 @@ services:
       - traefik.http.services.twenty.loadbalancer.server.port=3000
 
   twenty-worker:
-    image: twentycrm/twenty:latest
+    image: twentycrm/twenty:v2.1
     container_name: twenty-worker
     restart: unless-stopped
     depends_on:

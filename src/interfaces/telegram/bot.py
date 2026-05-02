@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from src.config import Settings
     from src.db.repositories.user_repo import UserRepository
     from src.services.llm import LLMClient
+    from src.services.mempalace import MempalaceClient
     from src.services.transcribe import TranscribeService
     from src.services.twenty import TwentyClient
 
@@ -25,6 +26,7 @@ class TelegramBot:
         twenty: TwentyClient | None = None,
         transcribe: TranscribeService | None = None,
         llm: LLMClient | None = None,
+        mempalace: MempalaceClient | None = None,
     ) -> None:
         self._settings = settings
         self._dispatcher = dispatcher
@@ -32,6 +34,7 @@ class TelegramBot:
         self._twenty = twenty
         self._transcribe = transcribe
         self._llm = llm
+        self._mempalace = mempalace
         self._app: Application | None = None  # type: ignore[type-arg]
 
     async def start(self) -> None:
@@ -56,6 +59,7 @@ class TelegramBot:
         self._app.bot_data["twenty"] = self._twenty
         self._app.bot_data["transcribe"] = self._transcribe
         self._app.bot_data["llm"] = self._llm
+        self._app.bot_data["mempalace"] = self._mempalace
 
         self._register_handlers()
 
@@ -74,7 +78,8 @@ class TelegramBot:
     def _register_handlers(self) -> None:
         assert self._app is not None
         from src.interfaces.telegram.handlers import (
-            auth, calendar, common, draft, files, idea, iterate, listing, notes, voice,
+            archive, auth, calendar, common, draft, files, idea, iterate, library,
+            listing, notes, voice,
         )
 
         common.register(self._app)
@@ -86,5 +91,7 @@ class TelegramBot:
         draft.register(self._app)
         iterate.register(self._app)
         listing.register(self._app)
+        archive.register(self._app)
+        library.register(self._app)
         # idea — последним, так как ловит plain text без команд
         idea.register(self._app)

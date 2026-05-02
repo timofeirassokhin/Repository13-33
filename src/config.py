@@ -38,6 +38,12 @@ class Settings(BaseSettings):
         validation_alias="LITELLM_MASTER_KEY",
     )
 
+    # MemPalace (server-side архив 13-33)
+    mempalace_url: str = Field(
+        default="http://mempalace:8080",
+        validation_alias="MEMPALACE_URL",
+    )
+
     # Telegram
     telegram_bot_token: SecretStr
     telegram_allowed_user_ids: list[int] = []

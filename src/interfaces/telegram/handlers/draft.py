@@ -45,6 +45,35 @@ async def _resolve_idea(twenty, partial_id: str) -> dict | None:
     return None
 
 
+async def _fetch_library_context(bot_data: dict, idea_description: str) -> str:
+    """Достать топ-3 релевантных drawer из MemPalace для подмешивания в prompt.
+
+    Без MemPalace или при ошибке — возвращает пустую строку, генерация продолжается без контекста.
+    """
+    mempalace = bot_data.get("mempalace")
+    if mempalace is None:
+        return ""
+    try:
+        results = await mempalace.search(idea_description, n_results=3, max_distance=1.3)
+    except Exception:
+        logger.exception("Mempalace search failed (non-fatal — генерируем без контекста)")
+        return ""
+    if not results:
+        return ""
+    parts = ["## Контекст из библиотеки 13-33"]
+    parts.append(
+        "Ниже релевантные фрагменты из нашего архива. Используй как фон и опору — "
+        "помогают точнее попасть в смысл и язык. Не цитируй дословно если не указано явно."
+    )
+    for i, r in enumerate(results, 1):
+        meta = r.get("metadata") or {}
+        title = meta.get("title") or "(фрагмент)"
+        wing = meta.get("wing", "?")
+        snippet = (r.get("content") or "")[:1500]
+        parts.append(f"\n### Источник {i}: {title} [{wing}]\n{snippet}")
+    return "\n".join(parts)
+
+
 async def _generate_one_variant(
     bot_data: dict, idea: dict, channel: dict, variant: str
 ) -> tuple[str, dict]:
@@ -61,7 +90,7 @@ async def _generate_one_variant(
     direction_name = (idea.get("direction") or {}).get("name") if idea.get("direction") else None
     topic_name = (idea.get("topic") or {}).get("name") if idea.get("topic") else None
 
-    user_prompt = build_draft_prompt(
+    base_prompt = build_draft_prompt(
         idea_description=idea["description"],
         channel_code=code,
         channel_handle=channel.get("handle") or "",
@@ -70,6 +99,10 @@ async def _generate_one_variant(
         topic_name=topic_name,
         variant=variant,
     )
+
+    # Подмешиваем контекст из MemPalace (топ-3 релевантных drawers)
+    library_context = await _fetch_library_context(bot_data, idea["description"])
+    user_prompt = f"{library_context}\n\n{base_prompt}" if library_context else base_prompt
 
     # Pass 1: Sonnet пишет под brand voice + подход
     raw = await llm.creative(BRAND_VOICE_SYSTEM, user_prompt, max_tokens=1800)

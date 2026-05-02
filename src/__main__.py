@@ -16,6 +16,7 @@ from src.services.file_sorter_service import FileSorterService
 from src.services.twenty import TwentyClient
 from src.services.transcribe import TranscribeService
 from src.services.llm import LLMClient
+from src.services.mempalace import MempalaceClient
 from src.agent.dispatcher import AgentDispatcher
 from src.interfaces.telegram.bot import TelegramBot
 from src.interfaces.webhook.oauth_callback import OAuthCallbackServer
@@ -60,6 +61,12 @@ async def main() -> None:
     else:
         logger.warning("LLMClient disabled (LITELLM_MASTER_KEY не задан)")
 
+    mempalace = MempalaceClient(settings) if settings.mempalace_url else None
+    if mempalace:
+        logger.info("MempalaceClient enabled (URL=%s)", settings.mempalace_url)
+    else:
+        logger.warning("MempalaceClient disabled (MEMPALACE_URL не задан)")
+
     # Agent dispatcher
     dispatcher = AgentDispatcher(
         auth_service=auth_service,
@@ -71,7 +78,7 @@ async def main() -> None:
     # Interfaces
     bot = TelegramBot(
         settings, dispatcher, user_repo,
-        twenty=twenty, transcribe=transcribe, llm=llm,
+        twenty=twenty, transcribe=transcribe, llm=llm, mempalace=mempalace,
     )
     oauth_server = OAuthCallbackServer(auth_service, settings)
 
@@ -107,6 +114,8 @@ async def main() -> None:
         await transcribe.close()
     if llm:
         await llm.close()
+    if mempalace:
+        await mempalace.close()
     await db.disconnect()
     logger.info("Goodbye!")
 

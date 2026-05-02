@@ -36,9 +36,10 @@ services:
     environment:
       # Twenty доступен через внутренний docker hostname — быстрее, без хаирпина NAT
       TWENTY_API_URL: http://twenty-server:3000
-      # LiteLLM и Whisper тоже на внутренней docker-сети
+      # LiteLLM, Whisper, MemPalace на внутренней docker-сети
       LITELLM_URL: http://litellm:4000
       WHISPER_URL: http://whisper:9000
+      MEMPALACE_URL: http://mempalace:8080
     env_file:
       - ../.env
     volumes:

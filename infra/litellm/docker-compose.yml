@@ -1,6 +1,9 @@
 services:
   litellm:
-    image: ghcr.io/berriai/litellm:main-latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: litellm-with-socks:local
     container_name: litellm
     restart: unless-stopped
     environment:

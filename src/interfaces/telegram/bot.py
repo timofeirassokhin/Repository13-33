@@ -74,7 +74,7 @@ class TelegramBot:
     def _register_handlers(self) -> None:
         assert self._app is not None
         from src.interfaces.telegram.handlers import (
-            auth, calendar, common, draft, files, idea, listing, notes, voice,
+            auth, calendar, common, draft, files, idea, iterate, listing, notes, voice,
         )
 
         common.register(self._app)
@@ -84,6 +84,7 @@ class TelegramBot:
         files.register(self._app)
         voice.register(self._app)
         draft.register(self._app)
+        iterate.register(self._app)
         listing.register(self._app)
         # idea — последним, так как ловит plain text без команд
         idea.register(self._app)

@@ -71,3 +71,7 @@ class LLMClient:
     async def creative(self, system: str, user: str, max_tokens: int = 1500) -> str:
         """Sonnet — для контента (длинная проза, бренд-голос)."""
         return await self.chat("creative", system, user, max_tokens=max_tokens, temperature=0.7)
+
+    async def premium(self, system: str, user: str, max_tokens: int = 2000) -> str:
+        """Opus — для финальной итерации, особенно длинных и тонких текстов."""
+        return await self.chat("premium", system, user, max_tokens=max_tokens, temperature=0.7)

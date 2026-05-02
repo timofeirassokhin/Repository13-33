@@ -221,6 +221,35 @@ class TwentyClient:
         result.sort(key=lambda r: r.get("createdAt") or "", reverse=True)
         return result[:limit]
 
+    async def get_draft(self, draft_id: str) -> dict[str, Any] | None:
+        query = """
+        query GetDraft($id: UUID!) {
+          drafts(filter: { id: { eq: $id } }) {
+            edges {
+              node {
+                id name body tone length lifecycle author llmModel version
+                idea { id name description }
+                topic { id name }
+                channel { id name code handle channelType charLimit defaultTone }
+              }
+            }
+          }
+        }
+        """
+        data = await self.gql(query, {"id": draft_id})
+        edges = data["drafts"]["edges"]
+        if not edges:
+            return None
+        return edges[0]["node"]
+
+    async def find_drafts_by_partial_id(self, partial_id: str) -> list[dict[str, Any]]:
+        """Найти drafts по startswith UUID. Полезно для коротких ID в команд бота."""
+        if len(partial_id) == 36:
+            d = await self.get_draft(partial_id)
+            return [d] if d else []
+        all_drafts = await self.list_drafts(limit=100)
+        return [d for d in all_drafts if d.get("id", "").startswith(partial_id)]
+
     async def update_idea_lifecycle(self, idea_id: str, lifecycle: str) -> None:
         query = """
         mutation UpdateIdea($id: UUID!, $data: IdeaUpdateInput!) {

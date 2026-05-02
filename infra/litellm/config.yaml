@@ -21,6 +21,13 @@ model_list:
       api_key: os.environ/OPENROUTER_API_KEY
       api_base: https://openrouter.ai/api/v1
 
+  # --- Premium: для итерации/полировки финальных текстов на Opus ---
+  - model_name: premium
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
   # --- Прямые алиасы Anthropic-моделей через OpenRouter ---
   - model_name: claude-sonnet-4.5
     litellm_params:
@@ -31,6 +38,12 @@ model_list:
   - model_name: claude-haiku-4.5
     litellm_params:
       model: openrouter/anthropic/claude-haiku-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: claude-opus-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4.5
       api_key: os.environ/OPENROUTER_API_KEY
       api_base: https://openrouter.ai/api/v1
 

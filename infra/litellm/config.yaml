@@ -2,24 +2,39 @@
 # Документация: https://docs.litellm.ai/docs/proxy/configs
 #
 # 13-33 использует:
-#   cheap     — для рутины (классификация Direction/Topic, парсинг, summary голосовых)
-#   creative  — для генерации длинных текстов (Sonnet 4.7), под brand-13-33 voice
-#   ollama/*  — локальные модели как fallback или для совсем мелких задач
+#   cheap     — OpenRouter Haiku (через OR — обходит RU-блок Anthropic)
+#   creative  — OpenRouter Sonnet 4.5 (главная модель для брендового контента)
+#   ollama/*  — локальные модели для рутины (классификация, dedup, summary)
 
 model_list:
   # --- Cheap: дёшево, быстро, для технических задач ---
   - model_name: cheap
     litellm_params:
-      model: anthropic/claude-haiku-4-5
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: openrouter/anthropic/claude-haiku-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
 
-  # --- Creative: для контента 13-33 ---
+  # --- Creative: длинный осмысленный контент 13-33 ---
   - model_name: creative
     litellm_params:
-      model: anthropic/claude-sonnet-4-5
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: openrouter/anthropic/claude-sonnet-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
 
-  # --- Локальные через Ollama (fallback / без денег) ---
+  # --- Прямые алиасы Anthropic-моделей через OpenRouter ---
+  - model_name: claude-sonnet-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-sonnet-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: claude-haiku-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-haiku-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  # --- Локальные через Ollama (бесплатно, без сети) ---
   - model_name: ollama/qwen
     litellm_params:
       model: ollama/qwen2.5:7b
@@ -30,16 +45,16 @@ model_list:
       model: ollama/qwen2.5:0.5b
       api_base: http://host.docker.internal:11434
 
-  # --- Anthropic напрямую по имени модели (если producer хочет Claude явно) ---
-  - model_name: claude-sonnet-4-5
+  - model_name: ollama/llama
     litellm_params:
-      model: anthropic/claude-sonnet-4-5
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: ollama/llama3.2:3b
+      api_base: http://host.docker.internal:11434
 
-  - model_name: claude-haiku-4-5
-    litellm_params:
-      model: anthropic/claude-haiku-4-5
-      api_key: os.environ/ANTHROPIC_API_KEY
+  # --- Раскомментируй после `ollama pull gemma2:9b` ---
+  # - model_name: ollama/gemma
+  #   litellm_params:
+  #     model: ollama/gemma2:9b
+  #     api_base: http://host.docker.internal:11434
 
 litellm_settings:
   drop_params: true

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # Опциональный прокси для api.telegram.org (если хостинг режет outbound).
     # Поддерживается socks5://, socks5h://, http://, https:// (см. httpx).
     telegram_proxy: str = ""
+    # ID Telegram-канала для постинга (формат: -100xxxxxxxxxx).
+    # Бот должен быть админом канала с правом "Публиковать сообщения".
+    telegram_channel_id: int = 0
 
     # Google OAuth2
     google_client_id: str = ""

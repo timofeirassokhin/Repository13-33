@@ -11,6 +11,8 @@ services:
     volumes:
       # Persistent storage для палаты — chroma DB + KG sqlite
       - mempalace_data:/data
+      # Cache моделей (chroma sentence-transformers ~80MB) — чтобы не качать при recreate
+      - mempalace_cache:/root/.cache
     networks:
       - proxy
     healthcheck:
@@ -22,6 +24,7 @@ services:
 
 volumes:
   mempalace_data:
+  mempalace_cache:
 
 networks:
   proxy:

@@ -21,3 +21,6 @@ echo "LITELLM_MASTER_KEY=sk-$(rand_hex 24)"
 echo "LITELLM_SALT_KEY=$(rand_hex 32)"
 echo
 echo "WEBUI_SECRET_KEY=$(rand_hex 32)"
+echo
+echo "# WebDAV — пароль для drive.13-33.pro (basic auth)"
+echo "WEBDAV_PASSWORD=$(rand_b64 18 | tr -d '/+=' | head -c 24)"

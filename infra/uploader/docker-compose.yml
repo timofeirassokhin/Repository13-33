@@ -1,0 +1,30 @@
+services:
+  uploader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: uploader-13-33:local
+    container_name: uploader
+    restart: unless-stopped
+    environment:
+      MEMPALACE_URL: http://mempalace:8080
+      UPLOADS_PATH: /uploads
+      WATCH_INTERVAL: 30
+    volumes:
+      # Тот же volume что использует webdav — единая точка истины для inbox
+      - mempalace_uploads:/uploads
+    networks:
+      - proxy
+    # Watch mode по умолчанию (см. CMD в Dockerfile)
+    # Для one-shot запуска:
+    #   docker compose run --rm uploader python uploader.py process-all
+    #   docker compose run --rm uploader python uploader.py process /uploads/inbox/books/some.pdf
+
+volumes:
+  mempalace_uploads:
+    name: mempalace_uploads
+    external: true   # уже создан webdav-стеком
+
+networks:
+  proxy:
+    external: true

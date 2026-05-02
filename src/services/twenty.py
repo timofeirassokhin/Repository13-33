@@ -110,4 +110,125 @@ class TwentyClient:
         result = [e["node"] for e in edges]
         if status:
             result = [r for r in result if r.get("lifecycle") == status]
+        # Сортируем по capturedAt desc, обрезаем до limit
+        result.sort(key=lambda r: r.get("capturedAt") or "", reverse=True)
         return result[:limit]
+
+    async def get_idea(self, idea_id: str) -> dict[str, Any] | None:
+        """Достать Idea по UUID, со связанными Direction/Topic."""
+        query = """
+        query GetIdea($id: UUID!) {
+          ideas(filter: { id: { eq: $id } }) {
+            edges {
+              node {
+                id name description lifecycle source capturedAt
+                topic { id name }
+                direction { id name }
+              }
+            }
+          }
+        }
+        """
+        data = await self.gql(query, {"id": idea_id})
+        edges = data["ideas"]["edges"]
+        if not edges:
+            return None
+        return edges[0]["node"]
+
+    async def list_channels(self, enabled_only: bool = True) -> list[dict[str, Any]]:
+        """Все каналы (или только enabled=true)."""
+        query = """
+        query ListChannels {
+          channels {
+            edges {
+              node { id name code channelType handle charLimit defaultTone enabled }
+            }
+          }
+        }
+        """
+        data = await self.gql(query)
+        result = [e["node"] for e in data["channels"]["edges"]]
+        if enabled_only:
+            result = [c for c in result if c.get("enabled")]
+        return result
+
+    async def get_channel_by_code(self, code: str) -> dict[str, Any] | None:
+        for ch in await self.list_channels(enabled_only=False):
+            if ch.get("code") == code:
+                return ch
+        return None
+
+    async def create_draft(
+        self,
+        idea_id: str,
+        channel_id: str,
+        body: str,
+        tone: str = "2",
+        length: str = "medium",
+        topic_id: str | None = None,
+        author: str = "agent:producer_v1",
+        llm_model: str = "creative",
+    ) -> dict[str, Any]:
+        """Создаёт Draft в Twenty, связанный с Idea и Channel."""
+        first_line = body.strip().split("\n", 1)[0].strip()
+        name = first_line[:80] + ("..." if len(first_line) > 80 else "")
+        if not name:
+            name = "(без заголовка)"
+
+        data: dict[str, Any] = {
+            "name": name,
+            "body": body,
+            "tone": tone,
+            "length": length,
+            "lifecycle": "review",
+            "author": author,
+            "llmModel": llm_model,
+            "version": 1,
+            "ideaId": idea_id,
+            "channelId": channel_id,
+        }
+        if topic_id:
+            data["topicId"] = topic_id
+
+        query = """
+        mutation CreateDraft($data: DraftCreateInput!) {
+          createDraft(data: $data) {
+            id name lifecycle channelId
+          }
+        }
+        """
+        res = await self.gql(query, {"data": data})
+        return res["createDraft"]
+
+    async def list_drafts(self, lifecycle: str | None = None, limit: int = 10) -> list[dict[str, Any]]:
+        query = """
+        query ListDrafts {
+          drafts {
+            edges {
+              node {
+                id name lifecycle author createdAt
+                channel { id name code }
+                idea { id name }
+              }
+            }
+          }
+        }
+        """
+        data = await self.gql(query)
+        result = [e["node"] for e in data["drafts"]["edges"]]
+        if lifecycle:
+            result = [r for r in result if r.get("lifecycle") == lifecycle]
+        result.sort(key=lambda r: r.get("createdAt") or "", reverse=True)
+        return result[:limit]
+
+    async def update_idea_lifecycle(self, idea_id: str, lifecycle: str) -> None:
+        query = """
+        mutation UpdateIdea($id: UUID!, $data: IdeaUpdateInput!) {
+          updateIdea(id: $id, data: $data) { id lifecycle }
+        }
+        """
+        from datetime import datetime, timezone
+        data: dict[str, Any] = {"lifecycle": lifecycle}
+        if lifecycle == "processed":
+            data["processedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        await self.gql(query, {"id": idea_id, "data": data})

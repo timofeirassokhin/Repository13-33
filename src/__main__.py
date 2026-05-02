@@ -15,6 +15,7 @@ from src.services.notes_service import NotesService
 from src.services.file_sorter_service import FileSorterService
 from src.services.twenty import TwentyClient
 from src.services.transcribe import TranscribeService
+from src.services.llm import LLMClient
 from src.agent.dispatcher import AgentDispatcher
 from src.interfaces.telegram.bot import TelegramBot
 from src.interfaces.webhook.oauth_callback import OAuthCallbackServer
@@ -53,6 +54,12 @@ async def main() -> None:
     else:
         logger.warning("TranscribeService disabled (WHISPER_URL не задан)")
 
+    llm = LLMClient(settings) if settings.litellm_master_key.get_secret_value() else None
+    if llm:
+        logger.info("LLMClient enabled (URL=%s)", settings.litellm_url)
+    else:
+        logger.warning("LLMClient disabled (LITELLM_MASTER_KEY не задан)")
+
     # Agent dispatcher
     dispatcher = AgentDispatcher(
         auth_service=auth_service,
@@ -62,7 +69,10 @@ async def main() -> None:
     )
 
     # Interfaces
-    bot = TelegramBot(settings, dispatcher, user_repo, twenty=twenty, transcribe=transcribe)
+    bot = TelegramBot(
+        settings, dispatcher, user_repo,
+        twenty=twenty, transcribe=transcribe, llm=llm,
+    )
     oauth_server = OAuthCallbackServer(auth_service, settings)
 
     # Start
@@ -95,6 +105,8 @@ async def main() -> None:
         await twenty.close()
     if transcribe:
         await transcribe.close()
+    if llm:
+        await llm.close()
     await db.disconnect()
     logger.info("Goodbye!")
 

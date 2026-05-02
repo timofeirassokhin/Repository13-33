@@ -69,7 +69,8 @@ class TwentyClient:
         if not name:
             name = "(без заголовка)"
 
-        captured_at = datetime.now(timezone.utc).isoformat()
+        # Twenty требует формат "YYYY-MM-DDTHH:mm:ssZ" (без миллисекунд, Z вместо +00:00)
+        captured_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         query = """
         mutation CreateIdea($data: IdeaCreateInput!) {

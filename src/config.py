@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,6 +10,16 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         env_prefix="PA_",
         case_sensitive=False,
+    )
+
+    # Twenty CRM (без PA_-префикса — общий с инфра-скриптами)
+    twenty_api_url: str = Field(
+        default="https://crm.13-33.pro",
+        validation_alias="TWENTY_API_URL",
+    )
+    twenty_api_key: SecretStr = Field(
+        default=SecretStr(""),
+        validation_alias="TWENTY_API_KEY",
     )
 
     # Telegram

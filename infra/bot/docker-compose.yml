@@ -33,6 +33,9 @@ services:
     depends_on:
       warp:
         condition: service_healthy
+    environment:
+      # Twenty доступен через внутренний docker hostname — быстрее, без хаирпина NAT
+      TWENTY_API_URL: http://twenty-server:3000
     env_file:
       - ../.env
     volumes:

@@ -13,6 +13,7 @@ from src.services.google_auth import GoogleAuthService
 from src.services.calendar_service import CalendarService
 from src.services.notes_service import NotesService
 from src.services.file_sorter_service import FileSorterService
+from src.services.twenty import TwentyClient
 from src.agent.dispatcher import AgentDispatcher
 from src.interfaces.telegram.bot import TelegramBot
 from src.interfaces.webhook.oauth_callback import OAuthCallbackServer
@@ -39,6 +40,11 @@ async def main() -> None:
     calendar_service = CalendarService(db, settings, auth_service)
     notes_service = NotesService(db, settings, auth_service)
     file_sorter_service = FileSorterService(db, settings, auth_service)
+    twenty = TwentyClient(settings) if settings.twenty_api_key.get_secret_value() else None
+    if twenty:
+        logger.info("TwentyClient enabled (URL=%s)", settings.twenty_api_url)
+    else:
+        logger.warning("TwentyClient disabled (TWENTY_API_KEY не задан)")
 
     # Agent dispatcher
     dispatcher = AgentDispatcher(
@@ -49,7 +55,7 @@ async def main() -> None:
     )
 
     # Interfaces
-    bot = TelegramBot(settings, dispatcher, user_repo)
+    bot = TelegramBot(settings, dispatcher, user_repo, twenty=twenty)
     oauth_server = OAuthCallbackServer(auth_service, settings)
 
     # Start
@@ -78,6 +84,8 @@ async def main() -> None:
     logger.info("Shutting down...")
     await bot.stop()
     await oauth_server.stop()
+    if twenty:
+        await twenty.close()
     await db.disconnect()
     logger.info("Goodbye!")
 

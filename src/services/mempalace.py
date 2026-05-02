@@ -101,10 +101,24 @@ class MempalaceClient:
             payload["room"] = room
         r = await c.post("/search", json=payload)
         r.raise_for_status()
-        results = r.json().get("results", [])
+        raw = r.json().get("results", [])
+        # Defensive normalization — некоторые версии mempalace возвращают строки,
+        # новые — dict'и. Поддерживаем оба формата.
+        normalized: list[dict[str, Any]] = []
+        for res in raw:
+            if isinstance(res, dict):
+                normalized.append(res)
+            elif isinstance(res, str):
+                normalized.append({
+                    "id": "",
+                    "content": res,
+                    "metadata": {},
+                    "distance": 0.0,
+                })
+            # игнорируем остальное
         # Отфильтровать system_init placeholder'ы
         return [
-            res for res in results
+            res for res in normalized
             if (res.get("metadata") or {}).get("added_by") != "system_init"
         ]
 

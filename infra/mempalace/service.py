@@ -200,42 +200,37 @@ def delete_drawer(drawer_id: str) -> dict[str, Any]:
 
 @app.post("/search")
 def search(req: SearchRequest) -> dict[str, Any]:
-    """Семантический поиск. Возвращает список drawers, отсортированных по релевантности."""
-    try:
-        from mempalace.searcher import search_memories  # type: ignore
-        results = search_memories(
-            req.query,
-            palace_path=str(PALACE_PATH),
-            wing=req.wing,
-            room=req.room,
-            n_results=req.n_results,
-            max_distance=req.max_distance,
-            vector_disabled=False,
-        )
-    except ImportError:
-        # fallback на ручной search через collection.query
-        col = _get_col()
-        where: dict[str, Any] = {}
-        if req.wing:
-            where["wing"] = req.wing
-        if req.room:
-            where["room"] = req.room
-        kw = {"query_texts": [req.query], "n_results": req.n_results}
-        if where:
-            kw["where"] = where
-        raw = col.query(**kw)
-        results = []
-        ids = (raw.get("ids") or [[]])[0]
-        docs = (raw.get("documents") or [[]])[0]
-        metas = (raw.get("metadatas") or [[]])[0]
-        dists = (raw.get("distances") or [[]])[0]
-        for i, did in enumerate(ids):
-            results.append({
-                "id": did,
-                "content": docs[i] if i < len(docs) else "",
-                "metadata": metas[i] if i < len(metas) else {},
-                "distance": dists[i] if i < len(dists) else 1.0,
-            })
+    """Семантический поиск через Chroma collection.query — стабильный формат ответа."""
+    col = _get_col()
+    where: dict[str, Any] = {}
+    if req.wing:
+        where["wing"] = req.wing
+    if req.room:
+        where["room"] = req.room
+    kw: dict[str, Any] = {
+        "query_texts": [req.query],
+        "n_results": req.n_results,
+        "include": ["documents", "metadatas", "distances"],
+    }
+    if where:
+        kw["where"] = where
+    raw = col.query(**kw)
+    ids = (raw.get("ids") or [[]])[0]
+    docs = (raw.get("documents") or [[]])[0]
+    metas = (raw.get("metadatas") or [[]])[0]
+    dists = (raw.get("distances") or [[]])[0]
+    results = []
+    for i, did in enumerate(ids):
+        dist = dists[i] if i < len(dists) else 1.0
+        # max_distance фильтр
+        if dist > req.max_distance:
+            continue
+        results.append({
+            "id": did,
+            "content": docs[i] if i < len(docs) else "",
+            "metadata": metas[i] if i < len(metas) else {},
+            "distance": dist,
+        })
     return {"results": results, "count": len(results)}
 
 

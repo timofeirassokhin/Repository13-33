@@ -1,6 +1,7 @@
 """Handler /library_search и /library_wings — поиск в MemPalace 13-33."""
 from __future__ import annotations
 
+import html
 import logging
 
 from telegram import Update
@@ -53,33 +54,34 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     if not results:
         await msg.reply_text(
-            f"Ничего не найдено по запросу «{query}»"
-            + (f" в wing `{wing_filter}`" if wing_filter else "")
+            f"Ничего не найдено по запросу «{html.escape(query)}»"
+            + (f" в wing <code>{html.escape(wing_filter)}</code>" if wing_filter else "")
             + ".",
-            parse_mode="Markdown",
+            parse_mode="HTML",
         )
         return
 
-    lines = [f"🔎 Найдено {len(results)} drawer(ов) по запросу «{query}»:\n"]
+    lines = [f"🔎 Найдено {len(results)} drawer(ов) по запросу «{html.escape(query)}»:\n"]
     for i, r in enumerate(results, 1):
         meta = r.get("metadata") or {}
         wing = meta.get("wing", "?")
-        title = meta.get("title") or ""
+        title = meta.get("title") or "(без заголовка)"
         snippet = (r.get("content") or "")[:200].replace("\n", " ")
         if len(snippet) == 200:
             snippet += "…"
         distance = r.get("distance", 0)
-        relevance = max(0, 100 - int(distance * 50))  # грубая оценка
+        relevance = max(0, 100 - int(distance * 50))
+        # HTML-escape всё что может содержать пользовательский контент
         lines.append(
-            f"*{i}. {title or '(без заголовка)'}* `[{wing}]` ~{relevance}%\n"
-            f"   id: `{r['id']}`\n"
-            f"   {snippet}\n"
+            f"<b>{i}. {html.escape(title)}</b> [<code>{html.escape(wing)}</code>] ~{relevance}%\n"
+            f"   id: <code>{html.escape(r.get('id', ''))}</code>\n"
+            f"   {html.escape(snippet)}\n"
         )
 
     text = "\n".join(lines)
     if len(text) > 4000:
         text = text[:3900] + "\n…(обрезано)"
-    await msg.reply_text(text, parse_mode="Markdown")
+    await msg.reply_text(text, parse_mode="HTML")
 
 
 async def wings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -98,12 +100,13 @@ async def wings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await msg.reply_text(f"❌ {e}")
         return
 
-    lines = ["*Wings палаты 13-33:*\n"]
+    lines = ["<b>Wings палаты 13-33:</b>\n"]
     for w in wings:
         # placeholder _init drawer не учитываем в "реальном" счёте
         real = max(0, w.get("drawer_count", 0) - 1)
-        lines.append(f"  • `{w['wing']}` — {real} drawer(ов)")
-    await msg.reply_text("\n".join(lines), parse_mode="Markdown")
+        wing_name = html.escape(w.get("wing", "?"))
+        lines.append(f"  • <code>{wing_name}</code> — {real} drawer(ов)")
+    await msg.reply_text("\n".join(lines), parse_mode="HTML")
 
 
 def register(app: Application) -> None:  # type: ignore[type-arg]

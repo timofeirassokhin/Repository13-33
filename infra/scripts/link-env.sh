@@ -14,7 +14,7 @@ if [[ ! -f "$ENV_PATH" ]]; then
   exit 1
 fi
 
-for d in traefik twenty n8n qdrant litellm openwebui openclaw bot whisper sites/13-33.pro; do
+for d in traefik twenty n8n qdrant litellm openwebui openclaw bot whisper mempalace sites/13-33.pro; do
   if [[ ! -d "$d" ]]; then
     echo "skip $d (no such directory)"
     continue

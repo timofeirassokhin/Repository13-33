@@ -1,0 +1,28 @@
+services:
+  mempalace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mempalace-13-33:local
+    container_name: mempalace
+    restart: unless-stopped
+    environment:
+      MEMPALACE_PALACE_PATH: /data/palace
+    volumes:
+      # Persistent storage для палаты — chroma DB + KG sqlite
+      - mempalace_data:/data
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  mempalace_data:
+
+networks:
+  proxy:
+    external: true

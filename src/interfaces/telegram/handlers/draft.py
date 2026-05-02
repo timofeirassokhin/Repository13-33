@@ -45,10 +45,13 @@ async def _resolve_idea(twenty, partial_id: str) -> dict | None:
     return None
 
 
-async def _generate_draft_for_channel(
-    bot_data: dict, idea: dict, channel: dict
+async def _generate_one_variant(
+    bot_data: dict, idea: dict, channel: dict, variant: str
 ) -> tuple[str, dict]:
-    """Сгенерировать body + создать Draft в Twenty. Возвращает (body, draft_record)."""
+    """Генерирует один draft (вариант A или B), сохраняет в Twenty.
+
+    Возвращает (body, draft_record).
+    """
     llm = bot_data["llm"]
     twenty = bot_data["twenty"]
 
@@ -65,19 +68,24 @@ async def _generate_draft_for_channel(
         tone=str(tone),
         direction_name=direction_name,
         topic_name=topic_name,
+        variant=variant,
     )
 
-    # Pass 1: Sonnet генерит черновой текст под brand voice
-    raw = await llm.creative(BRAND_VOICE_SYSTEM, user_prompt, max_tokens=1500)
+    # Pass 1: Sonnet пишет под brand voice + подход
+    raw = await llm.creative(BRAND_VOICE_SYSTEM, user_prompt, max_tokens=1800)
     raw = raw.strip()
 
-    # Pass 2: humanizer вычищает AI-tells (em-dash overuse, rule of three, filler-фразы и т.д.)
+    # Pass 2: humanizer вычищает AI-tells (em-dash, перечисления, fillers, резюме-финалы)
     try:
-        humanized = await llm.creative(HUMANIZER_SYSTEM, raw, max_tokens=1500)
+        humanized = await llm.creative(HUMANIZER_SYSTEM, raw, max_tokens=1800)
         body = humanized.strip()
     except Exception:
         logger.exception("Humanizer pass failed, using raw output")
         body = raw
+
+    # Префиксуем имя в Twenty чтобы было видно вариант
+    first_line = body.split("\n", 1)[0].strip()
+    name_with_variant = f"[{variant.upper()}] {first_line[:70]}"
 
     draft = await twenty.create_draft(
         idea_id=idea["id"],
@@ -85,7 +93,22 @@ async def _generate_draft_for_channel(
         body=body,
         tone=str(tone),
         length="medium" if code in ("tg", "fb", "vk") else "long",
+        author=f"agent:producer_v1:variant_{variant.upper()}",
     )
+    # Override name to include variant marker
+    try:
+        await twenty.gql(
+            """
+            mutation Rename($id: UUID!, $data: DraftUpdateInput!) {
+              updateDraft(id: $id, data: $data) { id name }
+            }
+            """,
+            {"id": draft["id"], "data": {"name": name_with_variant}},
+        )
+        draft["name"] = name_with_variant
+    except Exception:
+        logger.exception("Failed to set variant in draft name")
+
     return body, draft
 
 
@@ -131,26 +154,29 @@ async def draft_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await msg.reply_text("Нет включённых каналов.")
         return
 
+    total = len(channels) * 2  # 2 варианта на канал
     await msg.reply_text(
-        f"🪶 Генерирую {len(channels)} draft(а) для идеи *{idea['name']}*…\n"
-        f"_(Sonnet пишет → humanizer чистит, ~10-20 секунд на канал)_",
+        f"🪶 Генерирую {total} draft(ов) — {len(channels)} канал(а) × 2 варианта (A=рефлексия, B=расширение)…\n"
+        f"_(Sonnet пишет → humanizer чистит, ~15-25 секунд на вариант)_",
         parse_mode="Markdown",
     )
 
-    # 3. По каждому каналу — сгенерировать draft, выслать пользователю
+    # 3. По каждому каналу — два варианта (A и B), оба через humanizer
     for ch in channels:
-        try:
-            body, draft = await _generate_draft_for_channel(context.bot_data, idea, ch)
-            preview = body if len(body) <= 3500 else body[:3500] + "\n…(обрезан превью)"
-            await msg.reply_text(
-                f"📝 *{ch['name']}* ({ch['code']}, tone {ch.get('defaultTone') or '2'})\n"
-                f"draft id: `{draft['id']}`\n\n"
-                f"{preview}",
-                parse_mode="Markdown",
-            )
-        except Exception as e:
-            logger.exception("Draft generation failed for channel %s", ch.get("code"))
-            await msg.reply_text(f"❌ {ch.get('name')}: {e}")
+        for variant in ("A", "B"):
+            try:
+                body, draft = await _generate_one_variant(context.bot_data, idea, ch, variant)
+                preview = body if len(body) <= 3500 else body[:3500] + "\n…(обрезан превью)"
+                approach = "рефлексия" if variant == "A" else "расширение"
+                await msg.reply_text(
+                    f"📝 *{ch['name']}* — вариант *{variant}* ({approach}, tone {ch.get('defaultTone') or '2'})\n"
+                    f"draft id: `{draft['id']}`\n\n"
+                    f"{preview}",
+                    parse_mode="Markdown",
+                )
+            except Exception as e:
+                logger.exception("Draft generation failed for channel %s variant %s", ch.get("code"), variant)
+                await msg.reply_text(f"❌ {ch.get('name')} вариант {variant}: {e}")
 
     # 4. Обновить Idea.lifecycle = processed
     try:

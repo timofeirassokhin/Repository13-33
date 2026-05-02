@@ -210,13 +210,15 @@ def create_relation(token: str, source_object_id: str, target_object_id: str,
 # Data API operations
 # ----------------------------------------------------------------------------
 
-def create_record(token: str, object_plural: str, data: dict) -> dict:
-    # Twenty mutation name pattern: createOneDirection / createOneChannel / etc.
-    # для plural "directions" → singular "direction" → "createOneDirection"
-    singular = object_plural.rstrip("s")  # rough — works for our naming
-    mutation_name = f"createOne{singular[0].upper()}{singular[1:]}"
+def create_record(token: str, object_singular: str, data: dict) -> dict:
+    """Создаёт одну запись через mutation create{Singular}(data: {Singular}CreateInput).
+
+    Twenty 2.x использует именно такую форму (без 'One'-префикса).
+    """
+    cap = object_singular[0].upper() + object_singular[1:]
+    mutation_name = f"create{cap}"
     q = f"""
-    mutation Create($data: {singular[0].upper()}{singular[1:]}CreateInput!) {{
+    mutation Create($data: {cap}CreateInput!) {{
       {mutation_name}(data: $data) {{ id name }}
     }}
     """
@@ -371,7 +373,7 @@ def main() -> None:
     ]
     for d in directions_data:
         log(f"Direction: {d['name']}")
-        create_record(token, "directions", {**d, "isActive": True})
+        create_record(token, "direction", {**d, "isActive": True})
 
     channels_data = [
         {"name": "Telegram-канал",  "code": "tg",   "channelType": "telegram", "handle": "@prostranstvo1333",          "charLimit": 4096,   "defaultTone": "2", "enabled": True},
@@ -382,7 +384,7 @@ def main() -> None:
     ]
     for c in channels_data:
         log(f"Channel: {c['name']}")
-        create_record(token, "channels", c)
+        create_record(token, "channel", c)
 
     print("\n" + "=" * 60)
     if FAILED_FIELDS:

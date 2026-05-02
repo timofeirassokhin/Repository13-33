@@ -131,10 +131,19 @@ def create_object(token: str, name_singular: str, name_plural: str,
     return data["createOneObject"]["id"]
 
 
+FAILED_FIELDS: list[tuple[str, str, str]] = []  # (object_label, field_name, error)
+
+
 def create_field(token: str, object_id: str, name: str, label: str, field_type: str,
                  options: list[dict] | None = None,
-                 default_value=None) -> str:
-    """Create scalar field. field_type is one of: TEXT, NUMBER, BOOLEAN, DATE_TIME, SELECT, MULTI_SELECT."""
+                 default_value=None,
+                 object_label: str = "") -> str | None:
+    """Create scalar field. field_type is one of: TEXT, NUMBER, BOOLEAN, DATE_TIME, SELECT, MULTI_SELECT.
+
+    Логирует каждую попытку. При ошибке записывает в FAILED_FIELDS и возвращает None,
+    скрипт продолжает работу.
+    """
+    print(f"    + field {name} ({field_type})", flush=True)
     q = """
     mutation CreateOneField($input: CreateOneFieldMetadataInput!) {
       createOneField(input: $input) {
@@ -154,8 +163,14 @@ def create_field(token: str, object_id: str, name: str, label: str, field_type: 
     if default_value is not None:
         field["defaultValue"] = default_value
     variables = {"input": {"field": field}}
-    data = gql(META_URL, q, variables, token=token)
-    return data["createOneField"]["id"]
+    try:
+        data = gql(META_URL, q, variables, token=token)
+        return data["createOneField"]["id"]
+    except SystemExit as e:
+        err = str(e)[:300]
+        FAILED_FIELDS.append((object_label, name, err))
+        print(f"      ⚠️  FAILED: {err.splitlines()[0]}", flush=True)
+        return None
 
 
 def create_relation(token: str, source_object_id: str, target_object_id: str,
@@ -249,76 +264,76 @@ def main() -> None:
     log("создаю Direction")
     direction_id = create_object(token, "direction", "directions", "Direction", "Directions",
                                   "IconCompass", "Top-level направление контента 13-33")
-    create_field(token, direction_id, "slug", "Slug", "TEXT")
-    create_field(token, direction_id, "description", "Description", "TEXT")
-    create_field(token, direction_id, "color", "Color", "TEXT")
-    create_field(token, direction_id, "ornament", "Ornament", "TEXT")
-    create_field(token, direction_id, "isActive", "Is Active", "BOOLEAN", default_value=True)
+    create_field(token, direction_id, "slug", "Slug", "TEXT", object_label="Direction")
+    create_field(token, direction_id, "description", "Description", "TEXT", object_label="Direction")
+    create_field(token, direction_id, "color", "Color", "TEXT", object_label="Direction")
+    create_field(token, direction_id, "ornament", "Ornament", "TEXT", object_label="Direction")
+    create_field(token, direction_id, "isActive", "Is Active", "BOOLEAN", object_label="Direction")
 
     # --- Channel
     log("создаю Channel")
     channel_id = create_object(token, "channel", "channels", "Channel", "Channels",
                                 "IconBroadcast", "Канал публикации (TG, FB, VK, Дзен, сайт)")
-    create_field(token, channel_id, "code", "Code", "TEXT")
-    create_field(token, channel_id, "channelType", "Channel Type", "TEXT")
-    create_field(token, channel_id, "handle", "Handle", "TEXT")
-    create_field(token, channel_id, "charLimit", "Char Limit", "NUMBER")
-    create_field(token, channel_id, "defaultTone", "Default Tone", "TEXT")
-    create_field(token, channel_id, "enabled", "Enabled", "BOOLEAN", default_value=True)
+    create_field(token, channel_id, "code", "Code", "TEXT", object_label="Channel")
+    create_field(token, channel_id, "channelType", "Channel Type", "TEXT", object_label="Channel")
+    create_field(token, channel_id, "handle", "Handle", "TEXT", object_label="Channel")
+    create_field(token, channel_id, "charLimit", "Char Limit", "NUMBER", object_label="Channel")
+    create_field(token, channel_id, "defaultTone", "Default Tone", "TEXT", object_label="Channel")
+    create_field(token, channel_id, "enabled", "Enabled", "BOOLEAN", object_label="Channel")
 
     # --- Topic (с релейшеном к Direction)
     log("создаю Topic")
     topic_id = create_object(token, "topic", "topics", "Topic", "Topics",
                              "IconTag", "Тема внутри Direction")
-    create_field(token, topic_id, "slug", "Slug", "TEXT")
-    create_field(token, topic_id, "description", "Description", "TEXT")
-    create_field(token, topic_id, "color", "Color", "TEXT")
-    create_field(token, topic_id, "ornament", "Ornament", "TEXT")
-    create_field(token, topic_id, "isActive", "Is Active", "BOOLEAN", default_value=True)
+    create_field(token, topic_id, "slug", "Slug", "TEXT", object_label="Topic")
+    create_field(token, topic_id, "description", "Description", "TEXT", object_label="Topic")
+    create_field(token, topic_id, "color", "Color", "TEXT", object_label="Topic")
+    create_field(token, topic_id, "ornament", "Ornament", "TEXT", object_label="Topic")
+    create_field(token, topic_id, "isActive", "Is Active", "BOOLEAN", object_label="Topic")
 
-    # --- Idea
+    # --- Idea (status → lifecycle, чтобы обойти reserved слово)
     log("создаю Idea")
     idea_id = create_object(token, "idea", "ideas", "Idea", "Ideas",
                             "IconBulb", "Сырая идея для контента")
-    create_field(token, idea_id, "description", "Description", "TEXT")
-    create_field(token, idea_id, "source", "Source", "TEXT")
-    create_field(token, idea_id, "status", "Status", "TEXT", default_value="raw")
-    create_field(token, idea_id, "capturedAt", "Captured At", "DATE_TIME")
-    create_field(token, idea_id, "processedAt", "Processed At", "DATE_TIME")
-    create_field(token, idea_id, "referenceUrls", "Reference URLs", "TEXT")
-    create_field(token, idea_id, "embeddingId", "Embedding ID", "TEXT")
-    create_field(token, idea_id, "createdByExternalId", "Created By External ID", "TEXT")
+    create_field(token, idea_id, "description", "Description", "TEXT", object_label="Idea")
+    create_field(token, idea_id, "source", "Source", "TEXT", object_label="Idea")
+    create_field(token, idea_id, "lifecycle", "Lifecycle", "TEXT", object_label="Idea")
+    create_field(token, idea_id, "capturedAt", "Captured At", "DATE_TIME", object_label="Idea")
+    create_field(token, idea_id, "processedAt", "Processed At", "DATE_TIME", object_label="Idea")
+    create_field(token, idea_id, "referenceUrls", "Reference URLs", "TEXT", object_label="Idea")
+    create_field(token, idea_id, "embeddingId", "Embedding ID", "TEXT", object_label="Idea")
+    create_field(token, idea_id, "createdByExternalId", "Created By External ID", "TEXT", object_label="Idea")
 
-    # --- Draft
+    # --- Draft (status → lifecycle)
     log("создаю Draft")
     draft_id = create_object(token, "draft", "drafts", "Draft", "Drafts",
                              "IconFileText", "Готовый текст для одного канала")
-    create_field(token, draft_id, "body", "Body", "TEXT")
-    create_field(token, draft_id, "tone", "Tone", "TEXT")
-    create_field(token, draft_id, "length", "Length", "TEXT")
-    create_field(token, draft_id, "status", "Status", "TEXT", default_value="draft")
-    create_field(token, draft_id, "reviewNotes", "Review Notes", "TEXT")
-    create_field(token, draft_id, "author", "Author", "TEXT")
-    create_field(token, draft_id, "llmModel", "LLM Model", "TEXT")
-    create_field(token, draft_id, "scheduledAt", "Scheduled At", "DATE_TIME")
-    create_field(token, draft_id, "publishedAt", "Published At", "DATE_TIME")
-    create_field(token, draft_id, "publicationUrl", "Publication URL", "TEXT")
-    create_field(token, draft_id, "version", "Version", "NUMBER", default_value=1)
+    create_field(token, draft_id, "body", "Body", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "tone", "Tone", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "length", "Length", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "lifecycle", "Lifecycle", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "reviewNotes", "Review Notes", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "author", "Author", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "llmModel", "LLM Model", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "scheduledAt", "Scheduled At", "DATE_TIME", object_label="Draft")
+    create_field(token, draft_id, "publishedAt", "Published At", "DATE_TIME", object_label="Draft")
+    create_field(token, draft_id, "publicationUrl", "Publication URL", "TEXT", object_label="Draft")
+    create_field(token, draft_id, "version", "Version", "NUMBER", object_label="Draft")
 
-    # --- Publication
+    # --- Publication (status → lifecycle)
     log("создаю Publication")
     publication_id = create_object(token, "publication", "publications", "Publication", "Publications",
                                     "IconCalendarTime", "Запланированная или состоявшаяся публикация")
-    create_field(token, publication_id, "scheduledAt", "Scheduled At", "DATE_TIME")
-    create_field(token, publication_id, "status", "Status", "TEXT", default_value="pending")
-    create_field(token, publication_id, "resultUrl", "Result URL", "TEXT")
-    create_field(token, publication_id, "errorMessage", "Error Message", "TEXT")
-    create_field(token, publication_id, "attemptCount", "Attempt Count", "NUMBER", default_value=0)
-    create_field(token, publication_id, "engagementViews", "Engagement Views", "NUMBER", default_value=0)
-    create_field(token, publication_id, "engagementLikes", "Engagement Likes", "NUMBER", default_value=0)
-    create_field(token, publication_id, "engagementShares", "Engagement Shares", "NUMBER", default_value=0)
-    create_field(token, publication_id, "engagementComments", "Engagement Comments", "NUMBER", default_value=0)
-    create_field(token, publication_id, "lastMetricsAt", "Last Metrics At", "DATE_TIME")
+    create_field(token, publication_id, "scheduledAt", "Scheduled At", "DATE_TIME", object_label="Publication")
+    create_field(token, publication_id, "lifecycle", "Lifecycle", "TEXT", object_label="Publication")
+    create_field(token, publication_id, "resultUrl", "Result URL", "TEXT", object_label="Publication")
+    create_field(token, publication_id, "errorMessage", "Error Message", "TEXT", object_label="Publication")
+    create_field(token, publication_id, "attemptCount", "Attempt Count", "NUMBER", object_label="Publication")
+    create_field(token, publication_id, "engagementViews", "Engagement Views", "NUMBER", object_label="Publication")
+    create_field(token, publication_id, "engagementLikes", "Engagement Likes", "NUMBER", object_label="Publication")
+    create_field(token, publication_id, "engagementShares", "Engagement Shares", "NUMBER", object_label="Publication")
+    create_field(token, publication_id, "engagementComments", "Engagement Comments", "NUMBER", object_label="Publication")
+    create_field(token, publication_id, "lastMetricsAt", "Last Metrics At", "DATE_TIME", object_label="Publication")
 
     # 3. Создаём релейшены
     print("\n[3/4] Создаю релейшены...")
@@ -370,7 +385,15 @@ def main() -> None:
         create_record(token, "channels", c)
 
     print("\n" + "=" * 60)
-    print("ГОТОВО ✓")
+    if FAILED_FIELDS:
+        print(f"⚠️  ЗАВЕРШЕНО С ОШИБКАМИ ({len(FAILED_FIELDS)} полей не создалось):")
+        for obj, field, err in FAILED_FIELDS:
+            print(f"  - {obj}.{field}: {err.splitlines()[0]}")
+        print()
+        print("Скрипт создал, что смог. Несозданные поля можно добавить руками в UI,")
+        print("или сообщи мне точную ошибку выше — поправлю скрипт.")
+    else:
+        print("ГОТОВО ✓ (без ошибок)")
     print("=" * 60)
     print(f"  direction id: {direction_id}")
     print(f"  channel   id: {channel_id}")

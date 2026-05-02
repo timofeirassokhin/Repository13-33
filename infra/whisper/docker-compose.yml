@@ -1,0 +1,25 @@
+services:
+  whisper:
+    # ASR webservice на основе faster-whisper.
+    # Документация: https://github.com/ahmetoner/whisper-asr-webservice
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper
+    restart: unless-stopped
+    environment:
+      # small (244M, ~500MB RAM, неплохо) | medium (769M, ~1.5GB RAM, заметно лучше для RU)
+      ASR_MODEL: medium
+      ASR_ENGINE: faster_whisper
+    volumes:
+      # Кэш моделей — чтобы не качать при каждом рестарте
+      - whisper_cache:/root/.cache
+    networks:
+      - proxy
+    # Экспонируем только во внутреннюю сеть — наружу не нужен
+    # Слушает на 9000 внутри контейнера
+
+volumes:
+  whisper_cache:
+
+networks:
+  proxy:
+    external: true

@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from src.agent.dispatcher import AgentDispatcher
     from src.config import Settings
     from src.db.repositories.user_repo import UserRepository
+    from src.services.transcribe import TranscribeService
     from src.services.twenty import TwentyClient
 
 logger = logging.getLogger(__name__)
@@ -21,11 +22,13 @@ class TelegramBot:
         dispatcher: AgentDispatcher,
         user_repo: UserRepository,
         twenty: TwentyClient | None = None,
+        transcribe: TranscribeService | None = None,
     ) -> None:
         self._settings = settings
         self._dispatcher = dispatcher
         self._user_repo = user_repo
         self._twenty = twenty
+        self._transcribe = transcribe
         self._app: Application | None = None  # type: ignore[type-arg]
 
     async def start(self) -> None:
@@ -48,6 +51,7 @@ class TelegramBot:
         self._app.bot_data["settings"] = self._settings
         self._app.bot_data["user_repo"] = self._user_repo
         self._app.bot_data["twenty"] = self._twenty
+        self._app.bot_data["transcribe"] = self._transcribe
 
         self._register_handlers()
 
@@ -65,11 +69,13 @@ class TelegramBot:
 
     def _register_handlers(self) -> None:
         assert self._app is not None
-        from src.interfaces.telegram.handlers import auth, calendar, common, files, idea, notes
+        from src.interfaces.telegram.handlers import auth, calendar, common, files, idea, notes, voice
 
         common.register(self._app)
         auth.register(self._app)
         calendar.register(self._app)
         notes.register(self._app)
         files.register(self._app)
+        voice.register(self._app)
+        # idea — последним, так как ловит plain text без команд
         idea.register(self._app)

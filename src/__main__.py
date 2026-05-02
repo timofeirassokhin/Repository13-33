@@ -14,6 +14,7 @@ from src.services.calendar_service import CalendarService
 from src.services.notes_service import NotesService
 from src.services.file_sorter_service import FileSorterService
 from src.services.twenty import TwentyClient
+from src.services.transcribe import TranscribeService
 from src.agent.dispatcher import AgentDispatcher
 from src.interfaces.telegram.bot import TelegramBot
 from src.interfaces.webhook.oauth_callback import OAuthCallbackServer
@@ -46,6 +47,12 @@ async def main() -> None:
     else:
         logger.warning("TwentyClient disabled (TWENTY_API_KEY не задан)")
 
+    transcribe = TranscribeService(settings) if settings.whisper_url else None
+    if transcribe:
+        logger.info("TranscribeService enabled (URL=%s)", settings.whisper_url)
+    else:
+        logger.warning("TranscribeService disabled (WHISPER_URL не задан)")
+
     # Agent dispatcher
     dispatcher = AgentDispatcher(
         auth_service=auth_service,
@@ -55,7 +62,7 @@ async def main() -> None:
     )
 
     # Interfaces
-    bot = TelegramBot(settings, dispatcher, user_repo, twenty=twenty)
+    bot = TelegramBot(settings, dispatcher, user_repo, twenty=twenty, transcribe=transcribe)
     oauth_server = OAuthCallbackServer(auth_service, settings)
 
     # Start
@@ -86,6 +93,8 @@ async def main() -> None:
     await oauth_server.stop()
     if twenty:
         await twenty.close()
+    if transcribe:
+        await transcribe.close()
     await db.disconnect()
     logger.info("Goodbye!")
 

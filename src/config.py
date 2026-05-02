@@ -22,6 +22,22 @@ class Settings(BaseSettings):
         validation_alias="TWENTY_API_KEY",
     )
 
+    # Whisper (локальный транскрипционный сервис)
+    whisper_url: str = Field(
+        default="http://whisper:9000",
+        validation_alias="WHISPER_URL",
+    )
+
+    # LiteLLM (роутер моделей для producer-агента)
+    litellm_url: str = Field(
+        default="http://litellm:4000",
+        validation_alias="LITELLM_URL",
+    )
+    litellm_master_key: SecretStr = Field(
+        default=SecretStr(""),
+        validation_alias="LITELLM_MASTER_KEY",
+    )
+
     # Telegram
     telegram_bot_token: SecretStr
     telegram_allowed_user_ids: list[int] = []

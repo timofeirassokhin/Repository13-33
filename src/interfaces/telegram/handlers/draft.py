@@ -15,6 +15,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 from src.services.brand_voice import (
     BRAND_VOICE_SYSTEM,
+    HUMANIZER_SYSTEM,
     build_draft_prompt,
     channel_default_tone,
 )
@@ -66,8 +67,17 @@ async def _generate_draft_for_channel(
         topic_name=topic_name,
     )
 
-    body = await llm.creative(BRAND_VOICE_SYSTEM, user_prompt, max_tokens=1500)
-    body = body.strip()
+    # Pass 1: Sonnet генерит черновой текст под brand voice
+    raw = await llm.creative(BRAND_VOICE_SYSTEM, user_prompt, max_tokens=1500)
+    raw = raw.strip()
+
+    # Pass 2: humanizer вычищает AI-tells (em-dash overuse, rule of three, filler-фразы и т.д.)
+    try:
+        humanized = await llm.creative(HUMANIZER_SYSTEM, raw, max_tokens=1500)
+        body = humanized.strip()
+    except Exception:
+        logger.exception("Humanizer pass failed, using raw output")
+        body = raw
 
     draft = await twenty.create_draft(
         idea_id=idea["id"],
@@ -122,7 +132,8 @@ async def draft_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         return
 
     await msg.reply_text(
-        f"🪶 Генерирую {len(channels)} draft(а) для идеи *{idea['name']}*…",
+        f"🪶 Генерирую {len(channels)} draft(а) для идеи *{idea['name']}*…\n"
+        f"_(Sonnet пишет → humanizer чистит, ~10-20 секунд на канал)_",
         parse_mode="Markdown",
     )
 

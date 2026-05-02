@@ -8,6 +8,14 @@ services:
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # Российский хостинг режет outbound к Anthropic/OpenAI — гоним всё через WARP-сайдкар
+      # (контейнер `warp` поднимается стеком infra/bot, должен быть запущен).
+      HTTPS_PROXY: socks5h://warp:1080
+      HTTP_PROXY: socks5h://warp:1080
+      ALL_PROXY: socks5h://warp:1080
+      # Локальные сервисы — мимо прокси
+      NO_PROXY: localhost,127.0.0.1,host.docker.internal,litellm,twenty-server,whisper,ollama
+      no_proxy: localhost,127.0.0.1,host.docker.internal,litellm,twenty-server,whisper,ollama
     volumes:
       - ./config.yaml:/app/config.yaml:ro
     command: ["--config", "/app/config.yaml", "--port", "4000"]

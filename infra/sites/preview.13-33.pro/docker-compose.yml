@@ -1,0 +1,22 @@
+services:
+  preview:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: preview-13-33-pro:local
+    container_name: preview-13-33-pro
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.preview-13-33.rule=Host(`preview.${DOMAIN}`)
+      - traefik.http.routers.preview-13-33.entrypoints=websecure
+      - traefik.http.routers.preview-13-33.tls.certresolver=letsencrypt
+      - traefik.http.routers.preview-13-33.middlewares=secure-headers@docker
+      - traefik.http.services.preview-13-33.loadbalancer.server.port=80
+
+networks:
+  proxy:
+    external: true

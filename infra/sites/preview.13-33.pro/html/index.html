@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13-33.pro — логический прототип главной</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!--
+  Шрифты:
+  · Bebas Neue (Book/Bold) — для display и UI-капса (заголовки, теги, навигация, кнопки)
+  · Manrope — для UI mixed-case (geometric humanist, лучший free-фолбэк к DIN 2014)
+  · Source Sans 3 — для длинного текста (Adobe, тот же автор что и Myriad Pro — лучшая free-альтернатива)
+  · Bodoni Moda — для цифр в логотипе (Old-style serif как в гайде)
+  В проде: положить лицензированные DIN 2014 и Myriad Pro в /fonts/ и раскомментить @font-face ниже —
+  они автоматически перекроют fallback благодаря порядку в font-stack.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&family=Bodoni+Moda:wght@400;500;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Заготовка для лицензированных шрифтов — раскомментить когда положите .woff2 в /fonts/ */
+/*
+@font-face { font-family: 'DIN 2014'; src: url('/fonts/DIN2014-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'DIN 2014'; src: url('/fonts/DIN2014-Bold.woff2')    format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Myriad Pro'; src: url('/fonts/MyriadPro-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Myriad Pro'; src: url('/fonts/MyriadPro-Bold.woff2')    format('woff2'); font-weight: 700; font-display: swap; }
+*/
+</style>
+<style>
+/* ==========================================================
+   Дизайн-токены — соответствуют 13-33 LOGOBOOK (Pantone)
+   ========================================================== */
+:root {
+  /* Палитра — точные значения из логобука */
+  --c-primary:   #1E252D; /* Pantone 433 — ОСНОВНОЙ — фон сайта  */
+  --c-vanilla:   #EAD0A6; /* Pantone 155 — ВАНИЛЬНЫЙ — карточки контента, лого на тёмном */
+  --c-coral:     #EB8260; /* Pantone 2024 — КОРАЛЛОВЫЙ — CTA, основной акцент */
+  --c-blue:      #2B495B; /* Pantone 2168 — СИНИЙ — вторичные кнопки, теги */
+  --c-teal:      #7C9C90; /* Pantone 624 — ГОЛУБОЙ/серо-зелёный */
+  --c-brick:     #8B3F28; /* Pantone 174 — КИРПИЧНЫЙ */
+  --c-olive:     #8E843D; /* Pantone 7760 — ОЛИВКОВЫЙ */
+
+  /* Производные слои */
+  --bg-base:        #1E252D;
+  --bg-elevated-1:  #232C36; /* плашка чуть светлее (хедер, сайдбар-блоки) */
+  --bg-elevated-2:  #2A3440; /* карточка тёмная */
+  --bg-vanilla:     #EAD0A6;
+  --bg-vanilla-soft:#F2DFC0; /* осветлённая ваниль для подкарточек */
+
+  --text-on-dark:        #EAD0A6; /* текст на тёмном — ванильный, как в GetCourse-макетах */
+  --text-on-dark-soft:   #C4AE89;
+  --text-on-dark-muted:  #8A8170;
+  --text-on-vanilla:     #1E252D;
+  --text-on-vanilla-soft:#3F4750;
+  --text-on-coral:       #1E252D;
+
+  --border-subtle:    rgba(234, 208, 166, 0.14);
+  --border-vanilla:   rgba(30, 37, 45, 0.12);
+
+  /* Шрифты — порядок важен: лицензированный (если подключён) → fallback */
+  --font-display:     'DIN 2014', 'Bebas Neue', 'Manrope', sans-serif;        /* hero, крупные заголовки */
+  --font-display-alt: 'DIN 2014', 'Bebas Neue', 'Manrope', sans-serif;        /* UI-капс: теги, кнопки, навигация */
+  --font-ui:          'DIN 2014', 'Manrope', -apple-system, system-ui, sans-serif;  /* UI mixed-case */
+  --font-body:        'Myriad Pro', 'Source Sans 3', -apple-system, system-ui, sans-serif;  /* длинный текст */
+  --font-logo-numbers:'Bodoni Moda', 'Times New Roman', serif;                /* цифры 13/33 в логотипе */
+
+  /* Скругления — стилистика GetCourse-макетов */
+  --r-sm: 8px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+
+  /* Ритм */
+  --s-1: 8px;   --s-2: 16px;  --s-3: 24px;
+  --s-4: 32px;  --s-5: 48px;  --s-6: 64px;
+  --s-7: 96px;  --s-8: 128px;
+
+  --container: 1280px;
+
+  /* Тени для приподнятых плашек */
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.3);
+  --shadow-pill: 0 4px 16px rgba(0,0,0,0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-on-dark);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--s-3);
+}
+
+/* ==========================================================
+   Заглушки (видны как заглушки)
+   ========================================================== */
+.stub-label {
+  display: inline-block;
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  border: 1px solid var(--c-coral);
+  border-radius: var(--r-pill);
+  padding: 4px 12px;
+  margin-bottom: var(--s-2);
+  opacity: 0.7;
+}
+.stub-image {
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(234, 208, 166, 0.04) 0 12px,
+      rgba(234, 208, 166, 0.08) 12px 24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-on-dark-muted);
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  min-height: 120px;
+  border-radius: var(--r-md);
+}
+
+/* ==========================================================
+   Логотип (inline) — круг + дробь 13/33
+   ========================================================== */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display-alt);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.logo-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--c-vanilla);
+  color: var(--c-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-logo-numbers);
+  font-weight: 500;
+  line-height: 1;
+  flex-shrink: 0;
+  position: relative;
+}
+.logo-mark .num {
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+.logo-mark .num.top    { margin-bottom: 1px; }
+.logo-mark .divider {
+  width: 56%;
+  height: 1.5px;
+  background: var(--c-primary);
+  margin: 1px 0;
+}
+.logo-mark.dark {
+  background: var(--c-primary);
+  color: var(--c-vanilla);
+}
+.logo-mark.dark .divider { background: var(--c-vanilla); }
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-on-dark);
+}
+.logo-text .descriptor {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text-on-dark-soft);
+  margin-bottom: 4px;
+}
+
+/* На светлом фоне */
+.on-vanilla .logo-text { color: var(--c-primary); }
+.on-vanilla .logo-text .descriptor { color: var(--text-on-vanilla-soft); }
+
+/* ==========================================================
+   Top bar
+   ========================================================== */
+.top-bar {
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--text-on-dark-soft);
+}
+.top-bar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 38px;
+}
+.top-bar a:hover { color: var(--c-coral); }
+.top-bar .left, .top-bar .right { display: flex; gap: var(--s-3); align-items: center; }
+
+.space-switcher {
+  display: inline-flex;
+  background: var(--bg-elevated-1);
+  border-radius: var(--r-pill);
+  padding: 3px;
+  border: 1px solid var(--border-subtle);
+}
+.space-switcher button {
+  background: none;
+  border: none;
+  color: var(--text-on-dark-soft);
+  padding: 5px 14px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.space-switcher button.active {
+  background: var(--c-coral);
+  color: var(--text-on-coral);
+}
+
+/* ==========================================================
+   Header (pill — стиль GetCourse-макетов)
+   ========================================================== */
+.header-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: var(--s-2) 0;
+  background: var(--bg-base);
+}
+.header {
+  background: var(--bg-elevated-1);
+  border-radius: var(--r-xl);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-pill);
+  gap: var(--s-3);
+}
+.nav {
+  display: flex;
+  gap: var(--s-3);
+  font-family: var(--font-display-alt);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.nav a { color: var(--text-on-dark-soft); transition: color 0.2s; padding: 6px 0; }
+.nav a:hover { color: var(--text-on-dark); }
+.nav a.cta-link { color: var(--c-coral); }
+.header-right { display: flex; gap: var(--s-1); align-items: center; }
+.icon-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-on-dark-soft);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+.icon-btn:hover { background: var(--c-coral); color: var(--text-on-coral); border-color: var(--c-coral); }
+
+/* ==========================================================
+   Buttons
+   ========================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-family: var(--font-display-alt);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--c-coral);
+  color: var(--text-on-coral);
+}
+.btn-primary:hover { background: #f49474; }
+.btn-secondary {
+  background: var(--c-blue);
+  color: var(--c-vanilla);
+}
+.btn-secondary:hover { background: #355a72; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-on-dark);
+  border-color: var(--border-subtle);
+}
+.btn-ghost:hover { border-color: var(--c-coral); color: var(--c-coral); }
+.btn-on-vanilla.btn-ghost {
+  color: var(--c-primary);
+  border-color: rgba(30,37,45,0.25);
+}
+.btn-on-vanilla.btn-ghost:hover { border-color: var(--c-brick); color: var(--c-brick); }
+
+/* ==========================================================
+   Hero
+   ========================================================== */
+.hero {
+  padding: var(--s-7) 0 var(--s-6);
+  position: relative;
+}
+.hero .container { max-width: 1080px; position: relative; }
+.hero-eyebrow {
+  font-family: var(--font-display-alt);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  margin-bottom: var(--s-3);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 400; /* Bebas Neue имеет один вес, но визуально читается как bold */
+  font-size: clamp(56px, 9vw, 128px);
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  margin-bottom: var(--s-4);
+  color: var(--text-on-dark);
+}
+.hero h1 em {
+  font-style: normal;
+  font-family: var(--font-logo-numbers);
+  font-weight: 500;
+  text-transform: none;
+  font-size: 0.85em;
+  color: var(--c-coral);
+  letter-spacing: -0.01em;
+}
+.hero p.lead {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--text-on-dark-soft);
+  max-width: 640px;
+  margin-bottom: var(--s-5);
+}
+.cta-row { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+
+/* ==========================================================
+   Sections
+   ========================================================== */
+section.block {
+  padding: var(--s-6) 0;
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: var(--s-5);
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+.section-head h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+.section-head p {
+  font-family: var(--font-body);
+  color: var(--text-on-dark-soft);
+  font-size: 15px;
+  max-width: 540px;
+  margin-top: var(--s-2);
+}
+.section-head .head-link {
+  font-family: var(--font-display-alt);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  border: 1px solid var(--c-coral);
+  border-radius: var(--r-pill);
+  padding: 10px 20px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.section-head .head-link:hover { background: var(--c-coral); color: var(--text-on-coral); }
+
+/* ==========================================================
+   Cards / grids
+   ========================================================== */
+.grid { display: grid; gap: var(--s-3); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-6 { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 1024px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-6 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) {
+  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-6 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Карточка ванильная (контентная) — основная */
+.card {
+  background: var(--bg-vanilla);
+  color: var(--text-on-vanilla);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+.card .stub-image {
+  min-height: 200px;
+  background: repeating-linear-gradient(45deg,
+    rgba(30, 37, 45, 0.05) 0 12px,
+    rgba(30, 37, 45, 0.10) 12px 24px);
+  color: var(--text-on-vanilla-soft);
+  border-radius: 0;
+}
+.card-body {
+  padding: var(--s-3);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.tag {
+  font-family: var(--font-display-alt);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--c-primary);
+  color: var(--c-vanilla);
+}
+.tag.coral { background: var(--c-coral); color: var(--text-on-coral); }
+.tag.blue  { background: var(--c-blue); }
+.tag.teal  { background: var(--c-teal); color: var(--c-primary); }
+.tag.olive { background: var(--c-olive); color: var(--c-primary); }
+.tag.brick { background: var(--c-brick); }
+
+.card-title {
+  font-family: var(--font-display-alt);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+  margin-bottom: 6px;
+}
+.card-meta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-on-vanilla-soft);
+  margin-top: auto;
+  padding-top: var(--s-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-price {
+  font-family: var(--font-display-alt);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--c-brick);
+}
+
+/* Карточка тёмная (для секций где много ванили вокруг) */
+.card.dark {
+  background: var(--bg-elevated-2);
+  color: var(--text-on-dark);
+}
+.card.dark .card-title { color: var(--text-on-dark); }
+.card.dark .card-meta  { color: var(--text-on-dark-muted); }
+.card.dark .stub-image { background: repeating-linear-gradient(45deg,
+  rgba(234, 208, 166, 0.04) 0 12px,
+  rgba(234, 208, 166, 0.08) 12px 24px); color: var(--text-on-dark-muted); }
+
+/* ==========================================================
+   Three doors (точки входа)
+   ========================================================== */
+.doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
+@media (max-width: 1024px) { .doors { grid-template-columns: 1fr; } }
+.door {
+  position: relative;
+  background: var(--bg-elevated-1);
+  border-radius: var(--r-xl);
+  padding: var(--s-5);
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+.door::before {
+  content: attr(data-num);
+  position: absolute;
+  top: var(--s-3);
+  right: var(--s-3);
+  font-family: var(--font-logo-numbers);
+  font-size: 110px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--c-coral);
+  opacity: 0.18;
+  transition: opacity 0.3s;
+}
+.door:hover {
+  background: var(--bg-elevated-2);
+  border-color: var(--c-coral);
+}
+.door:hover::before { opacity: 0.4; }
+.door-eyebrow {
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  margin-bottom: var(--s-2);
+}
+.door h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin-bottom: var(--s-2);
+}
+.door p {
+  font-family: var(--font-body);
+  color: var(--text-on-dark-soft);
+  font-size: 15px;
+}
+.door-arrow {
+  margin-top: var(--s-4);
+  font-family: var(--font-display-alt);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================
+   Carousel
+   ========================================================== */
+.carousel {
+  display: flex;
+  gap: var(--s-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px 4px var(--s-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-blue) transparent;
+}
+.carousel::-webkit-scrollbar { height: 6px; }
+.carousel::-webkit-scrollbar-track { background: transparent; }
+.carousel::-webkit-scrollbar-thumb { background: var(--c-blue); border-radius: 3px; }
+.carousel .card {
+  flex: 0 0 320px;
+  scroll-snap-align: start;
+}
+
+/* ==========================================================
+   Quiz banner — wide
+   ========================================================== */
+.quiz-banner {
+  background: var(--bg-vanilla);
+  color: var(--text-on-vanilla);
+  border-radius: var(--r-xl);
+  padding: var(--s-6);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-5);
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.quiz-banner::before {
+  content: '?';
+  position: absolute;
+  font-family: var(--font-logo-numbers);
+  font-size: 480px;
+  line-height: 0.9;
+  color: var(--c-coral);
+  opacity: 0.12;
+  right: -40px;
+  top: -160px;
+  pointer-events: none;
+}
+.quiz-banner .qb-eyebrow {
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--c-brick);
+  margin-bottom: var(--s-2);
+}
+.quiz-banner h3 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  margin-bottom: var(--s-2);
+}
+.quiz-banner p {
+  font-family: var(--font-body);
+  color: var(--text-on-vanilla-soft);
+  max-width: 540px;
+  font-size: 16px;
+}
+@media (max-width: 768px) {
+  .quiz-banner { grid-template-columns: 1fr; padding: var(--s-4); }
+}
+
+/* ==========================================================
+   Arbat
+   ========================================================== */
+.arbat-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--s-3);
+}
+@media (max-width: 1024px) { .arbat-grid { grid-template-columns: 1fr; } }
+.arbat-image {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.arbat-image .stub-image { min-height: 420px; border-radius: 0; }
+.event-list { display: flex; flex-direction: column; gap: var(--s-2); }
+.event-item {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: var(--s-3);
+  align-items: center;
+  padding: var(--s-3);
+  background: var(--bg-vanilla);
+  color: var(--text-on-vanilla);
+  border-radius: var(--r-md);
+  transition: transform 0.2s;
+}
+.event-item:hover { transform: translateX(4px); }
+.event-date {
+  text-align: center;
+  border-right: 1px solid var(--border-vanilla);
+  padding-right: var(--s-3);
+}
+.event-date .day {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 1;
+  color: var(--c-brick);
+}
+.event-date .month {
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-on-vanilla-soft);
+  margin-top: 4px;
+}
+.event-info h4 {
+  font-family: var(--font-display-alt);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.event-info p {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-on-vanilla-soft);
+}
+.event-cta {
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-on-coral);
+  background: var(--c-coral);
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   Experts
+   ========================================================== */
+.expert-card {
+  text-align: center;
+  background: transparent;
+}
+.expert-card .stub-image {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  min-height: auto;
+  margin-bottom: var(--s-2);
+  background: repeating-linear-gradient(45deg,
+    rgba(234, 208, 166, 0.06) 0 12px,
+    rgba(234, 208, 166, 0.12) 12px 24px);
+  color: var(--text-on-dark-muted);
+}
+.expert-card h4 {
+  font-family: var(--font-display-alt);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  color: var(--text-on-dark);
+}
+.expert-card p {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-on-dark-muted);
+}
+
+/* ==========================================================
+   Canon (longread highlights) — на ванильных карточках
+   ========================================================== */
+.canon-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--s-3);
+}
+@media (max-width: 1024px) { .canon-grid { grid-template-columns: 1fr; } }
+.canon-feature .stub-image { min-height: 420px; }
+.canon-feature .card-title { font-size: 36px; line-height: 1.05; }
+.canon-side .stub-image { min-height: 200px; }
+
+/* ==========================================================
+   About teaser
+   ========================================================== */
+.about-teaser {
+  text-align: center;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--s-7) 0;
+}
+.about-teaser h2 {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 112px);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  margin-bottom: var(--s-3);
+}
+.about-teaser h2 em {
+  font-style: normal;
+  font-family: var(--font-logo-numbers);
+  font-weight: 500;
+  text-transform: none;
+  font-size: 0.95em;
+  color: var(--c-coral);
+}
+.about-teaser p {
+  font-family: var(--font-body);
+  color: var(--text-on-dark-soft);
+  font-size: 18px;
+  margin-bottom: var(--s-4);
+  line-height: 1.6;
+}
+
+/* ==========================================================
+   Subscribe
+   ========================================================== */
+.subscribe {
+  padding: var(--s-7) 0;
+  text-align: center;
+}
+.subscribe-card {
+  background: var(--bg-vanilla);
+  color: var(--text-on-vanilla);
+  border-radius: var(--r-xl);
+  padding: var(--s-6) var(--s-4);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.subscribe h2 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  line-height: 0.95;
+  margin-bottom: var(--s-2);
+}
+.subscribe p {
+  font-family: var(--font-body);
+  color: var(--text-on-vanilla-soft);
+  margin-bottom: var(--s-4);
+}
+.sub-form {
+  display: flex;
+  gap: var(--s-1);
+  background: var(--bg-vanilla-soft);
+  border-radius: var(--r-pill);
+  padding: 5px;
+  border: 1px solid var(--border-vanilla);
+}
+.sub-form input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-on-vanilla);
+  padding: 12px 20px;
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+.sub-form input::placeholder { color: var(--text-on-vanilla-soft); opacity: 0.6; }
+
+/* ==========================================================
+   Footer
+   ========================================================== */
+.footer {
+  background: var(--bg-elevated-1);
+  padding: var(--s-6) 0 var(--s-4);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-on-dark-soft);
+  margin-top: var(--s-5);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  gap: var(--s-4);
+  margin-bottom: var(--s-5);
+}
+@media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .footer-grid { grid-template-columns: 1fr; } }
+.footer h5 {
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  margin-bottom: var(--s-2);
+}
+.footer ul { list-style: none; }
+.footer ul li { margin-bottom: 8px; }
+.footer a:hover { color: var(--c-coral); }
+.footer-bottom {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--s-3);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  font-size: 12px;
+  color: var(--text-on-dark-muted);
+}
+
+/* ==========================================================
+   Прототип-плашка
+   ========================================================== */
+.proto-banner {
+  background: var(--c-coral);
+  color: var(--text-on-coral);
+  text-align: center;
+  padding: 10px;
+  font-family: var(--font-display-alt);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<div class="proto-banner">
+  Логический прототип · все блоки заглушки · палитра + типографика по 13-33 LOGOBOOK · DIN 2014 заменён на Barlow (fallback)
+</div>
+
+<!-- ===== TOP BAR ===== -->
+<div class="top-bar">
+  <div class="container">
+    <div class="left">
+      <a href="#">Москва, Арбат</a>
+      <a href="#">+7 (___) ___-__-__</a>
+    </div>
+    <div class="right">
+      <div class="space-switcher">
+        <button class="active">Духовное</button>
+        <button>Экспертное</button>
+      </div>
+      <a href="#">Telegram</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HEADER (pill) ===== -->
+<div class="header-wrap">
+  <div class="container">
+    <div class="header">
+      <a href="/" class="logo">
+        <span class="logo-mark">
+          <span class="num top">13</span>
+          <span class="divider"></span>
+          <span class="num">33</span>
+        </span>
+        <span class="logo-text">
+          <span class="descriptor">Духовно-психологическое</span>
+          <span>Пространство</span>
+        </span>
+      </a>
+      <nav class="nav">
+        <a href="#topics">Темы</a>
+        <a href="#requests">Запросы</a>
+        <a href="#journal">Журнал</a>
+        <a href="#shop">Магазин</a>
+        <a href="#arbat">Арбат</a>
+        <a href="#quiz" class="cta-link">Тест-навигатор</a>
+        <a href="#about">О нас</a>
+      </nav>
+      <div class="header-right">
+        <button class="icon-btn" title="Поиск">⌕</button>
+        <button class="icon-btn" title="Профиль">◯</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container">
+    <span class="stub-label">Block 1 · Hero / Манифест</span>
+    <div class="hero-eyebrow">Пространство · 13 / 33</div>
+    <h1>Интеграция<br>психологии<br>и <em>духовных&nbsp;практик</em></h1>
+    <p class="lead">
+      Серьёзный разговор о внутренней работе — без эзотерических клише, без упрощений.
+      Журнал, методы, эксперты, продукты и события на Арбате. Подберём вам трек за три минуты.
+    </p>
+    <div class="cta-row">
+      <a href="#quiz" class="btn btn-primary">Пройти тест-навигатор</a>
+      <a href="#about" class="btn btn-ghost">О Пространстве</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 2 — Лента «новое» ===== -->
+<section class="block">
+  <div class="container">
+    <span class="stub-label">Block 2 · Лента «новое» (микс: статьи + продукты + события)</span>
+    <div class="section-head">
+      <div>
+        <h2>Что нового</h2>
+        <p>Свежие статьи, продукты и события — единым потоком.</p>
+      </div>
+      <a class="head-link" href="#">Все материалы →</a>
+    </div>
+    <div class="carousel">
+      <article class="card">
+        <div class="stub-image">статья · cover</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag coral">Лонгрид</span><span class="tag">Психология</span></div>
+          <h3 class="card-title">Заглушка: заголовок свежего лонгрида</h3>
+          <div class="card-meta"><span>Автор · 12 мин</span><span>3 мая</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">продукт · афиша</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag olive">Курс</span><span class="tag teal">Тревога</span></div>
+          <h3 class="card-title">Заглушка: новый онлайн-курс</h3>
+          <div class="card-meta"><span>Старт 10 мая</span><span class="card-price">от 12 000 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">событие · фото</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag brick">Событие</span><span class="tag">Арбат</span></div>
+          <h3 class="card-title">Заглушка: вечер практики на Арбате</h3>
+          <div class="card-meta"><span>17 мая · 19:00</span><span class="card-price">2 500 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">блог · cover</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag blue">Блог</span><span class="tag teal">Дыхание</span></div>
+          <h3 class="card-title">Заглушка: короткая заметка</h3>
+          <div class="card-meta"><span>Автор · 4 мин</span><span>2 мая</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">интервью</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag coral">Интервью</span><span class="tag olive">Традиции</span></div>
+          <h3 class="card-title">Заглушка: разговор с экспертом</h3>
+          <div class="card-meta"><span>Автор · 18 мин</span><span>30 апр</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 3 — Три двери ===== -->
+<section class="block">
+  <div class="container">
+    <span class="stub-label">Block 3 · «Три двери» — точки входа в каталог</span>
+    <div class="section-head">
+      <div>
+        <h2>С чего начать</h2>
+        <p>Три способа найти своё в Пространстве. Войдите тем, что вам ближе сейчас.</p>
+      </div>
+    </div>
+    <div class="doors">
+      <a href="#topics" class="door" data-num="01">
+        <div>
+          <div class="door-eyebrow">Door 01</div>
+          <h3>По теме</h3>
+          <p>Психология, телесность, энергии, традиции, философия — выберите область, что вас интересует.</p>
+        </div>
+        <div class="door-arrow">К темам →</div>
+      </a>
+      <a href="#requests" class="door" data-num="02">
+        <div>
+          <div class="door-eyebrow">Door 02</div>
+          <h3>По запросу</h3>
+          <p>Тревога, отношения, поиск себя, кризис, карьера, здоровье — с чем вы пришли сегодня.</p>
+        </div>
+        <div class="door-arrow">К запросам →</div>
+      </a>
+      <a href="#methods" class="door" data-num="03">
+        <div>
+          <div class="door-eyebrow">Door 03</div>
+          <h3>По методу</h3>
+          <p>Психотерапевтические подходы, телесные и энергетические практики, традиции народов мира.</p>
+        </div>
+        <div class="door-arrow">К методам →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 4 — Карусель главных продуктов ===== -->
+<section class="block">
+  <div class="container">
+    <span class="stub-label">Block 4 · Карусель главных продуктов</span>
+    <div class="section-head">
+      <div>
+        <h2>Наши программы</h2>
+        <p>Курсы, группы, индивидуальная работа, события на Арбате.</p>
+      </div>
+      <a class="head-link" href="#shop">Весь магазин →</a>
+    </div>
+    <div class="carousel">
+      <article class="card">
+        <div class="stub-image">афиша продукта</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag olive">Курс</span><span class="tag">Самоисследование</span></div>
+          <h3 class="card-title">Заглушка продукта 1</h3>
+          <div class="card-meta"><span>8 недель · онлайн</span><span class="card-price">18 000 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">афиша продукта</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag teal">Группа</span><span class="tag">Отношения</span></div>
+          <h3 class="card-title">Заглушка продукта 2</h3>
+          <div class="card-meta"><span>Арбат · еженедельно</span><span class="card-price">15 000 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">афиша продукта</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag olive">Курс</span><span class="tag teal">Тело</span></div>
+          <h3 class="card-title">Заглушка продукта 3</h3>
+          <div class="card-meta"><span>6 недель · онлайн</span><span class="card-price">14 000 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">афиша продукта</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag coral">Сессия</span><span class="tag brick">Кризис</span></div>
+          <h3 class="card-title">Заглушка продукта 4</h3>
+          <div class="card-meta"><span>Индивидуально</span><span class="card-price">от 8 000 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">афиша продукта</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag brick">Событие</span><span class="tag teal">Голос</span></div>
+          <h3 class="card-title">Заглушка продукта 5</h3>
+          <div class="card-meta"><span>17 мая · Арбат</span><span class="card-price">2 500 ₽</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="stub-image">афиша продукта</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag olive">Курс</span><span class="tag">Традиции</span></div>
+          <h3 class="card-title">Заглушка продукта 6</h3>
+          <div class="card-meta"><span>4 недели · гибрид</span><span class="card-price">22 000 ₽</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 5 — Афиша Арбата ===== -->
+<section class="block" id="arbat">
+  <div class="container">
+    <span class="stub-label">Block 5 · Афиша пространства на Арбате</span>
+    <div class="section-head">
+      <div>
+        <h2>На Арбате</h2>
+        <p>Живые встречи, практики и события в нашем пространстве в Москве.</p>
+      </div>
+      <a class="head-link" href="#">Полная афиша →</a>
+    </div>
+    <div class="arbat-grid">
+      <div class="arbat-image">
+        <div class="stub-image">фото пространства · слайдшоу</div>
+      </div>
+      <div class="event-list">
+        <div class="event-item">
+          <div class="event-date"><div class="day">17</div><div class="month">мая</div></div>
+          <div class="event-info"><h4>Заглушка события 1</h4><p>19:00 · 2 часа · ведущий</p></div>
+          <a class="event-cta" href="#">Записаться</a>
+        </div>
+        <div class="event-item">
+          <div class="event-date"><div class="day">22</div><div class="month">мая</div></div>
+          <div class="event-info"><h4>Заглушка события 2</h4><p>18:30 · 3 часа · ведущий</p></div>
+          <a class="event-cta" href="#">Записаться</a>
+        </div>
+        <div class="event-item">
+          <div class="event-date"><div class="day">29</div><div class="month">мая</div></div>
+          <div class="event-info"><h4>Заглушка события 3</h4><p>11:00 · день · ведущий</p></div>
+          <a class="event-cta" href="#">Записаться</a>
+        </div>
+        <div class="event-item">
+          <div class="event-date"><div class="day">05</div><div class="month">июн</div></div>
+          <div class="event-info"><h4>Заглушка события 4</h4><p>19:00 · 2 часа · ведущий</p></div>
+          <a class="event-cta" href="#">Записаться</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 6 — Эксперты ===== -->
+<section class="block">
+  <div class="container">
+    <span class="stub-label">Block 6 · Команда / эксперты</span>
+    <div class="section-head">
+      <div>
+        <h2>Наши эксперты</h2>
+        <p>Авторы материалов и ведущие практик. Каждый ведёт свои продукты.</p>
+      </div>
+      <a class="head-link" href="#">Вся команда →</a>
+    </div>
+    <div class="grid grid-6">
+      <div class="expert-card"><div class="stub-image">фото</div><h4>Имя 1</h4><p>Психолог · гештальт</p></div>
+      <div class="expert-card"><div class="stub-image">фото</div><h4>Имя 2</h4><p>Шаманские практики</p></div>
+      <div class="expert-card"><div class="stub-image">фото</div><h4>Имя 3</h4><p>Телесная терапия</p></div>
+      <div class="expert-card"><div class="stub-image">фото</div><h4>Имя 4</h4><p>Голос · дыхание</p></div>
+      <div class="expert-card"><div class="stub-image">фото</div><h4>Имя 5</h4><p>Психоанализ</p></div>
+      <div class="expert-card"><div class="stub-image">фото</div><h4>Имя 6</h4><p>Философия · традиции</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 7 — Канон ===== -->
+<section class="block" id="journal">
+  <div class="container">
+    <span class="stub-label">Block 7 · «Канон» — ключевые лонгриды</span>
+    <div class="section-head">
+      <div>
+        <h2>Канон</h2>
+        <p>Большие тексты, в которых сформулирована наша философия и метод.</p>
+      </div>
+      <a class="head-link" href="#">Весь журнал →</a>
+    </div>
+    <div class="canon-grid">
+      <article class="card canon-feature">
+        <div class="stub-image">главный лонгрид · cover</div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag coral">Манифест</span><span class="tag">Философия</span></div>
+          <h3 class="card-title">Заглушка: ключевой лонгрид-манифест Пространства</h3>
+          <div class="card-meta"><span>Авторы · 28 мин</span><span class="card-price">КАНОН</span></div>
+        </div>
+      </article>
+      <div style="display: flex; flex-direction: column; gap: var(--s-3);">
+        <article class="card canon-side">
+          <div class="stub-image">cover</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag olive">Эссе</span></div>
+            <h3 class="card-title" style="font-size: 18px">Заглушка лонгрида 2</h3>
+          </div>
+        </article>
+        <article class="card canon-side">
+          <div class="stub-image">cover</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag teal">Разбор</span></div>
+            <h3 class="card-title" style="font-size: 18px">Заглушка лонгрида 3</h3>
+          </div>
+        </article>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: var(--s-3);">
+        <article class="card canon-side">
+          <div class="stub-image">cover</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag brick">Интервью</span></div>
+            <h3 class="card-title" style="font-size: 18px">Заглушка лонгрида 4</h3>
+          </div>
+        </article>
+        <article class="card canon-side">
+          <div class="stub-image">cover</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag blue">Эссе</span></div>
+            <h3 class="card-title" style="font-size: 18px">Заглушка лонгрида 5</h3>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 8 — Quiz wide banner ===== -->
+<section class="block" id="quiz">
+  <div class="container">
+    <span class="stub-label">Block 8 · Широкий баннер тест-навигатора</span>
+    <div class="quiz-banner">
+      <div>
+        <div class="qb-eyebrow">Тест-навигатор</div>
+        <h3>Не знаете<br>с чего начать?</h3>
+        <p>За 3 минуты подберём персональный трек: статьи для контекста, метод, эксперт и продукт под ваш запрос. И приглашение на личную диагностику, если нужно глубже.</p>
+      </div>
+      <div>
+        <a href="#" class="btn btn-primary">Начать →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 9 — About ===== -->
+<section id="about">
+  <div class="container">
+    <div class="about-teaser">
+      <span class="stub-label">Block 9 · «О нас» — тизер</span>
+      <h2><em>13</em> и <em>33</em><br>самые мистические числа<br>в человеческой истории</h2>
+      <p>
+        Пространство 13-33 — место, где академическая психология встречается с традиционными духовными практиками.
+        Без эзотерических клише, без упрощений, без догматизма. Серьёзный, светский разговор о внутренней работе.
+      </p>
+      <div class="cta-row" style="justify-content: center;">
+        <a href="#" class="btn btn-secondary">Подробнее о философии</a>
+        <a href="#" class="btn btn-ghost">Экспертное Пространство →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БЛОК 10 — Subscribe ===== -->
+<section class="subscribe">
+  <div class="container">
+    <span class="stub-label" style="display: block; text-align: center; margin-bottom: var(--s-3);">Block 10 · Подписка (через GetCourse)</span>
+    <div class="subscribe-card">
+      <h2>Письма раз в неделю</h2>
+      <p>Новые лонгриды, анонсы событий, ранний доступ на курсы. Без спама, всегда можно отписаться.</p>
+      <form class="sub-form" onsubmit="event.preventDefault(); alert('→ интеграция с GetCourse');">
+        <input type="email" placeholder="ваш email" required>
+        <button class="btn btn-primary" type="submit">Подписаться</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="/" class="logo" style="margin-bottom: var(--s-2)">
+          <span class="logo-mark">
+            <span class="num top">13</span>
+            <span class="divider"></span>
+            <span class="num">33</span>
+          </span>
+          <span class="logo-text">
+            <span class="descriptor">Духовно-психологическое</span>
+            <span>Пространство</span>
+          </span>
+        </a>
+        <p style="font-size: 13px; color: var(--text-on-dark-muted); margin-top: var(--s-2);">
+          Интеграция психологии и духовных практик. Москва, Арбат.
+        </p>
+      </div>
+      <div>
+        <h5>Навигация</h5>
+        <ul>
+          <li><a href="#topics">Темы</a></li>
+          <li><a href="#requests">Запросы</a></li>
+          <li><a href="#journal">Журнал</a></li>
+          <li><a href="#shop">Магазин</a></li>
+          <li><a href="#arbat">Арбат</a></li>
+          <li><a href="#about">О нас</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Пространства</h5>
+        <ul>
+          <li><a href="#">Духовно-психологическое</a></li>
+          <li><a href="#">Экспертное (онлайн-бизнес)</a></li>
+          <li><a href="#">Подписка на рассылку</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Связь</h5>
+        <ul>
+          <li><a href="#">Telegram-канал</a></li>
+          <li><a href="#">Бот @claw1333_bot</a></li>
+          <li><a href="#">Email</a></li>
+          <li><a href="#">Стать экспертом</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Документы</h5>
+        <ul>
+          <li><a href="#">Политика конфиденциальности</a></li>
+          <li><a href="#">Публичная оферта</a></li>
+          <li><a href="#">Дисклеймеры</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Пространство 13-33 ™ · все права защищены</div>
+      <div>Сделано в России</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

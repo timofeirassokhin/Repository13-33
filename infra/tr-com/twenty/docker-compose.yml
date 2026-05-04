@@ -1,0 +1,103 @@
+# Twenty CRM (инстанс B) для timofeirassokhin.com.
+# Зеркалит infra/twenty/ с другим префиксом контейнеров/томов и БД, чтобы оба инстанса
+# жили рядом без конфликтов. Внутренняя сеть отдельная.
+
+services:
+  twenty-tr-server:
+    image: twentycrm/twenty:latest
+    container_name: twenty-tr-server
+    restart: unless-stopped
+    depends_on:
+      twenty-tr-db:
+        condition: service_healthy
+      twenty-tr-redis:
+        condition: service_healthy
+    environment:
+      NODE_PORT: 3000
+      SERVER_URL: https://crm.${TR_DOMAIN}
+      PG_DATABASE_URL: postgres://postgres:${TWENTY_TR_PG_PASSWORD}@twenty-tr-db:5432/default
+      REDIS_URL: redis://twenty-tr-redis:6379
+      APP_SECRET: ${TWENTY_TR_APP_SECRET}
+      STORAGE_TYPE: local
+      DISABLE_DB_MIGRATIONS: "false"
+      DISABLE_CRON_JOBS_REGISTRATION: "false"
+    volumes:
+      - twenty_tr_server_data:/app/packages/twenty-server/.local-storage
+    networks:
+      - proxy
+      - tr_twenty_internal
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:3000/healthz || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.twenty-tr.rule=Host(`crm.${TR_DOMAIN}`)
+      - traefik.http.routers.twenty-tr.entrypoints=websecure
+      - traefik.http.routers.twenty-tr.tls.certresolver=letsencrypt
+      - traefik.http.routers.twenty-tr.middlewares=secure-headers@docker
+      - traefik.http.services.twenty-tr.loadbalancer.server.port=3000
+
+  twenty-tr-worker:
+    image: twentycrm/twenty:latest
+    container_name: twenty-tr-worker
+    restart: unless-stopped
+    depends_on:
+      twenty-tr-server:
+        condition: service_healthy
+    command: ["yarn", "worker:prod"]
+    environment:
+      PG_DATABASE_URL: postgres://postgres:${TWENTY_TR_PG_PASSWORD}@twenty-tr-db:5432/default
+      SERVER_URL: https://crm.${TR_DOMAIN}
+      REDIS_URL: redis://twenty-tr-redis:6379
+      APP_SECRET: ${TWENTY_TR_APP_SECRET}
+      STORAGE_TYPE: local
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+    volumes:
+      - twenty_tr_server_data:/app/packages/twenty-server/.local-storage
+    networks:
+      - tr_twenty_internal
+
+  twenty-tr-db:
+    image: postgres:16
+    container_name: twenty-tr-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${TWENTY_TR_PG_PASSWORD}
+      POSTGRES_DB: default
+    volumes:
+      - twenty_tr_db_data:/var/lib/postgresql/data
+    networks:
+      - tr_twenty_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  twenty-tr-redis:
+    image: redis
+    container_name: twenty-tr-redis
+    restart: unless-stopped
+    command: ["--maxmemory-policy", "noeviction"]
+    networks:
+      - tr_twenty_internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  twenty_tr_db_data:
+  twenty_tr_server_data:
+
+networks:
+  proxy:
+    external: true
+  tr_twenty_internal:

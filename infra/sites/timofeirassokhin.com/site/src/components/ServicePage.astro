@@ -1,0 +1,43 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import { t, localizedHref, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+  canonicalPath: string;
+  service: 'coaching' | 'psychology' | 'photo' | 'consulting';
+}
+const { locale, canonicalPath, service } = Astro.props;
+const dict = t(locale);
+const s = dict.services[service];
+---
+<Layout locale={locale} canonicalPath={canonicalPath} title={s.title}>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">{s.kicker}</p>
+      <h1>{s.title}</h1>
+      <p class="hero__sub">{s.summary}</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href={localizedHref('/book', locale)}>{dict.hero.primary}</a>
+        <a class="btn btn--ghost" href={localizedHref('/subscribe', locale)}>{dict.nav.subscribe}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="grid-2">
+        <div>
+          <h2>{dict.book.title}</h2>
+          <p>{dict.book.body}</p>
+          <a class="btn btn--primary" href={localizedHref('/book', locale)}>{dict.book.cta}</a>
+        </div>
+        <div>
+          <h3>{dict.subscribe.title}</h3>
+          <p>{dict.subscribe.body}</p>
+          <a class="btn btn--ghost" href={localizedHref('/subscribe', locale)}>{dict.nav.subscribe}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

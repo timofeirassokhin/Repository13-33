@@ -1,0 +1,15 @@
+# Build artefacts
+**/node_modules/
+**/dist/
+**/.astro/
+
+# Local IDE/state
+.claude/
+
+# Locally-converted SSH keys / scripts dir for local-only utils
+scripts/
+
+# Python venv
+.venv/
+__pycache__/
+*.pyc

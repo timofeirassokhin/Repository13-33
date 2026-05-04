@@ -1,0 +1,16 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import { t } from '~/i18n';
+const locale = 'en' as const;
+const dict = t(locale);
+---
+<Layout locale={locale} canonicalPath="/book" title={dict.book.title}>
+  <section class="hero">
+    <div class="container" style="max-width: 640px;">
+      <p class="eyebrow">{dict.nav.book}</p>
+      <h1>{dict.book.title}</h1>
+      <p class="hero__sub">{dict.book.body}</p>
+      <a class="btn btn--primary" href="https://t.me/timofeirassokhin_bot">{dict.book.cta}</a>
+    </div>
+  </section>
+</Layout>

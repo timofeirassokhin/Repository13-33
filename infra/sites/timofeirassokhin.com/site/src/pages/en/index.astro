@@ -1,0 +1,59 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import { t, localizedHref } from '~/i18n';
+const locale = 'en' as const;
+const dict = t(locale);
+const services = ['coaching', 'psychology', 'photo', 'consulting'] as const;
+---
+<Layout locale={locale} canonicalPath="/" title={undefined}>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">{dict.hero.eyebrow}</p>
+      <h1>{dict.hero.title}</h1>
+      <p class="hero__sub">{dict.hero.subtitle}</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href={localizedHref('/book', locale)}>{dict.hero.primary}</a>
+        <a class="btn btn--ghost" href="#services">{dict.hero.secondary}</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="section">
+    <div class="container">
+      <div class="grid-2">
+        {services.map((s) => (
+          <a class="card" href={localizedHref(`/${s}`, locale)}>
+            <p class="eyebrow">{dict.services[s].kicker}</p>
+            <h3>{dict.services[s].title}</h3>
+            <p style="color: var(--text-soft); margin-top: var(--s-2);">{dict.services[s].summary}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="grid-2">
+        <div>
+          <h2>{dict.blog.title}</h2>
+          <p>{dict.blog.placeholder}</p>
+          <a class="btn btn--ghost" href={localizedHref('/blog', locale)}>{dict.blog.title}</a>
+        </div>
+        <div>
+          <h2>{dict.shop.title}</h2>
+          <p>{dict.shop.placeholder}</p>
+          <a class="btn btn--ghost" href={localizedHref('/shop', locale)}>{dict.shop.title}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 720px;">
+      <h2>{dict.subscribe.title}</h2>
+      <p style="color: var(--text-soft);">{dict.subscribe.body}</p>
+      <a class="btn btn--primary" href={localizedHref('/subscribe', locale)}>{dict.nav.subscribe}</a>
+    </div>
+  </section>
+</Layout>

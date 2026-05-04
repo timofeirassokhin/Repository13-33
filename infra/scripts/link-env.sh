@@ -14,7 +14,16 @@ if [[ ! -f "$ENV_PATH" ]]; then
   exit 1
 fi
 
-for d in traefik twenty n8n qdrant litellm openwebui openclaw bot whisper mempalace webdav uploader sites/13-33.pro; do
+# Подпапки которые получают общий infra/.env
+# tr-com подпапки тоже получают общий .env (через симлинк) — для tr-com-специфичных
+# переменных используем флаг --env-file infra/tr-com/.env на докомпоузе при запуске.
+DIRS=(
+  traefik twenty n8n qdrant litellm openwebui openclaw bot whisper mempalace webdav uploader
+  sites/13-33.pro sites/timofeirassokhin.com
+  tr-com/twenty tr-com/listmonk tr-com/bot tr-com/glue
+)
+
+for d in "${DIRS[@]}"; do
   if [[ ! -d "$d" ]]; then
     echo "skip $d (no such directory)"
     continue

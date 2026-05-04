@@ -1,0 +1,101 @@
+---
+import { t, localizedHref, type Locale } from '~/i18n';
+import LangSwitcher from './LangSwitcher.astro';
+
+interface Props {
+  locale: Locale;
+  canonicalPath: string;
+}
+
+const { locale, canonicalPath } = Astro.props;
+const dict = t(locale);
+
+const links = [
+  { href: '/coaching', label: dict.nav.coaching },
+  { href: '/psychology', label: dict.nav.psychology },
+  { href: '/photo', label: dict.nav.photo },
+  { href: '/consulting', label: dict.nav.consulting },
+  { href: '/blog', label: dict.nav.blog },
+  { href: '/shop', label: dict.nav.shop },
+];
+---
+<header class="hdr">
+  <div class="container hdr__inner">
+    <a class="hdr__brand" href={localizedHref('/', locale)}>
+      <span class="hdr__logo">TR</span>
+      <span class="hdr__name">{dict.meta.siteName}</span>
+    </a>
+
+    <nav class="hdr__nav" aria-label="primary">
+      {links.map((l) => (
+        <a href={localizedHref(l.href, locale)} class="hdr__link">{l.label}</a>
+      ))}
+    </nav>
+
+    <div class="hdr__right">
+      <LangSwitcher locale={locale} canonicalPath={canonicalPath} />
+      <a class="btn btn--primary hdr__cta" href={localizedHref('/subscribe', locale)}>
+        {dict.nav.subscribe}
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(31, 26, 23, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .hdr__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px var(--s-3);
+    gap: var(--s-3);
+  }
+  .hdr__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--s-1);
+    color: var(--text);
+    border: none;
+  }
+  .hdr__brand:hover { color: var(--accent); }
+  .hdr__logo {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.2rem;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+  .hdr__name {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 400;
+  }
+  .hdr__nav {
+    display: flex;
+    gap: var(--s-3);
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .hdr__link {
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    border: none;
+  }
+  .hdr__link:hover { color: var(--accent); }
+  .hdr__right {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+  }
+  @media (max-width: 900px) {
+    .hdr__nav { display: none; }
+    .hdr__cta { display: none; }
+  }
+</style>

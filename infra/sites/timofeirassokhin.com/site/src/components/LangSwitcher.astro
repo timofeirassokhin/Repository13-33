@@ -1,0 +1,42 @@
+---
+import { localizedHref, locales, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+  canonicalPath: string;
+}
+const { locale, canonicalPath } = Astro.props;
+---
+<div class="lang">
+  {locales.map((l) => (
+    <a
+      class={`lang__opt ${l === locale ? 'lang__opt--on' : ''}`}
+      href={localizedHref(canonicalPath, l)}
+      aria-current={l === locale ? 'true' : 'false'}
+    >{l.toUpperCase()}</a>
+  ))}
+</div>
+
+<style>
+  .lang {
+    display: inline-flex;
+    gap: 6px;
+    padding: 4px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-pill);
+  }
+  .lang__opt {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    color: var(--text-muted);
+    border: none;
+  }
+  .lang__opt:hover { color: var(--text); }
+  .lang__opt--on {
+    background: var(--bg-card);
+    color: var(--accent);
+  }
+</style>

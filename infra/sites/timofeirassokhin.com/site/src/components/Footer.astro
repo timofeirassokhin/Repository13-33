@@ -1,0 +1,43 @@
+---
+import { t, localizedHref, type Locale } from '~/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+<footer class="ftr">
+  <div class="container ftr__inner">
+    <p class="ftr__copy">{dict.footer.rights}</p>
+    <nav class="ftr__nav">
+      <a href={localizedHref('/subscribe', locale)}>{dict.nav.subscribe}</a>
+      <a href={localizedHref('/blog', locale)}>{dict.nav.blog}</a>
+      <a href={localizedHref('/book', locale)}>{dict.nav.book}</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    background: var(--bg-soft);
+    border-top: 1px solid var(--border-subtle);
+    padding: var(--s-4) 0;
+    margin-top: var(--s-7);
+  }
+  .ftr__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+  .ftr__copy { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+  .ftr__nav { display: flex; gap: var(--s-3); }
+  .ftr__nav a {
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    border: none;
+  }
+  .ftr__nav a:hover { color: var(--accent); }
+</style>

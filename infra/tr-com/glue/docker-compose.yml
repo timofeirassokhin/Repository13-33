@@ -1,0 +1,39 @@
+services:
+  glue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: glue-tr:local
+    container_name: glue
+    restart: unless-stopped
+    environment:
+      GLUE_PORT: "8000"
+      GLUE_WEBHOOK_SECRET: ${GLUE_WEBHOOK_SECRET}
+      # Twenty B
+      TWENTY_TR_API_URL: ${TWENTY_TR_API_URL}
+      TWENTY_TR_API_KEY: ${TWENTY_TR_API_KEY}
+      # Robokassa
+      ROBOKASSA_MERCHANT_LOGIN: ${ROBOKASSA_MERCHANT_LOGIN}
+      ROBOKASSA_PASS1: ${ROBOKASSA_PASS1}
+      ROBOKASSA_PASS2: ${ROBOKASSA_PASS2}
+      ROBOKASSA_TEST_MODE: ${ROBOKASSA_TEST_MODE}
+      # Listmonk (внутрисетевой URL)
+      LISTMONK_URL: http://listmonk:9000
+      LISTMONK_ADMIN_USER: ${LISTMONK_ADMIN_USER}
+      LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD}
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      # Только узкие пути наружу — webhook'и Robokassa и форма subscribe.
+      # Остальное недоступно (запросы из бота приходят по внутренней сети без Traefik).
+      - traefik.http.routers.glue-tr.rule=Host(`glue.${TR_DOMAIN}`) && (PathPrefix(`/robokassa`) || PathPrefix(`/subscribe`))
+      - traefik.http.routers.glue-tr.entrypoints=websecure
+      - traefik.http.routers.glue-tr.tls.certresolver=letsencrypt
+      - traefik.http.routers.glue-tr.middlewares=secure-headers@docker
+      - traefik.http.services.glue-tr.loadbalancer.server.port=8000
+
+networks:
+  proxy:
+    external: true

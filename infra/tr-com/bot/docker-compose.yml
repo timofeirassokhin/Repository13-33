@@ -1,0 +1,30 @@
+services:
+  bot-tr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bot-tr:local
+    container_name: bot-tr
+    restart: unless-stopped
+    environment:
+      TR_BOT_TOKEN: ${TR_BOT_TOKEN}
+      TR_BOT_ALLOWED_ADMIN_IDS: ${TR_BOT_ALLOWED_ADMIN_IDS}
+      # Telegram API ходит через WARP-сайдкар как у pa-bot (контейнер `warp` на сети proxy)
+      HTTPS_PROXY: socks5://warp:1080
+      HTTP_PROXY: socks5://warp:1080
+      # Куда стучаться за CRM-операциями (через glue-сервис, чтобы не дублировать клиент)
+      GLUE_BASE_URL: http://glue:8000
+      GLUE_WEBHOOK_SECRET: ${GLUE_WEBHOOK_SECRET}
+      # MemPalace доступен напрямую в сети proxy
+      MEMPALACE_URL: http://mempalace:8080
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import os; assert os.path.exists(\"/proc/1\")'"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  proxy:
+    external: true

@@ -16,7 +16,8 @@ services:
     networks:
       - proxy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      # `curl` нет в образе — используем urllib из Python (точно есть)
+      test: ["CMD-SHELL", "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:8080/health\",timeout=5).status==200 else 1)' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -1,0 +1,45 @@
+---
+import '~/styles/base.css';
+import Header from '~/components/Header.astro';
+import Footer from '~/components/Footer.astro';
+import { t, type Locale } from '~/i18n';
+
+interface Props {
+  /** Логический путь страницы в RU (например, "/coaching"). Используется для переключателя языка. */
+  canonicalPath: string;
+  locale: Locale;
+  title?: string;
+  description?: string;
+}
+
+const { canonicalPath, locale, title, description } = Astro.props;
+const dict = t(locale);
+const pageTitle = title ? `${title} — ${dict.meta.siteName}` : dict.meta.siteName;
+const pageDesc = description ?? dict.meta.description;
+---
+<!DOCTYPE html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <Header locale={locale} canonicalPath={canonicalPath} />
+    <main>
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

@@ -1,0 +1,71 @@
+# Listmonk — self-hosted newsletter manager.
+# Шлёт через Unisender SMTP-релей (см. UNISENDER_* в .env).
+# Админка под basic-auth + IP-whitelist, не публичная.
+
+services:
+  listmonk:
+    image: listmonk/listmonk:latest
+    container_name: listmonk
+    restart: unless-stopped
+    depends_on:
+      listmonk-db:
+        condition: service_healthy
+    environment:
+      LISTMONK_app__address: 0.0.0.0:9000
+      LISTMONK_db__host: listmonk-db
+      LISTMONK_db__port: 5432
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: ${LISTMONK_PG_PASSWORD}
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__ssl_mode: disable
+      LISTMONK_db__max_open: 25
+      LISTMONK_db__max_idle: 25
+      LISTMONK_db__max_lifetime: 300s
+      LISTMONK_app__admin_username: ${LISTMONK_ADMIN_USER}
+      LISTMONK_app__admin_password: ${LISTMONK_ADMIN_PASSWORD}
+    # Первый запуск: --install. После этого убрать команду.
+    # command: ["./listmonk", "--install", "--idempotent", "--yes", "--config", ""]
+    volumes:
+      - listmonk_uploads:/listmonk/uploads
+    networks:
+      - proxy
+      - tr_listmonk_internal
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.listmonk-tr.rule=Host(`mail-admin.${TR_DOMAIN}`)
+      - traefik.http.routers.listmonk-tr.entrypoints=websecure
+      - traefik.http.routers.listmonk-tr.tls.certresolver=letsencrypt
+      - traefik.http.routers.listmonk-tr.middlewares=tr-admin-auth@docker,tr-admin-ipallow@docker,secure-headers@docker
+      - traefik.http.services.listmonk-tr.loadbalancer.server.port=9000
+      # Middleware: basic auth + IP allowlist для всей админки.
+      # Сам секрет берётся из общего TRAEFIK_BASIC_AUTH (как у traefik dashboard 13-33).
+      - traefik.http.middlewares.tr-admin-auth.basicauth.users=${TRAEFIK_BASIC_AUTH}
+      - traefik.http.middlewares.tr-admin-ipallow.ipallowlist.sourcerange=${ADMIN_IP}/32
+
+  listmonk-db:
+    image: postgres:16
+    container_name: listmonk-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: listmonk
+      POSTGRES_USER: listmonk
+      POSTGRES_PASSWORD: ${LISTMONK_PG_PASSWORD}
+    volumes:
+      - listmonk_db_data:/var/lib/postgresql/data
+    networks:
+      - tr_listmonk_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listmonk -d listmonk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  listmonk_db_data:
+  listmonk_uploads:
+
+networks:
+  proxy:
+    external: true
+  tr_listmonk_internal:

@@ -8,6 +8,16 @@ services:
     restart: unless-stopped
     networks:
       - proxy
+    volumes:
+      # Подключаем подпуть preview-assets/ из webdav-тома как /assets/ сайта.
+      # Файлы, положенные в Z:\preview-assets\ через RaiDrive, появляются на https://preview.13-33.pro/assets/
+      # без пересборки контейнера.
+      - type: volume
+        source: mempalace_uploads
+        target: /usr/share/nginx/html/assets
+        read_only: true
+        volume:
+          subpath: preview-assets
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
@@ -19,4 +29,8 @@ services:
 
 networks:
   proxy:
+    external: true
+
+volumes:
+  mempalace_uploads:
     external: true

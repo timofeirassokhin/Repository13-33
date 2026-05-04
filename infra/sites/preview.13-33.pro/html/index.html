@@ -335,50 +335,87 @@ img { max-width: 100%; display: block; }
 .btn-on-vanilla.btn-ghost:hover { border-color: var(--c-brick); color: var(--c-brick); }
 
 /* ==========================================================
-   Hero
+   Hero — фоновое слайдшоу + слоган
    ========================================================== */
 .hero {
-  padding: var(--s-7) 0 var(--s-6);
   position: relative;
+  min-height: 92vh;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: var(--bg-elevated-2); /* fallback пока фото не загрузились */
 }
-.hero .container { max-width: 1080px; position: relative; }
-.hero-eyebrow {
-  font-family: var(--font-display-alt);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--c-coral);
-  margin-bottom: var(--s-3);
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-slide {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: heroFade 32s infinite;
 }
-.hero h1 {
+.hero-slide:nth-child(1) { animation-delay: 0s; }
+.hero-slide:nth-child(2) { animation-delay: 8s; }
+.hero-slide:nth-child(3) { animation-delay: 16s; }
+.hero-slide:nth-child(4) { animation-delay: 24s; }
+@keyframes heroFade {
+  0%   { opacity: 0; }
+  3%   { opacity: 1; }
+  22%  { opacity: 1; }
+  28%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+.hero-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(180deg,
+      rgba(30,37,45,0.45) 0%,
+      rgba(30,37,45,0.65) 55%,
+      rgba(30,37,45,0.95) 100%);
+  pointer-events: none;
+}
+.hero-content { position: relative; z-index: 2; width: 100%; padding: var(--s-7) 0 var(--s-6); }
+.slogan {
   font-family: var(--font-display);
-  font-weight: 400; /* Bebas Neue имеет один вес, но визуально читается как bold */
-  font-size: clamp(56px, 9vw, 128px);
-  line-height: 0.92;
+  font-weight: 400;
+  font-size: clamp(44px, 8.4vw, 132px);
+  line-height: 0.94;
   letter-spacing: 0.005em;
   text-transform: uppercase;
-  margin-bottom: var(--s-4);
   color: var(--text-on-dark);
+  margin-bottom: var(--s-3);
+  max-width: 1200px;
 }
-.hero h1 em {
+.slogan-tail {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 5.4vw, 76px);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-soft);
+}
+.vse {
+  /* Слово "ВСЁ" — Myriad Pro Bold заглавными (по требованию).
+     Без файла лицензии падает в Source Sans 3 (тот же автор). */
+  font-family: 'Myriad Pro', 'Source Sans 3', -apple-system, system-ui, sans-serif;
+  font-weight: 900;
   font-style: normal;
-  font-family: var(--font-logo-numbers);
-  font-weight: 500;
-  text-transform: none;
-  font-size: 0.85em;
+  text-transform: uppercase;
   color: var(--c-coral);
   letter-spacing: -0.01em;
 }
-.hero p.lead {
-  font-family: var(--font-body);
-  font-size: 19px;
-  line-height: 1.55;
-  color: var(--text-on-dark-soft);
-  max-width: 640px;
-  margin-bottom: var(--s-5);
+.hero-stub {
+  position: absolute;
+  bottom: var(--s-3);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  margin: 0;
+  background: rgba(30,37,45,0.8);
+  backdrop-filter: blur(8px);
 }
-.cta-row { display: flex; gap: var(--s-2); flex-wrap: wrap; }
 
 /* ==========================================================
    Sections
@@ -986,21 +1023,29 @@ section.block {
   </div>
 </div>
 
-<!-- ===== HERO ===== -->
+<!-- ===== HERO — фоновое слайдшоу + слоган ===== -->
 <section class="hero">
-  <div class="container">
-    <span class="stub-label">Block 1 · Hero / Манифест</span>
-    <div class="hero-eyebrow">Пространство · 13 / 33</div>
-    <h1>Интеграция<br>психологии<br>и <em>духовных&nbsp;практик</em></h1>
-    <p class="lead">
-      Серьёзный разговор о внутренней работе — без эзотерических клише, без упрощений.
-      Журнал, методы, эксперты, продукты и события на Арбате. Подберём вам трек за три минуты.
-    </p>
-    <div class="cta-row">
-      <a href="#quiz" class="btn btn-primary">Пройти тест-навигатор</a>
-      <a href="#about" class="btn btn-ghost">О Пространстве</a>
-    </div>
+  <div class="hero-bg">
+    <!-- Положи 4 фото в Z:\preview-assets\images\ с именами hero-1.jpg ... hero-4.jpg.
+         До этого момента слайды чёрные (fallback фон). Можно класть .jpg/.webp/.png. -->
+    <div class="hero-slide" style="background-image:url('/assets/images/hero-1.jpg')"></div>
+    <div class="hero-slide" style="background-image:url('/assets/images/hero-2.jpg')"></div>
+    <div class="hero-slide" style="background-image:url('/assets/images/hero-3.jpg')"></div>
+    <div class="hero-slide" style="background-image:url('/assets/images/hero-4.jpg')"></div>
   </div>
+  <div class="hero-overlay"></div>
+
+  <div class="container hero-content">
+    <h1 class="slogan">
+      Пространство,<br>
+      в котором случается <span class="vse">всё</span>
+    </h1>
+    <h2 class="slogan-tail">
+      и <span class="vse">всё</span> случается
+    </h2>
+  </div>
+
+  <span class="stub-label hero-stub">Block 1 · Hero · слайдшоу — фото из Z:\preview-assets\images\hero-1…4.jpg</span>
 </section>
 
 <!-- ===== БЛОК 2 — Лента «новое» ===== -->

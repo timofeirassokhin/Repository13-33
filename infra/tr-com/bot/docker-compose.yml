@@ -17,6 +17,8 @@ services:
       GLUE_WEBHOOK_SECRET: ${GLUE_WEBHOOK_SECRET}
       # MemPalace доступен напрямую в сети proxy
       MEMPALACE_URL: http://mempalace:8080
+    volumes:
+      - bot_tr_data:/data
     networks:
       - proxy
     healthcheck:
@@ -24,6 +26,9 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+volumes:
+  bot_tr_data:
 
 networks:
   proxy:

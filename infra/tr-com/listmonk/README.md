@@ -1,72 +1,83 @@
 # Listmonk для timofeirassokhin.com
 
-## Первый запуск (init БД)
+## Email-архитектура
 
-Listmonk требует разовой инициализации схемы БД. Делается так:
+Email-роли разделены между разными провайдерами:
+
+| Роль | Провайдер | Почему |
+|---|---|---|
+| Личная почта (`mail@`, `hello@`, `book@` и алиасы) | **Яндекс 360 для бизнеса** | Бесплатно для 1 пользователя, отличная доходимость в РФ, IMAP/SMTP/web-клиент готовы |
+| Newsletter — массовые рассылки | Отдельный ESP (**Sendsay** для РФ / Resend для международной) | Нужен прогретый IP-пул и DKIM, провайдер уже всё это даёт |
+| Транзакционные (welcome, подтверждения) | Тот же ESP что и newsletter | На старте простой; позже можно перевести на Unisender REST API |
+
+**Свой mail-сервер не поднимаем** — RU-VPS IP с большой вероятностью на блок-листах Gmail/Mail.ru, восстановление репутации годами не оправдает себя.
+
+## Первый запуск Listmonk (init БД)
 
 ```bash
-# Подними только БД
 docker compose -f infra/tr-com/listmonk/docker-compose.yml up -d listmonk-db
-
-# Жди пока healthy (~5 сек)
-docker compose -f infra/tr-com/listmonk/docker-compose.yml ps
-
-# Запусти init одноразово:
+# жди healthy ~5 сек
 docker compose -f infra/tr-com/listmonk/docker-compose.yml run --rm listmonk \
   ./listmonk --install --idempotent --yes --config /dev/null
-
-# Подними основной сервис
 docker compose -f infra/tr-com/listmonk/docker-compose.yml up -d listmonk
 ```
 
-После этого открой `https://mail-admin.timofeirassokhin.com` (basic-auth из общего `TRAEFIK_BASIC_AUTH`),
-залогинься админ-пользователем `LISTMONK_ADMIN_USER` / `LISTMONK_ADMIN_PASSWORD`.
+Открой `https://mail-admin.timofeirassokhin.com/` (basic-auth от Traefik из общего `TRAEFIK_BASIC_AUTH`).
+В UI Listmonk создаёт superadmin при первом заходе.
 
-## Настройка SMTP (Unisender)
+## Настройка SMTP в Listmonk
 
-В админке Listmonk → Settings → SMTP → Add server:
+В админке Listmonk → **Settings → SMTP → Add server**:
 
-- Host: `smtp.unisender.com`
-- Port: `465` (TLS) или `587` (STARTTLS)
-- Auth Protocol: Login
-- Username: `${UNISENDER_SMTP_USER}` (обычно email)
-- Password: `${UNISENDER_SMTP_PASSWORD}`
-- TLS type: `TLS` если 465, `STARTTLS` если 587
-- Skip TLS verification: **OFF**
-- HELO hostname: `mail.timofeirassokhin.com`
-- Email headers:
-  - From: `${UNISENDER_FROM_NAME} <${UNISENDER_FROM_EMAIL}>`
+- **Host:** значение из `ESP_SMTP_HOST` (`smtp.sendsay.ru`, `smtp.resend.com` или другое)
+- **Port:** `465` (TLS) или `587` (STARTTLS)
+- **Auth Protocol:** `Login`
+- **Username:** `ESP_SMTP_USER`
+- **Password:** `ESP_SMTP_PASSWORD`
+- **TLS type:** `TLS` если 465, `STARTTLS` если 587
+- **Skip TLS verification:** OFF
+- **HELO hostname:** `timofeirassokhin.com`
+- **Email headers:** From: `${ESP_FROM_NAME} <${ESP_FROM_EMAIL}>`
 
 Тестовое письмо: Settings → Send test email.
 
-## DNS (Cloudflare)
+## DNS в Cloudflare для timofeirassokhin.com
 
-Чтобы письма не падали в спам, добавить в Cloudflare DNS для `timofeirassokhin.com`:
+### Личная почта (после Яндекс 360 wizard)
 
-1. **MX-запись** (если хочешь принимать почту через Unisender):
-   ```
-   timofeirassokhin.com.   MX  10  smtprelay.unisender.com.
-   ```
+Яндекс 360 wizard сам подскажет какие записи добавить. Типовой набор:
 
-2. **SPF** (TXT, root):
-   ```
-   v=spf1 include:_spf.unisender.com ~all
-   ```
+```
+@   MX  10  mx.yandex.net.
+@   TXT     v=spf1 redirect=_spf.yandex.net
+mail._domainkey  TXT  v=DKIM1; k=rsa; p=<выдаст Яндекс>
+_dmarc  TXT  v=DMARC1; p=none; rua=mailto:mail@timofeirassokhin.com; pct=100
+```
 
-3. **DKIM** — Unisender выдаёт уникальную TXT-запись в кабинете → Настройки → DKIM. Скопировать туда.
+Если планируем **слать рассылки тоже через свой домен** (а не через subdomain ESP) —
+SPF нужно расширить чтобы покрывал и Яндекс, и ESP:
 
-4. **DMARC** (TXT, `_dmarc.timofeirassokhin.com`):
-   ```
-   v=DMARC1; p=none; rua=mailto:dmarc@timofeirassokhin.com; pct=100
-   ```
-   `p=none` — для прогрева. Через 2-3 недели после первой массовой рассылки и нулевых DMARC-репортов
-   с проблемами поднимаем до `p=quarantine`, потом `p=reject`.
+```
+@   TXT     v=spf1 include:_spf.yandex.net include:<ESP-spf-host> ~all
+```
 
-## Прогрев домена
+(У Sendsay: `include:sendsay.ru`. У Resend: `include:_spf.resend.com`. Замени когда выберешь ESP.)
+
+### DKIM для рассылок (отдельная запись)
+
+ESP даст уникальную TXT-запись на selector типа `selector1._domainkey.timofeirassokhin.com`
+(имя селектора зависит от ESP). Прописываем как есть.
+
+### DMARC
+
+`p=none` на старте (только репорты, без блокировок). После 2-3 недель прогрева и нулевых
+проблем поднимаем до `p=quarantine`, потом `p=reject`.
+
+## Прогрев домена для рассылок
 
 Первые 2 недели:
-- Шлём только подписчикам, которые явно подтвердили email (double opt-in)
+- Только подтвердившие email подписчики (double opt-in включён в Listmonk по умолчанию)
 - Объёмы: день 1 — 50 писем, день 3 — 200, день 7 — 500, день 14 — 2000
-- Следим за Unisender Analytics (open rate >20%, bounce <2%, complaints <0.1%)
+- Метрики из ESP-кабинета: open rate >20%, bounce <2%, complaints <0.1%
 
-После прогрева можно слать большие рассылки без потери доходимости.
+После прогрева можно делать большие рассылки без потери доходимости.

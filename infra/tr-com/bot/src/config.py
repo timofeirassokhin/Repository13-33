@@ -9,6 +9,9 @@ class Settings(BaseSettings):
 
     token: str = Field(min_length=10)
     allowed_admin_ids: list[int] = Field(default_factory=list)
+    # SOCKS5/HTTP-прокси к api.telegram.org. На RU-VPS — `socks5://warp:1080` через
+    # WARP-сайдкар (контейнер `warp` в общей сети `proxy`, поднимается из infra/bot/).
+    proxy: str = ""
 
 
 class GlueSettings(BaseSettings):

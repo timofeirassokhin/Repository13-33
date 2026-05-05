@@ -14,6 +14,7 @@ import logging
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
@@ -65,10 +66,13 @@ async def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     settings, glue = load()
-    log.info("starting bot, glue=%s mempalace=%s", glue.glue_base_url, glue.mempalace_url)
+    log.info("starting bot, glue=%s mempalace=%s proxy=%s",
+             glue.glue_base_url, glue.mempalace_url, settings.proxy or "none")
 
+    session = AiohttpSession(proxy=settings.proxy) if settings.proxy else AiohttpSession()
     bot = Bot(
         token=settings.token,
+        session=session,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     dp = Dispatcher()

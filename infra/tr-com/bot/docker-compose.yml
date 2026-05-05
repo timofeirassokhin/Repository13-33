@@ -9,9 +9,9 @@ services:
     environment:
       TR_BOT_TOKEN: ${TR_BOT_TOKEN}
       TR_BOT_ALLOWED_ADMIN_IDS: ${TR_BOT_ALLOWED_ADMIN_IDS}
-      # Telegram API ходит через WARP-сайдкар как у pa-bot (контейнер `warp` на сети proxy)
-      HTTPS_PROXY: socks5://warp:1080
-      HTTP_PROXY: socks5://warp:1080
+      # SOCKS5 через WARP-сайдкар (контейнер `warp` поднят в infra/bot/ и доступен в сети proxy).
+      # aiogram сам HTTPS_PROXY не подхватит — пробрасываем явно.
+      TR_BOT_PROXY: socks5://warp:1080
       # Куда стучаться за CRM-операциями (через glue-сервис, чтобы не дублировать клиент)
       GLUE_BASE_URL: http://glue:8000
       GLUE_WEBHOOK_SECRET: ${GLUE_WEBHOOK_SECRET}

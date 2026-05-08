@@ -1,0 +1,94 @@
+
+## ✅ Agilent (РАБОЧИЙ — образец) (id 96702)
+
+Текущая структура фильтров:
+```
+AND (2):
+  - [tender_name] (text) UI=«ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ ÑÐµÐ½Ð´ÐµÑÐ°»  INC=1782ch  EXC=1611ch
+  - [tender_status] (value) UI=«Ð¡ÑÐ°ÑÑÑ ÑÐµÐ½Ð´ÐµÑÐ°»  value=1
+interval: [0, 1]
+```
+
+## ✅ Фильтры мембранные (РАБОЧИЙ — образец) (id 96701)
+
+Текущая структура фильтров:
+```
+AND (2):
+  OR (3):
+    - [tender_name] (text) UI=«ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ ÑÐµÐ½Ð´ÐµÑÐ°»  INC=344ch  EXC=1681ch
+    - [tender_name] (text) UI=«ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ ÑÐµÐ½Ð´ÐµÑÐ°»  INC=344ch  EXC=1681ch
+    - [tender_notification] (text) UI=«ÐÐ¾ Ð¸Ð·Ð²ÐµÑÐµÐ½Ð¸Ñ»  INC=344ch  EXC=1681ch
+  - [tender_status] (value) UI=«Ð¡ÑÐ°ÑÑÑ ÑÐµÐ½Ð´ÐµÑÐ°»  value=1
+interval: [0, 0]
+```
+
+## ✅ Оборудование (РАБОЧИЙ — образец) (id 96700)
+
+Текущая структура фильтров:
+```
+AND (2):
+  OR (2):
+    - [tender_files] (text) UI=«ÐÐ¾ Ð´Ð¾ÐºÑÐ¼ÐµÐ½ÑÐ°ÑÐ¸Ð¸»  INC=46ch  EXC=0ch
+    - [tender_name] (text) UI=«ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ ÑÐµÐ½Ð´ÐµÑÐ°»  INC=3015ch  EXC=2277ch
+  - [tender_status] (value) UI=«Ð¡ÑÐ°ÑÑÑ ÑÐµÐ½Ð´ÐµÑÐ°»  value=1
+interval: [0, 1]
+```
+
+## ❌ Все_приборы_аналитики_строгий (СЛОМАН) (id 367074)
+
+Текущая структура фильтров:
+```
+AND (4):
+  - [contract_products] (text) UI=«ÐÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¿ÑÐ¾Ð´ÑÐºÑÐ°Ð¼»  INC=2045ch  EXC=1017ch
+  - [tender_lotCategories] (tree_list) UI=«ÐÐ°ÑÐµÐ³Ð¾ÑÐ¸Ñ»  INC=689ch (tree-list ids)  EXC=719ch
+  - [contract_price] (range) UI=«Ð¦ÐµÐ½Ð°»  from=5000000  to=None
+  - [contract_signDate] (range) UI=«ÐÐ°ÑÐ° Ð¿Ð¾Ð´Ð¿Ð¸ÑÐ°Ð½Ð¸Ñ»  from=2024-07-01  to=2025-12-31T23:59:59
+interval: [0, 1]
+```
+
+## ❌ Тендеры_приборы_аналитики_строгий (СЛОМАН) (id 367099)
+
+Текущая структура фильтров:
+```
+AND (4):
+  - [contract_products] (text) UI=«ÐÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¿ÑÐ¾Ð´ÑÐºÑÐ°Ð¼»  INC=2045ch  EXC=1017ch
+  - [tender_lotCategories] (tree_list) UI=«ÐÐ°ÑÐµÐ³Ð¾ÑÐ¸Ñ»  INC=689ch (tree-list ids)  EXC=719ch
+  - [contract_price] (range) UI=«Ð¦ÐµÐ½Ð°»  from=1000000  to=None
+  - [tender_status] (value) UI=«Ð¡ÑÐ°ÑÑÑ ÑÐµÐ½Ð´ÐµÑÐ°»  value=1
+interval: [0, 1]
+```
+
+## ❌ Расходники_хроматограф_строгий (СЛОМАН) (id 367084)
+
+Текущая структура фильтров:
+```
+AND (4):
+  - [contract_products] (text) UI=«ÐÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¿ÑÐ¾Ð´ÑÐºÑÐ°Ð¼»  INC=649ch  EXC=862ch
+  - [tender_lotCategories] (tree_list) UI=«ÐÐ°ÑÐµÐ³Ð¾ÑÐ¸Ñ»  INC=689ch (tree-list ids)  EXC=719ch
+  - [contract_price] (range) UI=«Ð¦ÐµÐ½Ð°»  from=5000000  to=None
+  - [contract_signDate] (range) UI=«ÐÐ°ÑÐ° Ð¿Ð¾Ð´Ð¿Ð¸ÑÐ°Ð½Ð¸Ñ»  from=2024-07-01  to=2025-12-31T23:59:59
+interval: [0, 1]
+```
+
+## ❌ Расходники_хроматограф_строгий актуальный (СЛОМАН) (id 367104)
+
+Текущая структура фильтров:
+```
+AND (3):
+  - [contract_products] (text) UI=«ÐÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¿ÑÐ¾Ð´ÑÐºÑÐ°Ð¼»  INC=993ch  EXC=862ch
+  - [tender_lotCategories] (tree_list) UI=«ÐÐ°ÑÐµÐ³Ð¾ÑÐ¸Ñ»  INC=689ch (tree-list ids)  EXC=719ch
+  - [tender_status] (value) UI=«Ð¡ÑÐ°ÑÑÑ ÑÐµÐ½Ð´ÐµÑÐ°»  value=1
+interval: [0, 1]
+```
+
+## ⚠️ архив ВЭЖХиМС (СЛОМАН — старый широкий) (id 367007)
+
+Текущая структура фильтров:
+```
+AND (4):
+  - [contract_products] (text) UI=«ÐÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¿ÑÐ¾Ð´ÑÐºÑÐ°Ð¼»  INC=1158ch  EXC=1247ch
+  - [tender_lotCategories] (tree_list) UI=«ÐÐ°ÑÐµÐ³Ð¾ÑÐ¸Ñ»  INC=689ch (tree-list ids)  EXC=719ch
+  - [contract_price] (range) UI=«Ð¦ÐµÐ½Ð°»  from=5000000  to=None
+  - [contract_signDate] (range) UI=«ÐÐ°ÑÐ° Ð¿Ð¾Ð´Ð¿Ð¸ÑÐ°Ð½Ð¸Ñ»  from=2024-07-01  to=2025-12-31T23:59:59
+interval: [0, 1]
+```

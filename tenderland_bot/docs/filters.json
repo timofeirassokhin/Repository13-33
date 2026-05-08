@@ -1,0 +1,1475 @@
+﻿{
+    "createDate":  "2026-05-05T13:23:56.2715183Z",
+    "items":  [
+                  {
+                      "Id":  100,
+                      "SystemName":  "tender_name",
+                      "Name":  "Название тендера",
+                      "Modules":  [
+                                      20,
+                                      18,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      8
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  101,
+                      "SystemName":  "tender_files",
+                      "Name":  "По документации",
+                      "Modules":  [
+                                      11,
+                                      18,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      8,
+                                      10
+                                  ],
+                      "Type":  "text"
+                  },
+                  {
+                      "Id":  102,
+                      "SystemName":  "tender_lotKtru",
+                      "Name":  "ОКПД 2",
+                      "Modules":  [
+                                      20,
+                                      18,
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=okpd2\u0026format=json"
+                  },
+                  {
+                      "Id":  103,
+                      "SystemName":  "tender_lotCategories",
+                      "Name":  "Категория",
+                      "Modules":  [
+                                      20,
+                                      18,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=categories\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "main_category",
+                                          "Name":  "Главная категория"
+                                      },
+                                      {
+                                          "SystemName":  "undefined_category",
+                                          "Name":  "Показывать без категории"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  104,
+                      "SystemName":  "tender_region",
+                      "Name":  "Регион",
+                      "Modules":  [
+                                      20,
+                                      18,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=kladr\u0026maxLevel=1\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Показывать без региона"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  105,
+                      "SystemName":  "tender_lotDeliveryPlaces",
+                      "Name":  "Место поставки",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=kladr\u0026maxLevel=4\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Показывать без определенного адреса"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  106,
+                      "SystemName":  "tender_beginPrice",
+                      "Name":  "Цена",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Без НМЦК"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  107,
+                      "SystemName":  "tender_regNumber",
+                      "Name":  "Реестровый номер",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "strict_compliance",
+                                          "Name":  "Точный поиск"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  108,
+                      "SystemName":  "tender_lotCustomers",
+                      "Name":  "Заказчик",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "organizations"
+                  },
+                  {
+                      "Id":  109,
+                      "SystemName":  "tender_lotApplicationsWinner",
+                      "Name":  "Поставщик",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "organizations"
+                  },
+                  {
+                      "Id":  110,
+                      "SystemName":  "tender_publishDate",
+                      "Name":  "Дата публикации",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  111,
+                      "SystemName":  "tender_beginDate",
+                      "Name":  "Дата начала подачи заявок",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  112,
+                      "SystemName":  "tender_endDate",
+                      "Name":  "Дата окончания подачи заявок",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      20
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  113,
+                      "SystemName":  "tender_biddingDate",
+                      "Name":  "Дата проведения тендера",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  114,
+                      "SystemName":  "tender_winnerDate",
+                      "Name":  "Дата определения победителя",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  115,
+                      "SystemName":  "tender_status",
+                      "Name":  "Статус тендера",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_status\u0026format=json"
+                  },
+                  {
+                      "Id":  116,
+                      "SystemName":  "tender_typeId",
+                      "Name":  "Тип тендера",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=purchase_type\u0026format=json"
+                  },
+                  {
+                      "Id":  117,
+                      "SystemName":  "tender_etpId",
+                      "Name":  "Площадка",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=etp\u0026format=json"
+                  },
+                  {
+                      "Id":  118,
+                      "SystemName":  "tender_lotApplicationGuaranteePrice",
+                      "Name":  "Размер обеспечения заявки",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  119,
+                      "SystemName":  "tender_lotPrefence",
+                      "Name":  "Преимущества",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=preference\u0026type=P\u0026format=json"
+                  },
+                  {
+                      "Id":  120,
+                      "SystemName":  "tender_module",
+                      "Name":  "Модуль",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_module\u0026format=json"
+                  },
+                  {
+                      "Id":  121,
+                      "SystemName":  "tender_lotApplicationsCount",
+                      "Name":  "Количество участников",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  122,
+                      "SystemName":  "tender_reduction",
+                      "Name":  "Процент снижения",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  123,
+                      "SystemName":  "tender_lotApplications",
+                      "Name":  "Участник",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "organizations"
+                  },
+                  {
+                      "Id":  124,
+                      "SystemName":  "tender_lotRequirement",
+                      "Name":  "Требования",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=preference\u0026type=D,F\u0026format=json"
+                  },
+                  {
+                      "Id":  125,
+                      "SystemName":  "tender_lotRestriction",
+                      "Name":  "Ограничения",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=preference\u0026type=C\u0026format=json"
+                  },
+                  {
+                      "Id":  126,
+                      "SystemName":  "tender_notification",
+                      "Name":  "По извещению",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      8
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  127,
+                      "SystemName":  "tender_favourite",
+                      "Name":  "Мои тендеры",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list"
+                  },
+                  {
+                      "Id":  128,
+                      "SystemName":  "tender_createDate",
+                      "Name":  "Дата создания в системе",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  129,
+                      "SystemName":  "tender_hasComplaints",
+                      "Name":  "Жалобы ФАС",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_hasComplaints\u0026format=json"
+                  },
+                  {
+                      "Id":  130,
+                      "SystemName":  "tender_tag",
+                      "Name":  "Метка",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9
+                                  ],
+                      "Type":  "tree_list"
+                  },
+                  {
+                      "Id":  131,
+                      "SystemName":  "tender_viewed",
+                      "Name":  "Просмотренные",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_viewed\u0026format=json"
+                  },
+                  {
+                      "Id":  132,
+                      "SystemName":  "tender_hidden",
+                      "Name":  "Скрытые",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_hidden\u0026format=json"
+                  },
+                  {
+                      "Id":  133,
+                      "SystemName":  "tender_lotKtru2",
+                      "Name":  "КТРУ",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=ktru\u0026format=json"
+                  },
+                  {
+                      "Id":  134,
+                      "SystemName":  "tender_stage",
+                      "Name":  "Этап тендера",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_stage\u0026format=json"
+                  },
+                  {
+                      "Id":  135,
+                      "SystemName":  "tender_pharmProducts",
+                      "Name":  "МНН Мониторинг",
+                      "Modules":  [
+                                      9
+                                  ],
+                      "Type":  "pharm",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=pharm\u0026format=json"
+                  },
+                  {
+                      "Id":  136,
+                      "SystemName":  "tender_keywords_include",
+                      "Name":  "Ключевые слова",
+                      "Modules":  [
+                                      11
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      },
+                                      {
+                                          "SystemName":  "100",
+                                          "Name":  "по названию"
+                                      },
+                                      {
+                                          "SystemName":  "126",
+                                          "Name":  "по извещению"
+                                      },
+                                      {
+                                          "SystemName":  "101",
+                                          "Name":  "по документации"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  137,
+                      "SystemName":  "tender_keywords_exclude",
+                      "Name":  "Ключевые слова",
+                      "Modules":  [
+                                      11
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      },
+                                      {
+                                          "SystemName":  "100",
+                                          "Name":  "по названию"
+                                      },
+                                      {
+                                          "SystemName":  "126",
+                                          "Name":  "по извещению"
+                                      },
+                                      {
+                                          "SystemName":  "101",
+                                          "Name":  "по документации"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  138,
+                      "SystemName":  "tender_lotAdvanceSumPercent",
+                      "Name":  "Аванс",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  139,
+                      "SystemName":  "tender_jointBidding",
+                      "Name":  "Совместная закупка",
+                      "Modules":  [
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_jointBidding\u0026format=json"
+                  },
+                  {
+                      "Id":  140,
+                      "SystemName":  "tender_lotCancelReason",
+                      "Name":  "Несостоявшиеся торги",
+                      "Modules":  [
+                                      20,
+                                      11,
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      8
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=tender_lotCancelReason\u0026format=json"
+                  },
+                  {
+                      "Id":  200,
+                      "SystemName":  "contract_products",
+                      "Name":  "Поиск по продуктам",
+                      "Modules":  [
+                                      11,
+                                      5
+                                  ],
+                      "Type":  "text"
+                  },
+                  {
+                      "Id":  201,
+                      "SystemName":  "contract_regNumber",
+                      "Name":  "Реестровый номер",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "strict_compliance",
+                                          "Name":  "Точный поиск"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  202,
+                      "SystemName":  "contract_law",
+                      "Name":  "Закон",
+                      "Modules":  [
+                                      11,
+                                      5
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_law\u0026format=json"
+                  },
+                  {
+                      "Id":  203,
+                      "SystemName":  "contract_price",
+                      "Name":  "Цена",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Без НМЦК"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  204,
+                      "SystemName":  "contract_statusId",
+                      "Name":  "Статус",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_statusId\u0026format=json"
+                  },
+                  {
+                      "Id":  205,
+                      "SystemName":  "contract_publishDate",
+                      "Name":  "Дата публикации",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  206,
+                      "SystemName":  "contract_executionBeginDate",
+                      "Name":  "Дата начала исполнения",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  207,
+                      "SystemName":  "contract_executionEndDate",
+                      "Name":  "Дата окончания исполнения",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  208,
+                      "SystemName":  "contract_executionFactDate",
+                      "Name":  "Фактическая дата исполнения",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  209,
+                      "SystemName":  "contract_signDate",
+                      "Name":  "Дата подписания",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  210,
+                      "SystemName":  "contract_customers",
+                      "Name":  "Заказчик",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "organizations"
+                  },
+                  {
+                      "Id":  211,
+                      "SystemName":  "contract_suppliers",
+                      "Name":  "Поставщик",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "organizations"
+                  },
+                  {
+                      "Id":  212,
+                      "SystemName":  "contract_region",
+                      "Name":  "Регион",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=kladr\u0026maxLevel=1\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Показывать без региона"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  213,
+                      "SystemName":  "contract_executionProgress",
+                      "Name":  "Процент выполнения",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  214,
+                      "SystemName":  "contract_penaltyTypeIds",
+                      "Name":  "Штраф",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_penaltyTypeIds\u0026format=json"
+                  },
+                  {
+                      "Id":  215,
+                      "SystemName":  "contract_penaltiesSum",
+                      "Name":  "Сумма штрафов",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  216,
+                      "SystemName":  "contract_isAllPenaltiesPaid",
+                      "Name":  "Наличие неоплаченных штрафов",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_isAllPenaltiesPaid\u0026format=json"
+                  },
+                  {
+                      "Id":  217,
+                      "SystemName":  "contract_categories",
+                      "Name":  "Категория",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=categories\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "main_category",
+                                          "Name":  "Главная категория"
+                                      },
+                                      {
+                                          "SystemName":  "undefined_category",
+                                          "Name":  "Показывать без категории"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  218,
+                      "SystemName":  "contract_createDate",
+                      "Name":  "Дата создания в системе",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  219,
+                      "SystemName":  "contract_ktru",
+                      "Name":  "ОКПД 2",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=okpd2\u0026format=json"
+                  },
+                  {
+                      "Id":  220,
+                      "SystemName":  "contract_hasTender",
+                      "Name":  "Наличие тендера",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_hasTender\u0026format=json"
+                  },
+                  {
+                      "Id":  221,
+                      "SystemName":  "contract_tag",
+                      "Name":  "Метка",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list"
+                  },
+                  {
+                      "Id":  222,
+                      "SystemName":  "contract_viewed",
+                      "Name":  "Просмотренные",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_viewed\u0026format=json"
+                  },
+                  {
+                      "Id":  223,
+                      "SystemName":  "contract_hidden",
+                      "Name":  "Скрытые",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_hidden\u0026format=json"
+                  },
+                  {
+                      "Id":  224,
+                      "SystemName":  "contract_ktru2",
+                      "Name":  "КТРУ",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=ktru\u0026format=json"
+                  },
+                  {
+                      "Id":  225,
+                      "SystemName":  "contract_pharmProducts",
+                      "Name":  "МНН Аналитика",
+                      "Modules":  [
+                                      16
+                                  ],
+                      "Type":  "pharm",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=pharm_analytics\u0026format=json"
+                  },
+                  {
+                      "Id":  226,
+                      "SystemName":  "contract_pharmProductsVerified",
+                      "Name":  "Статус проверки данных",
+                      "Modules":  [
+                                      16
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_pharmProductsVerified\u0026format=json"
+                  },
+                  {
+                      "Id":  227,
+                      "SystemName":  "contract_products_include",
+                      "Name":  "Поиск по продуктам",
+                      "Modules":  [
+                                      11
+                                  ],
+                      "Type":  "text"
+                  },
+                  {
+                      "Id":  228,
+                      "SystemName":  "contract_products_exclude",
+                      "Name":  "Поиск по продуктам",
+                      "Modules":  [
+                                      11
+                                  ],
+                      "Type":  "text"
+                  },
+                  {
+                      "Id":  229,
+                      "SystemName":  "contract_statusReason",
+                      "Name":  "Причина расторжения контракта",
+                      "Modules":  [
+                                      11,
+                                      5,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=contract_statusReason\u0026format=json"
+                  },
+                  {
+                      "Id":  300,
+                      "SystemName":  "plan_positionName",
+                      "Name":  "Поиск по названию",
+                      "Modules":  [
+                                      11,
+                                      6
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  301,
+                      "SystemName":  "plan_positionProducts",
+                      "Name":  "Поиск по продуктам",
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  302,
+                      "SystemName":  "plan_positionIsSpecial",
+                      "Name":  "Специальные позиции",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=special_position\u0026format=json"
+                  },
+                  {
+                      "Id":  303,
+                      "SystemName":  "plan_regNumber",
+                      "Name":  "Реестровый номер",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "strict_compliance",
+                                          "Name":  "Точный поиск"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  304,
+                      "SystemName":  "plan_positionPrice",
+                      "Name":  "Цена",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "range",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Без НМЦК"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  305,
+                      "SystemName":  "plan_type",
+                      "Name":  "Тип",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?plan_type\u0026format=json"
+                  },
+                  {
+                      "Id":  306,
+                      "SystemName":  "plan_region",
+                      "Name":  "Регион",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=kladr\u0026maxLevel=1\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "undefined_values",
+                                          "Name":  "Показывать без региона"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  307,
+                      "SystemName":  "plan_positionCustomers",
+                      "Name":  "Заказчик",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "organizations"
+                  },
+                  {
+                      "Id":  309,
+                      "SystemName":  "plan_positionKtru",
+                      "Name":  "ОКПД2",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=okpd2\u0026format=json"
+                  },
+                  {
+                      "Id":  310,
+                      "SystemName":  "plan_positionPublishDate",
+                      "Name":  "Дата публикации",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  311,
+                      "SystemName":  "plan_positionTenderStartDate",
+                      "Name":  "Дата публикации тендера",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  312,
+                      "SystemName":  "plan_positionTenderStatus",
+                      "Name":  "Статус публикации тендера",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=plan_positionTenderStatus\u0026format=json"
+                  },
+                  {
+                      "Id":  313,
+                      "SystemName":  "plan_positionCategories",
+                      "Name":  "Категория",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=categories\u0026format=json",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "main_category",
+                                          "Name":  "Главная категория"
+                                      },
+                                      {
+                                          "SystemName":  "undefined_category",
+                                          "Name":  "Показывать без категории"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  314,
+                      "SystemName":  "plan_positionCreateDate",
+                      "Name":  "Дата создания в системе",
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "range"
+                  },
+                  {
+                      "Id":  315,
+                      "SystemName":  "plan_positionTag",
+                      "Name":  "Метка",
+                      "Modules":  [
+                                      11,
+                                      6
+                                  ],
+                      "Type":  "tree_list"
+                  },
+                  {
+                      "Id":  316,
+                      "SystemName":  "plan_positionViewed",
+                      "Name":  "Просмотренные",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=plan_positionViewed\u0026format=json"
+                  },
+                  {
+                      "Id":  317,
+                      "SystemName":  "plan_positionHidden",
+                      "Name":  "Скрытые",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=plan_positionHidden\u0026format=json"
+                  },
+                  {
+                      "Id":  318,
+                      "SystemName":  "plan_positionKtru2",
+                      "Name":  "КТРУ",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=ktru\u0026format=json"
+                  },
+                  {
+                      "Id":  319,
+                      "SystemName":  "plan_positionStatus",
+                      "Name":  "Статус позиции",
+                      "Modules":  [
+                                      11,
+                                      6,
+                                      9
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=plan_positionStatus\u0026format=json"
+                  },
+                  {
+                      "Id":  320,
+                      "SystemName":  "plan_positionName_include",
+                      "Name":  "Поиск по названию",
+                      "Modules":  [
+                                      11
+                                  ],
+                      "Type":  "text",
+                      "Options":  [
+                                      {
+                                          "SystemName":  "transliteration",
+                                          "Name":  "Транслит"
+                                      }
+                                  ]
+                  },
+                  {
+                      "Id":  321,
+                      "SystemName":  "plan_positionName_exclude",
+                      "Name":  "Поиск по названию",
+                      "Modules":  [
+                                      11
+                                  ],
+                      "Type":  "text"
+                  },
+                  {
+                      "Id":  322,
+                      "SystemName":  "plan_positionTenderTypeId",
+                      "Name":  "Тип тендера",
+                      "Modules":  [
+                                      11,
+                                      6
+                                  ],
+                      "Type":  "tree_list",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=purchase_type\u0026format=json"
+                  },
+                  {
+                      "Id":  800,
+                      "SystemName":  "common_tag",
+                      "Name":  "Метка",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      7
+                                  ],
+                      "Type":  "tree_list"
+                  },
+                  {
+                      "Id":  801,
+                      "SystemName":  "common_viewed",
+                      "Name":  "Просмотренные",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      7
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=common_viewed\u0026format=json"
+                  },
+                  {
+                      "Id":  802,
+                      "SystemName":  "common_hidden",
+                      "Name":  "Скрытые",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      7
+                                  ],
+                      "Type":  "value",
+                      "Dictionary":  "https://tenderland.ru/Api/v1/Dictionary/Get?name=common_hidden\u0026format=json"
+                  },
+                  {
+                      "Id":  803,
+                      "SystemName":  "common_indexingDate",
+                      "Name":  "Дата индексации",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      7
+                                  ],
+                      "Type":  "value"
+                  },
+                  {
+                      "Id":  900,
+                      "SystemName":  "group_or",
+                      "Name":  "ИЛИ",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      7
+                                  ],
+                      "Type":  "group"
+                  },
+                  {
+                      "Id":  901,
+                      "SystemName":  "group_and",
+                      "Name":  "И",
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      10,
+                                      9,
+                                      8,
+                                      7
+                                  ],
+                      "Type":  "group"
+                  }
+              ]
+}

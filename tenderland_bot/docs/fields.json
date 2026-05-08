@@ -1,0 +1,3875 @@
+﻿{
+    "createDate":  "2026-05-05T13:23:56.4524454Z",
+    "items":  [
+                  {
+                      "Id":  1001,
+                      "SystemName":  "tender_id",
+                      "Name":  "Идентификатор",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1002,
+                      "SystemName":  "tender_name",
+                      "Name":  "Название",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1003,
+                      "SystemName":  "tender_beginPrice",
+                      "Name":  "Начальная цена",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1004,
+                      "SystemName":  "tender_regNumber",
+                      "Name":  "Реестровый номер",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1005,
+                      "SystemName":  "tender_summingUpDate",
+                      "Name":  "Дата подведения итогов",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1006,
+                      "SystemName":  "tender_lotProductName",
+                      "Name":  "Наименование продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1007,
+                      "SystemName":  "tender_lotProductCount",
+                      "Name":  "Количество продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1008,
+                      "SystemName":  "tender_lotProductPrice",
+                      "Name":  "Цена за единицу продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1009,
+                      "SystemName":  "tender_lotProductsSum",
+                      "Name":  "Сумма для продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1010,
+                      "SystemName":  "tender_lotProductsOkeiName",
+                      "Name":  "Единица измерения продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1011,
+                      "SystemName":  "tender_lotKtruName",
+                      "Name":  "ОКПД2/КТРУ продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1012,
+                      "SystemName":  "tender_lotKtruCode",
+                      "Name":  "Код ОКПД2/КТРУ продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1013,
+                      "SystemName":  "tender_lotCategories",
+                      "Name":  "Категория лота",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1014,
+                      "SystemName":  "tender_region",
+                      "Name":  "Регион",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1015,
+                      "SystemName":  "tender_sourceLink",
+                      "Name":  "Ссылка на источник",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1016,
+                      "SystemName":  "tender_lotApplicationsCount",
+                      "Name":  "Количество заявок общее",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1017,
+                      "SystemName":  "tender_lotApplicationsRejectedCount",
+                      "Name":  "Количество отклоненных заявок",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1018,
+                      "SystemName":  "tender_sysPublishDate",
+                      "Name":  "Дата публикации в Тендерлэнд",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1019,
+                      "SystemName":  "tender_sysUpdateDate",
+                      "Name":  "Дата обновления в Тендерлэнд",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1020,
+                      "SystemName":  "tender_isCompleted",
+                      "Name":  "Завершенность",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1021,
+                      "SystemName":  "tender_lotCurrency",
+                      "Name":  "Валюта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1022,
+                      "SystemName":  "tender_lotApplicationGuaranteePrice",
+                      "Name":  "Сумма обеспечения заявки",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1023,
+                      "SystemName":  "tender_lotContractGuaranteePrice",
+                      "Name":  "Сумма обеспечения контракта (руб)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1024,
+                      "SystemName":  "tender_lotCustomerFullName",
+                      "Name":  "Полное наименование заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1025,
+                      "SystemName":  "tender_organizerInn",
+                      "Name":  "ИНН организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1026,
+                      "SystemName":  "tender_organizerOgrn",
+                      "Name":  "ОГРН организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1027,
+                      "SystemName":  "tender_organizerContacts",
+                      "Name":  "Контакты организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1028,
+                      "SystemName":  "tender_representativeInn",
+                      "Name":  "ИНН представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1029,
+                      "SystemName":  "tender_representativeKpp",
+                      "Name":  "КПП представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1030,
+                      "SystemName":  "tender_representativeOgrn",
+                      "Name":  "ОГРН представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1031,
+                      "SystemName":  "tender_representativeContacts",
+                      "Name":  "Контакты представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1032,
+                      "SystemName":  "tender_lotCustomerInn",
+                      "Name":  "ИНН заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1033,
+                      "SystemName":  "tender_lotCustomerKpp",
+                      "Name":  "КПП заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1034,
+                      "SystemName":  "tender_lotCustomerOgrn",
+                      "Name":  "ОГРН заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1035,
+                      "SystemName":  "tender_lotCustomerContacts",
+                      "Name":  "Контакты заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1036,
+                      "SystemName":  "tender_lotDeliveryPlacesText",
+                      "Name":  "Место поставки товара",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1037,
+                      "SystemName":  "tender_publishDate",
+                      "Name":  "Дата публикации",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1038,
+                      "SystemName":  "tender_beginDate",
+                      "Name":  "Дата начала подачи заявок",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1039,
+                      "SystemName":  "tender_endDate",
+                      "Name":  "Дата окончания подачи заявок",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1040,
+                      "SystemName":  "tender_biddingDate",
+                      "Name":  "Дата проведения тендера",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1041,
+                      "SystemName":  "tender_status",
+                      "Name":  "Статус",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1042,
+                      "SystemName":  "tender_typeName",
+                      "Name":  "Тип тендера",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1043,
+                      "SystemName":  "tender_etpName",
+                      "Name":  "Площадка",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1044,
+                      "SystemName":  "tender_module",
+                      "Name":  "Модуль",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1045,
+                      "SystemName":  "tender_files",
+                      "Name":  "Документы к тендеру",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1046,
+                      "SystemName":  "tender_lotName",
+                      "Name":  "Название лота",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1047,
+                      "SystemName":  "tender_organizerFullName",
+                      "Name":  "Полное наименование организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1048,
+                      "SystemName":  "tender_representativeFullName",
+                      "Name":  "Полное наименование представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1049,
+                      "SystemName":  "tender_utcTimeOffset",
+                      "Name":  "Часовой пояс",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1073,
+                      "SystemName":  "tender_organizerKpp",
+                      "Name":  "КПП организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1074,
+                      "SystemName":  "tender_linkToCard",
+                      "Name":  "Ссылка на карточку",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1075,
+                      "SystemName":  "tender_lotDeliveryTerm",
+                      "Name":  "Сроки поставки товара, выполнения работ, оказания услуг",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1076,
+                      "SystemName":  "tender_lotPreferences",
+                      "Name":  "Преимущества для участников",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1077,
+                      "SystemName":  "tender_lotRestrictions",
+                      "Name":  "Ограничения для участников",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1078,
+                      "SystemName":  "tender_lotRequirements",
+                      "Name":  "Требования к участникам",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1050,
+                      "SystemName":  "tender_lotProductsDetail",
+                      "Name":  "Продукты",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1051,
+                      "SystemName":  "tender_lotCustomersDetail",
+                      "Name":  "Заказчики",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1052,
+                      "SystemName":  "tender_supplierDetail",
+                      "Name":  "Участники",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1053,
+                      "SystemName":  "tender_contractsDetail",
+                      "Name":  "Контракты",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1054,
+                      "SystemName":  "tender_favouritesDetail",
+                      "Name":  "Мои тендеры",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1055,
+                      "SystemName":  "tender_lotApplicationJournalNumber",
+                      "Name":  "Журнальный номер заявки",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1056,
+                      "SystemName":  "tender_lotApplicationFullName",
+                      "Name":  "Полное наименование участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1057,
+                      "SystemName":  "tender_lotApplicationInn",
+                      "Name":  "ИНН участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1058,
+                      "SystemName":  "tender_lotApplicationKpp",
+                      "Name":  "КПП участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1059,
+                      "SystemName":  "tender_lotApplicationOgrn",
+                      "Name":  "ОГРН участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1060,
+                      "SystemName":  "tender_lotApplicationContacts",
+                      "Name":  "Контакты участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1061,
+                      "SystemName":  "tender_lotApplicationOffer",
+                      "Name":  "Ставка участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1062,
+                      "SystemName":  "tender_lotApplicationReduction",
+                      "Name":  "Процент снижения участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1063,
+                      "SystemName":  "tender_lotApplicationRejectReason",
+                      "Name":  "Причина отклонения заявки",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1064,
+                      "SystemName":  "tender_lotApplicationResult",
+                      "Name":  "Результат рассмотрения заявки",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1065,
+                      "SystemName":  "tender_lotApplicationWinnerFullName",
+                      "Name":  "Полное наименование победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1066,
+                      "SystemName":  "tender_lotApplicationWinnerInn",
+                      "Name":  "ИНН победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1067,
+                      "SystemName":  "tender_lotApplicationWinnerKpp",
+                      "Name":  "КПП победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1068,
+                      "SystemName":  "tender_lotApplicationWinnerOgrn",
+                      "Name":  "ОГРН победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1069,
+                      "SystemName":  "tender_lotApplicationWinnerContacts",
+                      "Name":  "Контакты победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1070,
+                      "SystemName":  "tender_lotApplicationWinnerOffer",
+                      "Name":  "Ставка победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1071,
+                      "SystemName":  "tender_lotApplicationWinnerReduction",
+                      "Name":  "Процент снижения победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1072,
+                      "SystemName":  "tender_lotApplicationWinnerJournalNumber",
+                      "Name":  "Журнальный номер победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1079,
+                      "SystemName":  "tender_tag",
+                      "Name":  "Метка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1080,
+                      "SystemName":  "tender_favouriteResponsibleName",
+                      "Name":  "Мои тендеры - ответственный",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1081,
+                      "SystemName":  "tender_lotDeliveryRegion",
+                      "Name":  "Место поставки (Регион)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1082,
+                      "SystemName":  "tender_lotDeliveryKladrCodes",
+                      "Name":  "Место поставки (код КЛАДР)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1083,
+                      "SystemName":  "tender_customersCount",
+                      "Name":  "Количество заказчиков",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1084,
+                      "SystemName":  "tender_timeZone",
+                      "Name":  "Часовой пояс",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1085,
+                      "SystemName":  "tender_extractedeliveryTermExtractedDayValue",
+                      "Name":  "Сроки поставки товара (дни)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1086,
+                      "SystemName":  "tender_deliveryTermDayType",
+                      "Name":  "Тип дней для сроков поставки товара",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1087,
+                      "SystemName":  "tender_deliveryByParts",
+                      "Name":  "Поставка осуществляется частями",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1
+                                  ]
+                  },
+                  {
+                      "Id":  1088,
+                      "SystemName":  "tender_militaryKeyrowds",
+                      "Name":  "Ключевые слова ГОЗ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1
+                                  ]
+                  },
+                  {
+                      "Id":  1089,
+                      "SystemName":  "tender_jointBidding",
+                      "Name":  "Совместная закупка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1
+                                  ]
+                  },
+                  {
+                      "Id":  1090,
+                      "SystemName":  "tender_firstPartEnd",
+                      "Name":  "Дата окончания рассмотрения первых частей заявок",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1091,
+                      "SystemName":  "tender_organizerShortName",
+                      "Name":  "Наименование организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1092,
+                      "SystemName":  "tender_representativeShortName",
+                      "Name":  "Наименование представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1093,
+                      "SystemName":  "tender_lotCustomerShortName",
+                      "Name":  "Наименование заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1094,
+                      "SystemName":  "tender_lotApplicationShortName",
+                      "Name":  "Наименование участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1096,
+                      "SystemName":  "tender_lotApplicationWinnerShortName",
+                      "Name":  "Наименование победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1097,
+                      "SystemName":  "tender_customerOrganizationLevel",
+                      "Name":  "Уровень организации",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1098,
+                      "SystemName":  "tender_customerBudgetCode",
+                      "Name":  "Код бюджета",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1099,
+                      "SystemName":  "tender_customerBudgetName",
+                      "Name":  "Наименование бюджета",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1100,
+                      "SystemName":  "tender_extractedeliveryTermExtractedDateValue",
+                      "Name":  "Сроки поставки товара (дата)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1101,
+                      "SystemName":  "tender_productCountByNotyfication",
+                      "Name":  "Количество продуктов по извещению",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1102,
+                      "SystemName":  "tender_directLinkToSource",
+                      "Name":  "Прямая ссылка на источник",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1103,
+                      "SystemName":  "tender_bankSupportInformation",
+                      "Name":  "Информация о банковском сопровождении",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1104,
+                      "SystemName":  "tender_militaryFileProcessCount",
+                      "Name":  "Количество обработанных файлов по ГОЗ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1105,
+                      "SystemName":  "tender_fileCount",
+                      "Name":  "Количество файлов к тендеру",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1107,
+                      "SystemName":  "tender_lotContractGuaranteePercent",
+                      "Name":  "Сумма обеспечения контракта (%)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1108,
+                      "SystemName":  "tender_comment",
+                      "Name":  "Заметка",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1109,
+                      "SystemName":  "tender_customerPrice",
+                      "Name":  "Начальная цена по заказчикам",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1110,
+                      "SystemName":  "tender_customerApplicationGuaranteeSum",
+                      "Name":  "Сумма обеспечения заявки по заказчикам (руб)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1111,
+                      "SystemName":  "tender_customerContractGuaranteeSum",
+                      "Name":  "Сумма обеспечения контракта по заказчикам (руб)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1112,
+                      "SystemName":  "tender_customerApplicationGuaranteePercent",
+                      "Name":  "Сумма обеспечения заявки по заказчикам (%)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1113,
+                      "SystemName":  "tender_customerContractGuaranteePercent",
+                      "Name":  "Сумма обеспечения контракта по заказчикам (%)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1114,
+                      "SystemName":  "tender_etpLink",
+                      "Name":  "Ссылка на площадку",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1115,
+                      "SystemName":  "tender_lotWarrantySourceSum",
+                      "Name":  "Начальная сумма гарантийных обязательств",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1116,
+                      "SystemName":  "tender_lotWarrantySum",
+                      "Name":  "Cумма гарантийных обязательств",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1117,
+                      "SystemName":  "tender_lotWarrantyPercent",
+                      "Name":  "Гарантийные обязательства (%)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1118,
+                      "SystemName":  "tender_lotOrdinalNumber",
+                      "Name":  "Порядковый номер лота",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1119,
+                      "SystemName":  "tender_lotCount",
+                      "Name":  "Количество лотов",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1120,
+                      "SystemName":  "tender_lotBeginPrice",
+                      "Name":  "Начальная цена лота",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1121,
+                      "SystemName":  "tender_lotNpaBan",
+                      "Name":  "Запрет (вид требования)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1122,
+                      "SystemName":  "tender_lotNpaRestrictions",
+                      "Name":  "Ограничение допуска (вид требования)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1123,
+                      "SystemName":  "tender_lotNpaConditions",
+                      "Name":  "Условия допуска (вид требования)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1124,
+                      "SystemName":  "tender_organizerAddress",
+                      "Name":  "Юридический адрес организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1125,
+                      "SystemName":  "tender_organizerOkato",
+                      "Name":  "Код ОКАТО организатора",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1126,
+                      "SystemName":  "tender_representativeAddress",
+                      "Name":  "Юридический адрес представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1127,
+                      "SystemName":  "tender_representativeOkato",
+                      "Name":  "Код ОКАТО представителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1128,
+                      "SystemName":  "tender_lotCustomerAddress",
+                      "Name":  "Юридический адрес заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1129,
+                      "SystemName":  "tender_lotCustomerOkato",
+                      "Name":  "Код ОКАТО заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1130,
+                      "SystemName":  "tender_lotApplicationAddress",
+                      "Name":  "Юридический адрес участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1131,
+                      "SystemName":  "tender_lotApplicationOkato",
+                      "Name":  "Код ОКАТО участника",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1132,
+                      "SystemName":  "tender_lotApplicationWinnerAddress",
+                      "Name":  "Юридический адрес победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1133,
+                      "SystemName":  "tender_lotApplicationWinnerOkato",
+                      "Name":  "Код ОКАТО победителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1134,
+                      "SystemName":  "tender_favouriteStatusName",
+                      "Name":  "Мои тендеры - этап тендера",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1135,
+                      "SystemName":  "tender_beginSourcePrice",
+                      "Name":  "Начальная цена (в валюте)",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1136,
+                      "SystemName":  "tender_lotCancelReason",
+                      "Name":  "Основание признания торгов несостоявшимися",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1137,
+                      "SystemName":  "tender_lotProductsCharacteristics",
+                      "Name":  "Характеристики",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4
+                                  ]
+                  },
+                  {
+                      "Id":  1138,
+                      "SystemName":  "tender_lotBeginSumPricesOfUnits",
+                      "Name":  "Сумма цен за единицу товара",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1149,
+                      "SystemName":  "tender_endDateCounter",
+                      "Name":  "Таймер окончания подачи",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1150,
+                      "SystemName":  "tender_pharmProductMnnName",
+                      "Name":  "МНН",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1151,
+                      "SystemName":  "tender_pharmProductTradeName",
+                      "Name":  "Торговое наименование",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1152,
+                      "SystemName":  "tender_pharmProductOkeiName",
+                      "Name":  "Единицы измерения",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1153,
+                      "SystemName":  "tender_pharmProductMedFormName",
+                      "Name":  "Лекарственная форма",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1154,
+                      "SystemName":  "tender_pharmProductDosageName",
+                      "Name":  "Дозировка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1155,
+                      "SystemName":  "tender_pharmProductPrimaryPackName",
+                      "Name":  "Первичная упаковка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1156,
+                      "SystemName":  "tender_pharmProductConsumerPackName",
+                      "Name":  "Потребительская упаковка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1157,
+                      "SystemName":  "tender_pharmProductCountInPrimaryPack",
+                      "Name":  "Количество в первичной упаковке",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1158,
+                      "SystemName":  "tender_pharmProductCountInConsumerPack",
+                      "Name":  "Количество в потребительской упаковке",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1159,
+                      "SystemName":  "tender_pharmLink",
+                      "Name":  "Ссылка на таблицу",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1160,
+                      "SystemName":  "tender_pharmProductAtc",
+                      "Name":  "Код АТХ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1161,
+                      "SystemName":  "tender_pharmProductSum",
+                      "Name":  "Цена позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1162,
+                      "SystemName":  "tender_pharmProductPrice",
+                      "Name":  "Цена за единицу",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1163,
+                      "SystemName":  "tender_pharmMonoLot",
+                      "Name":  "Монолот",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1164,
+                      "SystemName":  "tender_pharmMnnCount",
+                      "Name":  "Количество позиций МНН",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1165,
+                      "SystemName":  "tender_pharmProductGroupName",
+                      "Name":  "Фарм-группа",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1166,
+                      "SystemName":  "tender_pharmProductDescription",
+                      "Name":  "Описание препарата",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1167,
+                      "SystemName":  "tender_pharmProductQuantity",
+                      "Name":  "Количество",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1169,
+                      "SystemName":  "tender_linkToOpenPart",
+                      "Name":  "Ссылка на открытую часть",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1170,
+                      "SystemName":  "tender_favouriteTaskName",
+                      "Name":  "Мои тендеры - Задача",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1171,
+                      "SystemName":  "tender_favouriteTaskCreateDate",
+                      "Name":  "Мои тендеры - Дата создания задачи",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1172,
+                      "SystemName":  "tender_favouriteTaskEndDate",
+                      "Name":  "Мои тендеры - Дата окончания задачи",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1173,
+                      "SystemName":  "tender_favouriteTaskResponsibleName",
+                      "Name":  "Мои тендеры - Исполнитель задачи",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1174,
+                      "SystemName":  "tender_favouriteTaskStatus",
+                      "Name":  "Мои тендеры - Статус задачи",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1175,
+                      "SystemName":  "tender_federalDistrict",
+                      "Name":  "Федеральный округ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1176,
+                      "SystemName":  "tender_lotAdvanceSumPercent",
+                      "Name":  "Аванс",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  1177,
+                      "SystemName":  "tender_similarEntities",
+                      "Name":  "Предполагаемые дубли",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      1,
+                                      2,
+                                      3,
+                                      4,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2001,
+                      "SystemName":  "contract_id",
+                      "Name":  "Идентификатор",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2002,
+                      "SystemName":  "contract_regNumber",
+                      "Name":  "Реестровый номер",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2003,
+                      "SystemName":  "contract_contractNumber",
+                      "Name":  "Внутренний номер",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2004,
+                      "SystemName":  "contract_price",
+                      "Name":  "Сумма",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2005,
+                      "SystemName":  "contract_sourceLink",
+                      "Name":  "Ссылка на источник",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2006,
+                      "SystemName":  "contract_kbkCode",
+                      "Name":  "КБК код",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2007,
+                      "SystemName":  "contract_extraKbkCode",
+                      "Name":  "Код внебюджетного финансирования",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2008,
+                      "SystemName":  "contract_prepayment",
+                      "Name":  "Предоплата",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2009,
+                      "SystemName":  "contract_productName",
+                      "Name":  "Наименование продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2010,
+                      "SystemName":  "contract_productPrice",
+                      "Name":  "Цена за единицу продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2011,
+                      "SystemName":  "contract_productCount",
+                      "Name":  "Количество продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2012,
+                      "SystemName":  "contract_productSum",
+                      "Name":  "Сумма для продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2013,
+                      "SystemName":  "contract_productOkeiName",
+                      "Name":  "Единица измерения продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2014,
+                      "SystemName":  "contract_productKtruName",
+                      "Name":  "ОКПД2/КТРУ продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2015,
+                      "SystemName":  "contract_productKtruCode",
+                      "Name":  "Код ОКПД2/КТРУ продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2016,
+                      "SystemName":  "contract_customerFullName",
+                      "Name":  "Полное наименование заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2017,
+                      "SystemName":  "contract_customerInn",
+                      "Name":  "ИНН заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2018,
+                      "SystemName":  "contract_customerKpp",
+                      "Name":  "КПП заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2019,
+                      "SystemName":  "contract_customerOgrn",
+                      "Name":  "ОГРН заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2020,
+                      "SystemName":  "contract_customerContacts",
+                      "Name":  "Контакты заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2021,
+                      "SystemName":  "contract_supplierFullName",
+                      "Name":  "Поставщик",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2022,
+                      "SystemName":  "contract_supplierInn",
+                      "Name":  "ИНН поставщика",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2023,
+                      "SystemName":  "contract_supplierKpp",
+                      "Name":  "КПП поставщика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2024,
+                      "SystemName":  "contract_supplierOgrn",
+                      "Name":  "ОГРН поставщика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2025,
+                      "SystemName":  "contract_publishDate",
+                      "Name":  "Дата публикации",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2026,
+                      "SystemName":  "contract_signDate",
+                      "Name":  "Дата подписания",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2027,
+                      "SystemName":  "contract_executionBeginDate",
+                      "Name":  "Дата начала исполнения",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2028,
+                      "SystemName":  "contract_executionEndDate",
+                      "Name":  "Дата окончания исполнения",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2029,
+                      "SystemName":  "contract_executionFactDate",
+                      "Name":  "Дата фактического исполнения",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2030,
+                      "SystemName":  "contract_status",
+                      "Name":  "Статус контракта",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2031,
+                      "SystemName":  "contract_region",
+                      "Name":  "Регион",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2032,
+                      "SystemName":  "contract_paidSum",
+                      "Name":  "Фактически оплачено",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2033,
+                      "SystemName":  "contract_currency",
+                      "Name":  "Валюта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2034,
+                      "SystemName":  "contract_supplierContacts",
+                      "Name":  "Контакты исполнителя",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2035,
+                      "SystemName":  "contract_pharmProductGroupName",
+                      "Name":  "Фарм-группа",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2036,
+                      "SystemName":  "contract_utcTimeOffset",
+                      "Name":  "Часовой пояс",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2037,
+                      "SystemName":  "contract_productsDetail",
+                      "Name":  "Продукты",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2038,
+                      "SystemName":  "contract_linkToCard",
+                      "Name":  "Ссылка на карточку",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2039,
+                      "SystemName":  "contract_tag",
+                      "Name":  "Метка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2040,
+                      "SystemName":  "contract_penalties",
+                      "Name":  "Наличие штрафов и пени",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2041,
+                      "SystemName":  "contract_productCountry",
+                      "Name":  "Страна происхождения товара",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2043,
+                      "SystemName":  "contract_supplierShortName",
+                      "Name":  "Наименование поставщика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2044,
+                      "SystemName":  "contract_customerAddress",
+                      "Name":  "Юридический адрес заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2045,
+                      "SystemName":  "contract_customerOkato",
+                      "Name":  "Код ОКАТО заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2046,
+                      "SystemName":  "contract_supplierAddress",
+                      "Name":  "Юридический адрес поставщика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2047,
+                      "SystemName":  "contract_supplierOkato",
+                      "Name":  "Код ОКАТО поставщика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2048,
+                      "SystemName":  "contract_pharmProductMnnName",
+                      "Name":  "МНН",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2049,
+                      "SystemName":  "contract_pharmProductTradeName",
+                      "Name":  "Торговое наименование",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2050,
+                      "SystemName":  "contract_pharmProductOkeiName",
+                      "Name":  "Единицы измерения",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2051,
+                      "SystemName":  "contract_pharmProductMedFormName",
+                      "Name":  "Лекарственная форма",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2052,
+                      "SystemName":  "contract_pharmProductDosageName",
+                      "Name":  "Дозировка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2053,
+                      "SystemName":  "contract_pharmProductPrimaryPackName",
+                      "Name":  "Первичная упаковка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2054,
+                      "SystemName":  "contract_pharmProductConsumerPackName",
+                      "Name":  "Потребительская упаковка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2055,
+                      "SystemName":  "contract_pharmProductCountInPrimaryPack",
+                      "Name":  "Количество в первичной упаковке",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2056,
+                      "SystemName":  "contract_pharmProductCountInConsumerPack",
+                      "Name":  "Количество в потребительской упаковке",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2057,
+                      "SystemName":  "contract_pharmLink",
+                      "Name":  "Ссылка на таблицу",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2058,
+                      "SystemName":  "contract_pharmProductAtc",
+                      "Name":  "Код АТХ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2059,
+                      "SystemName":  "contract_pharmProductSum",
+                      "Name":  "Цена позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2060,
+                      "SystemName":  "contract_pharmProductPrice",
+                      "Name":  "Цена за единицу",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2061,
+                      "SystemName":  "contract_pharmProductDescription",
+                      "Name":  "Описание препарата",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2062,
+                      "SystemName":  "contract_pharmProductQuantity",
+                      "Name":  "Количество",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2063,
+                      "SystemName":  "contract_pharmProductManufacturerName",
+                      "Name":  "Производитель",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2064,
+                      "SystemName":  "contract_pharmProductConcernName",
+                      "Name":  "Концерн",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2065,
+                      "SystemName":  "contract_pharmProductCertificateNumber",
+                      "Name":  "Номер РУ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2066,
+                      "SystemName":  "contract_pharmProductCertificateBeginDate",
+                      "Name":  "Дата регистрации РУ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2067,
+                      "SystemName":  "contract_pharmProductCertificateEndDate",
+                      "Name":  "Дата прекращения регистрации РУ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2068,
+                      "SystemName":  "contract_pharmProductCertificatePlacerName",
+                      "Name":  "Наименование держателя РУ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2069,
+                      "SystemName":  "contract_pharmProductCertificateTradeName",
+                      "Name":  "Торговое наименование РУ",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2070,
+                      "SystemName":  "contract_pharmProductAvgPriceByPack",
+                      "Name":  "Средняя цена за упаковку",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2071,
+                      "SystemName":  "contract_pharmProductMinPriceByPack",
+                      "Name":  "Минимальная цена за упаковку",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2072,
+                      "SystemName":  "contract_pharmProductMaxPriceByPack",
+                      "Name":  "Максимальная цена за упаковку",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2073,
+                      "SystemName":  "contract_analyzePharmProductMnn",
+                      "Name":  "МНН",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2074,
+                      "SystemName":  "contract_analyzePharmProductMedForm",
+                      "Name":  "Форма выпуска",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2075,
+                      "SystemName":  "contract_analyzePharmProductManufacturer",
+                      "Name":  "Производитель",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2076,
+                      "SystemName":  "contract_analyzePharmProductTradeName",
+                      "Name":  "Торговое наименование",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2077,
+                      "SystemName":  "contract_analyzePharmProductTotalContractCount",
+                      "Name":  "Количество контрактов",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2078,
+                      "SystemName":  "contract_analyzePharmProductPackageTotalQuantity",
+                      "Name":  "Количество упаковок",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2079,
+                      "SystemName":  "contract_analyzePharmProductPackageTotalQuantityPercent",
+                      "Name":  "Доля рынка в упаковках",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2080,
+                      "SystemName":  "contract_analyzePharmProductTotalSum",
+                      "Name":  "Сумма",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2081,
+                      "SystemName":  "contract_analyzePharmProductTotalSumPercent",
+                      "Name":  "Доля рынка в рублях",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2082,
+                      "SystemName":  "contract_analyzePharmProductSupplierName",
+                      "Name":  "Поставщик",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2083,
+                      "SystemName":  "contract_pharmProductsDetail",
+                      "Name":  "Фарм продукты(контракт)",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  },
+                  {
+                      "Id":  2084,
+                      "SystemName":  "contract_categories",
+                      "Name":  "Категория",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2085,
+                      "SystemName":  "contract_name",
+                      "Name":  "Предмет контракта",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2086,
+                      "SystemName":  "contract_customerShortName",
+                      "Name":  "Наименование заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  2087,
+                      "SystemName":  "contract_productDeliveredQuantity",
+                      "Name":  "Количество продукции - фактически поставлено",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2088,
+                      "SystemName":  "contract_comment",
+                      "Name":  "Заметка",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2090,
+                      "SystemName":  "contract_customerOrganizationLevel",
+                      "Name":  "Уровень организации",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2091,
+                      "SystemName":  "contract_customerBudgetCode",
+                      "Name":  "Код бюджета",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  2092,
+                      "SystemName":  "contract_customerBudgetName",
+                      "Name":  "Наименование бюджета",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      5
+                                  ]
+                  },
+                  {
+                      "Id":  3001,
+                      "SystemName":  "plan_id",
+                      "Name":  "Идентификатор плана",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3002,
+                      "SystemName":  "plan_positionId",
+                      "Name":  "Идентификатор позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3003,
+                      "SystemName":  "plan_positionName",
+                      "Name":  "Название позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3004,
+                      "SystemName":  "plan_regNumber",
+                      "Name":  "Реестровый номер плана",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3005,
+                      "SystemName":  "plan_positionRegNumber",
+                      "Name":  "Реестровый номер позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3006,
+                      "SystemName":  "plan_ikz",
+                      "Name":  "ИКЗ",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3007,
+                      "SystemName":  "plan_positionCustomerFullName",
+                      "Name":  "Полное наименование заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3008,
+                      "SystemName":  "plan_positionCustomerInn",
+                      "Name":  "ИНН заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3009,
+                      "SystemName":  "plan_positionCustomerKpp",
+                      "Name":  "КПП заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3010,
+                      "SystemName":  "plan_positionCustomerOgrn",
+                      "Name":  "ОГРН заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3011,
+                      "SystemName":  "plan_positionCustomerContacts",
+                      "Name":  "Контакты заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3012,
+                      "SystemName":  "plan_positionPublishDate",
+                      "Name":  "Дата публикации",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3013,
+                      "SystemName":  "plan_positionTenderStartDate",
+                      "Name":  "Дата начала периода публикации тендера",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3014,
+                      "SystemName":  "plan_positionTenderEndDate",
+                      "Name":  "Дата окончания периода публикации тендера",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3015,
+                      "SystemName":  "plan_positionStatus",
+                      "Name":  "Статус позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3016,
+                      "SystemName":  "plan_region",
+                      "Name":  "Регион",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3017,
+                      "SystemName":  "plan_type",
+                      "Name":  "Тип плана",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3018,
+                      "SystemName":  "plan_purchaseLaw",
+                      "Name":  "Закон плана закупки",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3019,
+                      "SystemName":  "plan_sourceLink",
+                      "Name":  "Ссылка на источник",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3020,
+                      "SystemName":  "plan_positionOrdinalNumber",
+                      "Name":  "Порядковый номер позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3021,
+                      "SystemName":  "plan_positionProductName",
+                      "Name":  "Наименование продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3022,
+                      "SystemName":  "plan_positionProductPrice",
+                      "Name":  "Цена за единицу продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3023,
+                      "SystemName":  "plan_positionProductCount",
+                      "Name":  "Количество продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3024,
+                      "SystemName":  "plan_positionProductSum",
+                      "Name":  "Сумма для продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3025,
+                      "SystemName":  "plan_positionProductOkeiName",
+                      "Name":  "Единица измерения продукции",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3026,
+                      "SystemName":  "plan_positionProductKtruName",
+                      "Name":  "ОКПД2/КТРУ продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3027,
+                      "SystemName":  "plan_positionProductKtruCode",
+                      "Name":  "Код ОКПД2/КТРУ продукта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3028,
+                      "SystemName":  "plan_positionCurrency",
+                      "Name":  "Валюта",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3029,
+                      "SystemName":  "plan_utcTimeOffset",
+                      "Name":  "Часовой пояс",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3030,
+                      "SystemName":  "plan_positionCurrencyId",
+                      "Name":  "Идентификатор валюты",
+                      "IsExportField":  false,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3031,
+                      "SystemName":  "plan_linkToCard",
+                      "Name":  "Ссылка на карточку",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6
+                                  ]
+                  },
+                  {
+                      "Id":  3032,
+                      "SystemName":  "plan_positionPrice",
+                      "Name":  "Цена позиции",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  true,
+                      "Modules":  [
+                                      6
+                                  ]
+                  },
+                  {
+                      "Id":  3033,
+                      "SystemName":  "plan_positionCustomer",
+                      "Name":  "Наименование заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3034,
+                      "SystemName":  "plan_positionTag",
+                      "Name":  "Метка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3035,
+                      "SystemName":  "plan_positionCustomerAddress",
+                      "Name":  "Юридический адрес заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3036,
+                      "SystemName":  "plan_positionCustomerOkato",
+                      "Name":  "Код ОКАТО заказчика",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3037,
+                      "SystemName":  "plan_positionCategories",
+                      "Name":  "Категория",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3038,
+                      "SystemName":  "plan_positionTypeName",
+                      "Name":  "Тип тендера",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6,
+                                      9
+                                  ]
+                  },
+                  {
+                      "Id":  3039,
+                      "SystemName":  "plan_positionComment",
+                      "Name":  "Заметка",
+                      "IsExportField":  true,
+                      "IsSearchField":  true,
+                      "AllowSorting":  false,
+                      "Modules":  [
+                                      6
+                                  ]
+                  },
+                  {
+                      "Id":  8000,
+                      "SystemName":  "common_tag",
+                      "Name":  "Метка",
+                      "IsExportField":  true,
+                      "IsSearchField":  false,
+                      "AllowSorting":  false,
+                      "Modules":  [
+
+                                  ]
+                  }
+              ]
+}

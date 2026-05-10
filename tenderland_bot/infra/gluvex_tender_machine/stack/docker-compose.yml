@@ -41,13 +41,9 @@ services:
       - caddy_config:/config
     networks:
       - proxy
-    healthcheck:
-      # caddy:2-alpine не имеет wget/curl, поэтому используем встроенный nc
-      test: ["CMD-SHELL", "nc -z localhost 2019 || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    # NB: caddy:2-alpine не имеет wget/curl/nc-OpenBSD-edition, надёжного healthcheck
+    # из коробки нет. Caddy перезапустится сам через restart: unless-stopped, состояние
+    # проверяется внешним curl-ом на крайнем endpoint'е (см. manage.sh health).
 
   # ============================================================
   # Twenty CRM — https://crm.${DOMAIN}

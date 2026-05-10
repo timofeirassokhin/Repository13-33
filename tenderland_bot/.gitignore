@@ -5,3 +5,6 @@ __pycache__/
 .mypy_cache/
 *.egg-info/
 .DS_Store
+
+# Phase 3 stack secrets (live in /opt/gluvex/secrets/.env on the server)
+infra/gluvex_tender_machine/stack/.env

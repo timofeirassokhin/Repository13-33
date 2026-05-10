@@ -1,0 +1,52 @@
+# LiteLLM роутинг моделей для Gluvex Tender Machine.
+# Скопирован из infra/litellm/config.yaml (content system 13-33), без локальных Ollama моделей —
+# их добавим позже когда поднимем Ollama-сервер.
+#
+# Документация: https://docs.litellm.ai/docs/proxy/configs
+
+model_list:
+  # --- Cheap: дёшево, быстро (Tender Machine: классификация файлов в zip-архиве) ---
+  - model_name: cheap
+    litellm_params:
+      model: openrouter/anthropic/claude-haiku-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  # --- Creative: главная (Tender Machine: извлечение характеристик из ТЗ, матчинг) ---
+  - model_name: creative
+    litellm_params:
+      model: openrouter/anthropic/claude-sonnet-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  # --- Premium: спорные кейсы где нужен Opus ---
+  - model_name: premium
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  # --- Прямые алиасы Anthropic-моделей через OpenRouter ---
+  - model_name: claude-sonnet-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-sonnet-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: claude-haiku-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-haiku-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: claude-opus-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4.5
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  num_retries: 2
+  request_timeout: 120

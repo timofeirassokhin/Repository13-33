@@ -8,3 +8,6 @@ __pycache__/
 
 # Phase 3 stack secrets (live in /opt/gluvex/secrets/.env on the server)
 infra/gluvex_tender_machine/stack/.env
+
+# Phase 3.5: app-db init script (содержит подставленные пароли)
+infra/gluvex_tender_machine/stack/app-db-init.sql

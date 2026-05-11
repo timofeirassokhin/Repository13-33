@@ -1,12 +1,16 @@
-# Gluvex Tender Machine — Phase 3 stack
+# Gluvex stack — Phase 3 + Phase 3.5 (системный фундамент)
 #
 # Поднимает:
 #   - caddy           → reverse proxy + auto Let's Encrypt
 #   - twenty-server   → CRM (https://crm.${DOMAIN})
 #   - twenty-worker   → background jobs Twenty
-#   - twenty-db       → Postgres 16 для Twenty
+#   - twenty-db       → Postgres 16 для Twenty (изолированно)
 #   - twenty-redis    → Redis 7 для Twenty (BullMQ очереди)
 #   - litellm         → роутер моделей (https://litellm.${DOMAIN})
+#   - app-db          → Postgres 16 для остального стека: gluvex_documents / mempalace / camunda
+#   - minio           → object storage оригиналов файлов (https://files.${DOMAIN})
+#   - qdrant          → vector store (internal only)
+#   - camunda         → BPMN engine для workflow и approvals (https://bpm.${DOMAIN})
 #
 # Запуск:
 #   cd /opt/gluvex/repos/Repository13-33/tenderland_bot/infra/gluvex_tender_machine/stack
@@ -14,9 +18,11 @@
 #   docker compose pull
 #   docker compose up -d
 #
-# Что НЕ входит в этот стек (поднимем позже):
-#   - mempalace, tender-pipeline (FastAPI+ARQ), whisper, ollama
-#   - всё это добавится поверх через docker-compose.override.yml
+# Что НЕ входит (поднимем позже):
+#   - mempalace (после интеграции с Qdrant backend и созданием document_chunks схемы)
+#   - tender-pipeline (FastAPI+ARQ — после структуры 1С)
+#   - 1c-bridge (после Q1+Q2 от заказчика)
+#   - whisper, ollama (по мере необходимости)
 
 name: gluvex
 
@@ -175,6 +181,112 @@ services:
       retries: 3
       start_period: 30s
 
+  # ============================================================
+  # app-db — Postgres 16 для всех «несамодостаточных» сервисов
+  # ============================================================
+  # Хостит 3 базы:
+  #   - gluvex_documents — master-data слой (document_registry, audit_events,
+  #     llm_runs, entity_links, sync_runs, sync_errors, status_history, human_reviews,
+  #     document_chunks с pgvector — см. master-data-architecture.md)
+  #   - mempalace        — БД для MemPalace (поднимем сервис в следующей волне)
+  #   - camunda          — Postgres backend для Camunda BPMN engine
+  app-db:
+    image: postgres:16
+    container_name: app-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - app_db_data:/var/lib/postgresql/data
+      - ./app-db-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ============================================================
+  # MinIO — object storage для оригиналов файлов
+  # ============================================================
+  # API на :9000, Console UI на :9001
+  # Через Caddy console доступна на https://files.${DOMAIN}
+  # Buckets создадим отдельным шагом после первого запуска (mc CLI)
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: https://files.${DOMAIN}
+      MINIO_SERVER_URL: https://files.${DOMAIN}
+    volumes:
+      - minio_data:/data
+    networks:
+      - proxy
+      - app_internal
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # Qdrant — векторный индекс (internal-only, без публичного URL)
+  # ============================================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - app_internal
+    # доступ только из docker network app_internal; в Caddy не выставляем
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ============================================================
+  # Camunda 7 CE — BPMN engine + Cockpit + Tasklist + Operate
+  # ============================================================
+  # UI на https://bpm.${DOMAIN}
+  # Дефолтный admin demo/demo — нужно поменять при первом логине!
+  camunda:
+    image: camunda/camunda-bpm-platform:run-7.21.0
+    container_name: camunda
+    restart: unless-stopped
+    depends_on:
+      app-db:
+        condition: service_healthy
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://app-db:5432/camunda
+      DB_USERNAME: camunda
+      DB_PASSWORD: ${CAMUNDA_PG_PASSWORD}
+      WAIT_FOR: app-db:5432
+    networks:
+      - proxy
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/camunda/app/welcome/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
 # ============================================================
 # Networks
 # ============================================================
@@ -186,6 +298,10 @@ networks:
     name: gluvex_twenty_internal
     driver: bridge
     internal: false  # нужен outbound (twenty подтягивает npm-пакеты)
+  app_internal:
+    name: gluvex_app_internal
+    driver: bridge
+    internal: false  # нужен outbound (Camunda тянет процессы, MinIO репликации в будущем)
 
 # ============================================================
 # Volumes
@@ -196,3 +312,6 @@ volumes:
   twenty_db_data:
   twenty_redis_data:
   twenty_server_data:
+  app_db_data:
+  minio_data:
+  qdrant_data:

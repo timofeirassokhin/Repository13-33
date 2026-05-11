@@ -76,3 +76,65 @@ Disallow: /
 	}
 	respond "Bot service not yet deployed" 503
 }
+
+# ============================================================
+# Camunda Tasklist + Cockpit + Operate — https://bpm.gluvex.com
+# ============================================================
+bpm.{$DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	header X-Content-Type-Options "nosniff"
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+
+	# Camunda Run distribution слушает на /camunda/* и /engine-rest/*
+	# Корень / редиректим на /camunda/app/welcome/ для удобства
+	redir / /camunda/app/welcome/
+
+	reverse_proxy camunda:8080 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {host}
+	}
+
+	encode gzip zstd
+	log {
+		output stdout
+		format console
+	}
+}
+
+# ============================================================
+# MinIO Console — https://files.gluvex.com
+# ============================================================
+# MinIO имеет 2 порта: 9000 API (S3 protocol) и 9001 Console (UI).
+# Здесь проксируем Console для UI-управления файлами.
+# S3 API остаётся доступен только из docker network (через minio:9000).
+files.{$DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+
+	reverse_proxy minio:9001 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {host}
+		# MinIO Console использует websocket для realtime событий
+		header_up Host {host}
+	}
+
+	encode gzip zstd
+	log {
+		output stdout
+		format console
+	}
+}

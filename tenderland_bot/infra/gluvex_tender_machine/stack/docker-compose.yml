@@ -260,6 +260,39 @@ services:
       start_period: 15s
 
   # ============================================================
+  # MemPalace — агентная память Gluvex (Qdrant backend)
+  # ============================================================
+  # Drawer/wing/timeline + Knowledge Graph поверх Qdrant + Postgres.
+  # Используется: tender_analyzer, product_manager, kp_agent, email_agent.
+  # internal-only (агенты ходят по сети app_internal); MCP-сервер агентов внутри
+  # сети тоже коннектится сюда.
+  mempalace-gluvex:
+    build:
+      context: ./mempalace-gluvex
+    image: gluvex/mempalace-gluvex:local
+    container_name: mempalace-gluvex
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      app-db:
+        condition: service_healthy
+    environment:
+      MEMPALACE_PALACE_PATH: /data/palace
+      MEMPALACE_EMBEDDING_MODEL: ${MEMPALACE_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      QDRANT_URL: http://qdrant:6333
+    volumes:
+      - mempalace_gluvex_data:/data
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:8080/health\",timeout=5).status==200 else 1)' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ============================================================
   # Camunda 7 CE — BPMN engine + Cockpit + Tasklist + Operate
   # ============================================================
   # UI на https://bpm.${DOMAIN}
@@ -315,3 +348,4 @@ volumes:
   app_db_data:
   minio_data:
   qdrant_data:
+  mempalace_gluvex_data:

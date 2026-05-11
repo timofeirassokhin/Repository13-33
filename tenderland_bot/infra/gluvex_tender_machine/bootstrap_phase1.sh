@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-HOSTNAME_NEW="gluvex-tender-machine"
+HOSTNAME_NEW="gluvex"
 SWAP_SIZE_GB=8
 
 echo "=========================================="

@@ -31,12 +31,13 @@ def gluvex_structure(
 
 @gluvex_app.command("products")
 def gluvex_products(
-    limit: int = typer.Option(0, help="Ограничить число товаров (0 = без ограничения)"),
-    brand: str = typer.Option("", help="Только товары конкретного бренда (slug)"),
+    limit: int = typer.Option(0, help="Ограничить число товаров (0 = все ~57k)"),
+    shards: str = typer.Option("", help="Comma-separated индексы sitemap-шардов (0..56). Пусто=все."),
 ):
     """Парсит карточки товаров gluvexlab.com → таблица product."""
-    typer.echo("TODO: будет в следующей итерации после изучения структуры.")
-    sys.exit(2)
+    from catalog_crawler.adapters.gluvexlab_products import crawl_products
+    shard_list = [int(x) for x in shards.split(",") if x.strip()] if shards else None
+    asyncio.run(crawl_products(settings, limit=limit, sitemap_shards=shard_list))
 
 
 @app.command("ping")

@@ -18,6 +18,7 @@ from aiogram.types import TelegramObject, Update
 from .db import DB
 from .handlers import common as common_handlers
 from .handlers import search as search_handlers
+from .handlers import voice as voice_handlers
 from .intent import IntentParser
 from .settings import Settings
 from .storage import Storage
@@ -103,6 +104,7 @@ async def main() -> None:
 
         # routers
         dp.include_router(common_handlers.router)
+        dp.include_router(voice_handlers.router)   # ordered above search → voice ловит F.voice раньше
         dp.include_router(search_handlers.router)
 
         try:

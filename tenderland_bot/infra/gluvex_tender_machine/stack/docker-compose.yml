@@ -345,6 +345,31 @@ services:
       start_period: 60s
 
   # ============================================================
+  # Whisper ASR — локальная транскрипция голосовых сообщений для library-bot.
+  # ============================================================
+  # Образ onerahmet/openai-whisper-asr-webservice (CPU). API:
+  #   POST /asr?task=transcribe&language=ru&output=json   (form-data: audio_file)
+  # Default model — small (~1.5 ГБ RAM, ~3-5 сек на 10-сек голосовое).
+  # Внутренний (только сеть app_internal).
+  whisper-asr:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper-asr
+    restart: unless-stopped
+    environment:
+      ASR_MODEL: ${WHISPER_MODEL:-small}        # tiny|base|small|medium|large-v3
+      ASR_ENGINE: openai_whisper                 # alt: faster_whisper
+    volumes:
+      - whisper_data:/root/.cache               # кешируем модели чтобы не качать каждый раз
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:9000/docs\",timeout=5).status==200 else 1)' || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s   # первая загрузка модели может занять до 90 сек
+
+  # ============================================================
   # @gluvexlibrary_bot — Telegram-каталог приборов и брошюр.
   # ============================================================
   # Text-driven NL поиск через LiteLLM intent → asyncpg → MinIO PDF отдача.
@@ -365,12 +390,17 @@ services:
         condition: service_healthy
       warp:
         condition: service_healthy
+      whisper-asr:
+        condition: service_started   # не ждём healthy — модель грузится долго
     environment:
       # Telegram + proxy
       GLUVEX_LIBRARY_BOT_TOKEN: ${GLUVEX_LIBRARY_BOT_TOKEN}
       GLUVEX_LIBRARY_BOT_USERNAME: ${GLUVEX_LIBRARY_BOT_USERNAME}
       GLUVEX_LIBRARY_BOT_ALLOWED_IDS: ${GLUVEX_LIBRARY_BOT_ALLOWED_IDS}
       GLUVEX_LIBRARY_BOT_PROXY: socks5://warp:1080
+      # Whisper ASR (локальный)
+      GLUVEX_LIBRARY_BOT_WHISPER_URL: http://whisper-asr:9000
+      GLUVEX_LIBRARY_BOT_WHISPER_LANGUAGE: ru
       # Postgres
       GLUVEX_LIBRARY_BOT_PG_HOST: app-db
       GLUVEX_LIBRARY_BOT_PG_PORT: 5432
@@ -449,3 +479,4 @@ volumes:
   qdrant_data:
   mempalace_gluvex_data:
   warp_data:
+  whisper_data:

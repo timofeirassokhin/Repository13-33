@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     litellm_intent_temp: float = 0.1
     litellm_intent_max_tokens: int = 600
 
+    # === Whisper ASR (local, in-cluster) ===
+    whisper_url: str = "http://whisper-asr:9000"
+    whisper_language: str = "ru"
+    whisper_timeout_sec: int = 60
+
     # === Поведение ===
     default_search_limit: int = 10
     max_pdfs_per_response: int = 5     # ограничение чтобы не залить чат

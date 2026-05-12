@@ -252,34 +252,39 @@ class VendorAdapter(ABC):
 
         if existing:
             # UPDATE — дополняем данными от производителя
+            # nullable-friendly: пустые строки превращаем в NULL для skip
+            v_vendor = data.vendor_code if data.vendor_code else None
+            v_name = data.name[:500] if data.name else None
+            v_desc = (data.description_md or "")[:5000] if data.description_md else None
+            v_group = (data.group or "")[:120] if data.group else None
             await conn.execute("""
                 UPDATE product SET
-                  vendor_code = COALESCE(NULLIF($3,''), vendor_code),
-                  display_name = COALESCE(NULLIF($4,''), display_name),
-                  description = COALESCE(NULLIF($5,''), description),
-                  subcategory = COALESCE(NULLIF($6,''), subcategory),
-                  base_specs = COALESCE(base_specs, '{}'::jsonb) || $7::jsonb,
-                  source_urls = (
-                    SELECT array_agg(DISTINCT u) FROM unnest(coalesce(source_urls,'{}') || ARRAY[$8]::text[]) AS u
+                  vendor_code     = COALESCE($2, vendor_code),
+                  display_name    = COALESCE($3, display_name),
+                  description     = COALESCE($4, description),
+                  subcategory     = COALESCE($5, subcategory),
+                  base_specs      = COALESCE(base_specs, '{}'::jsonb) || $6::jsonb,
+                  source_urls     = (
+                    SELECT array_agg(DISTINCT u)
+                    FROM unnest(coalesce(source_urls, ARRAY[]::text[]) || ARRAY[$7]::text[]) AS u
                   ),
                   datasheet_paths = (
-                    SELECT array_agg(DISTINCT p) FROM unnest(coalesce(datasheet_paths,'{}') || $9::text[]) AS p
+                    SELECT array_agg(DISTINCT p)
+                    FROM unnest(coalesce(datasheet_paths, ARRAY[]::text[]) || $8::text[]) AS p
                   ),
-                  brochure_urls = (
-                    SELECT array_agg(DISTINCT u) FROM unnest(coalesce(brochure_urls,'{}') || $10::text[]) AS u
+                  brochure_urls   = (
+                    SELECT array_agg(DISTINCT u)
+                    FROM unnest(coalesce(brochure_urls, ARRAY[]::text[]) || $9::text[]) AS u
                   ),
-                  metadata = coalesce(metadata, '{}'::jsonb) || $11::jsonb,
-                  content_hash = $12,
-                  imported_at = now(),
-                  imported_from = $13,
-                  updated_at = now()
+                  metadata        = coalesce(metadata, '{}'::jsonb) || $10::jsonb,
+                  content_hash    = $11,
+                  imported_at     = now(),
+                  imported_from   = $12,
+                  updated_at      = now()
                 WHERE id = $1
             """,
-                existing["id"], None,
-                data.vendor_code or "",
-                data.name[:500] if data.name else "",
-                ((data.description_md or "")[:5000]) if data.description_md else "",
-                (data.group or "")[:120],
+                existing["id"],
+                v_vendor, v_name, v_desc, v_group,
                 json.dumps(data.specs),
                 url,
                 minio_paths,

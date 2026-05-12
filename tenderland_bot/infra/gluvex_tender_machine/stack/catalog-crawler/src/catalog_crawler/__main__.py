@@ -44,6 +44,182 @@ def vendor_sartorius(
     asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
 
 
+# ============================================================
+# Generic-based vendor commands — для брендов с простой open-структурой
+# ============================================================
+BROWSER_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/130 Safari/537.36"
+)
+
+
+def _run_generic(**kw):
+    """Helper — создать GenericVendorAdapter и запустить."""
+    from catalog_crawler.adapters.vendors.generic import GenericVendorAdapter
+    limit = kw.pop("limit", 0)
+    skip = kw.pop("skip_fresh_days", 30)
+    adapter = GenericVendorAdapter(settings, **kw)
+    asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip))
+
+
+@vendor_app.command("sotax")
+def vendor_sotax(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl sotax.com — pharma testing (dissolution/hardness/friability)."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="SOTAX", brand_slug="sotax",
+        base_url="https://www.sotax.com",
+        entry_urls=["https://www.sotax.com/products/"],
+        category_keyword_map={
+            "dissolution": "accessory", "tablet-hardness": "accessory",
+            "friability": "accessory", "disintegration": "accessory",
+            "sample-preparation": "accessory", "tablet": "accessory",
+        },
+        domain_hint="pharmaceutical",
+        default_category="accessory",
+        max_depth=4, max_urls=400,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("bandelin")
+def vendor_bandelin(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl bandelin.com — ultrasonic (sonorex, sonopuls)."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="BANDELIN", brand_slug="bandelin",
+        base_url="https://bandelin.com",
+        entry_urls=["https://bandelin.com/en/products/"],
+        category_keyword_map={
+            "sonorex": "shaker_vortex", "sonopuls": "shaker_vortex",
+            "ultrasonic-bath": "shaker_vortex", "homogeniser": "shaker_vortex",
+            "industry": "accessory",
+        },
+        domain_hint="general_lab",
+        default_category="shaker_vortex",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("retsch")
+def vendor_retsch(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl retsch.com — mills, sieves, sample dividers."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Retsch", brand_slug="retsch",
+        base_url="https://www.retsch.com",
+        entry_urls=[
+            "https://www.retsch.com/products/milling/",
+            "https://www.retsch.com/products/sieving/",
+            "https://www.retsch.com/products/assisting/",
+        ],
+        category_keyword_map={
+            "milling": "accessory", "mill": "accessory",
+            "sieving": "accessory", "sieve": "accessory",
+            "crusher": "accessory", "shaker": "shaker_vortex",
+            "divider": "accessory", "press": "accessory",
+        },
+        domain_hint="analytical",
+        default_category="accessory",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("metrohm")
+def vendor_metrohm(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl metrohm.com — titration, ion chromatography."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Metrohm", brand_slug="metrohm",
+        base_url="https://www.metrohm.com",
+        entry_urls=[
+            "https://www.metrohm.com/en/products.html",
+            "https://www.metrohm.com/en/products/",
+        ],
+        category_keyword_map={
+            "titrator": "titrator", "titration": "titrator",
+            "ion-chromatography": "hplc_system",
+            "voltammetry": "other",
+            "ph-meter": "accessory", "conductivity": "accessory",
+        },
+        domain_hint="analytical",
+        default_category="other",
+        max_depth=4, max_urls=400,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("huber")
+def vendor_huber(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl huber-online.com — circulating thermostats, chillers."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Huber", brand_slug="huber",
+        base_url="https://www.huber-online.com",
+        entry_urls=[
+            "https://www.huber-online.com/en/products.aspx",
+            "https://www.huber-online.com/en/products/",
+        ],
+        category_keyword_map={
+            "unichiller": "climate_chamber", "unistat": "climate_chamber",
+            "chiller": "climate_chamber", "circulating": "climate_chamber",
+            "thermostat": "climate_chamber", "bath": "drying_oven",
+        },
+        domain_hint="general_lab",
+        default_category="climate_chamber",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("heidolph")
+def vendor_heidolph(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl heidolph.com — rotary evaporators, shakers, plates."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Heidolph", brand_slug="heidolph",
+        base_url="https://heidolph.com",
+        entry_urls=["https://heidolph.com/emea/en/Products"],
+        category_keyword_map={
+            "rotary-evaporator": "accessory", "rotavap": "accessory",
+            "evaporator": "accessory",
+            "shaker": "shaker_vortex", "stirrer": "shaker_vortex",
+            "magnetic": "shaker_vortex", "overhead": "shaker_vortex",
+            "hot-plate": "drying_oven", "heating-plate": "drying_oven",
+            "pump": "accessory", "homogenizer": "shaker_vortex",
+        },
+        domain_hint="general_lab",
+        default_category="other",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("camag")
+def vendor_camag(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl camag.com — TLC (thin-layer chromatography)."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="CAMAG", brand_slug="camag",
+        base_url="https://www.camag.com",
+        entry_urls=[
+            "https://www.camag.com/en/products",
+            "https://www.camag.com/en/products/",
+        ],
+        category_keyword_map={
+            "tlc": "accessory", "thin-layer": "accessory",
+            "scanner": "accessory", "applicator": "accessory",
+            "ats": "accessory", "linomat": "accessory",
+        },
+        domain_hint="analytical",
+        default_category="accessory",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+    )
+
+
 @gluvex_app.command("structure")
 def gluvex_structure(
     upload: bool = typer.Option(True, help="Загрузить дамп в MinIO"),

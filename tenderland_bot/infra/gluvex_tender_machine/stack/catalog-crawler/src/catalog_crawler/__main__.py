@@ -427,6 +427,23 @@ def vendor_shimadzu(
     asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
 
 
+@vendor_app.command("agilent-sitemap")
+def vendor_agilent_sitemap(
+    limit: int = typer.Option(0, help="Ограничить число товаров (0 = все ~3,844)"),
+    skip_fresh_days: int = typer.Option(30, help="Skip товары обновлённые менее N дней назад"),
+):
+    """Agilent sitemap-only stubs (~3,844 products). HTML+PDF Agilent блокирует DataDome —
+    создаём stub-записи чисто из products0.xml. Дополняет gluvexlab spare-parts catalog."""
+    from catalog_crawler.adapters.vendors.agilent_sitemap import AgilentSitemapAdapter
+    adapter = AgilentSitemapAdapter(settings)
+    # PROXY_URL применяется адаптером самостоятельно (через self.proxy_url из base.py
+    # __init__ — но base его не подхватывает; передадим явно через env override).
+    proxy_url = os.environ.get("PROXY_URL")
+    if proxy_url:
+        adapter.proxy_url = proxy_url
+    asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
+
+
 @vendor_app.command("waters")
 def vendor_waters(limit: int = 0, skip_fresh_days: int = 30):
     """Crawl waters.com — UPLC, ACQUITY, Xevo, Synapt mass spec."""

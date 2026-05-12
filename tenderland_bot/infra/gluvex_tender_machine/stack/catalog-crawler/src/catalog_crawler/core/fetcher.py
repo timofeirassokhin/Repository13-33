@@ -28,10 +28,19 @@ async def _enforce_rate_limit():
 
 
 class Fetcher:
-    def __init__(self, base_url: str = "", user_agent: str | None = None, extra_headers: dict[str, str] | None = None):
+    def __init__(
+        self,
+        base_url: str = "",
+        user_agent: str | None = None,
+        extra_headers: dict[str, str] | None = None,
+        proxy_url: str | None = None,
+    ):
         self.base_url = base_url
         self.user_agent = user_agent or settings.user_agent
         self.extra_headers = extra_headers or {}
+        # PROXY_URL env как fallback (для запуска через docker compose run -e PROXY_URL=...)
+        import os
+        self.proxy_url = proxy_url or os.environ.get("PROXY_URL") or None
         self._client: httpx.AsyncClient | None = None
 
     async def __aenter__(self) -> "Fetcher":
@@ -41,11 +50,15 @@ class Fetcher:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
         headers.update(self.extra_headers)
-        self._client = httpx.AsyncClient(
-            timeout=settings.request_timeout,
-            headers=headers,
-            follow_redirects=True,
-        )
+        kwargs: dict = {
+            "timeout": settings.request_timeout,
+            "headers": headers,
+            "follow_redirects": True,
+        }
+        if self.proxy_url:
+            # httpx 0.28+: proxy=... (раньше — proxies=...)
+            kwargs["proxy"] = self.proxy_url
+        self._client = httpx.AsyncClient(**kwargs)
         return self
 
     async def __aexit__(self, *_):

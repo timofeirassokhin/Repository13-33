@@ -234,6 +234,173 @@ def vendor_camag(limit: int = 0, skip_fresh_days: int = 30):
     )
 
 
+# ============================================================
+# Тяжёлые бренды — обязательно Playwright+proxy (anti-bot + JS challenge)
+# ============================================================
+
+@vendor_app.command("agilent")
+def vendor_agilent(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl agilent.com — flagships only (HPLC/GC/MS/AAS/ICP-MS systems)."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Agilent Technologies", brand_slug="agilent",
+        base_url="https://www.agilent.com",
+        entry_urls=[
+            # Аналитические разделы Agilent — узкие точки чтобы не парсить 50k запчастей
+            "https://www.agilent.com/en/products/liquid-chromatography",
+            "https://www.agilent.com/en/products/gas-chromatography",
+            "https://www.agilent.com/en/products/mass-spectrometry",
+            "https://www.agilent.com/en/products/atomic-spectroscopy",
+            "https://www.agilent.com/en/products/icp-ms",
+            "https://www.agilent.com/en/products/icp-oes",
+            "https://www.agilent.com/en/products/molecular-spectroscopy",
+        ],
+        category_keyword_map={
+            "liquid-chromatography": "hplc_system", "lc-": "hplc_system",
+            "uhplc": "hplc_system", "hplc": "hplc_system",
+            "gas-chromatography": "gc_system", "gc-": "gc_system",
+            "mass-spectrometry": "mass_spectrometer", "lcms": "mass_spectrometer",
+            "gcms": "mass_spectrometer", "tof": "mass_spectrometer",
+            "atomic-absorption": "aas_system", "aas": "aas_system",
+            "icp-ms": "icp_ms", "icp-oes": "icp_oes",
+            "ftir": "ftir_spectrometer", "uv-vis": "uv_vis_spectrometer",
+        },
+        domain_hint="analytical",
+        default_category="other",
+        max_depth=3, max_urls=200,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,       # Agilent имеет DataDome — обязательно Chromium+stealth
+    )
+
+
+@vendor_app.command("thermofisher")
+def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl thermofisher.com — analytical + NGS Ion Torrent."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Thermo Fisher Scientific", brand_slug="thermofisher",
+        base_url="https://www.thermofisher.com",
+        entry_urls=[
+            "https://www.thermofisher.com/us/en/home/industrial/spectroscopy-elemental-isotope-analysis.html",
+            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography.html",
+        ],
+        category_keyword_map={
+            "chromatography": "hplc_system", "hplc": "hplc_system", "uhplc": "hplc_system",
+            "mass-spectrometry": "mass_spectrometer", "orbitrap": "mass_spectrometer",
+            "tsq": "mass_spectrometer", "isq": "mass_spectrometer",
+            "icp": "icp_ms", "atomic-absorption": "aas_system",
+            "ion-torrent": "sequencer_platform", "ion-gene-studio": "sequencer_platform",
+            "ftir": "ftir_spectrometer", "uv-vis": "uv_vis_spectrometer",
+        },
+        domain_hint="analytical",
+        default_category="other",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+        # Curl + proxy достаточно — Thermo не блокирует residential
+    )
+
+
+@vendor_app.command("shimadzu")
+def vendor_shimadzu(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl shimadzu.com — HPLC/GC/MS/AAS/UV-Vis/FTIR/ICP."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Shimadzu", brand_slug="shimadzu",
+        base_url="https://www.shimadzu.com",
+        entry_urls=[
+            "https://www.shimadzu.com/an/products/index.html",
+        ],
+        category_keyword_map={
+            "liquid-chromatograph": "hplc_system", "hplc": "hplc_system", "uhplc": "hplc_system",
+            "gas-chromatograph": "gc_system",
+            "mass-spectrometer": "mass_spectrometer", "lcms": "mass_spectrometer", "gcms": "mass_spectrometer",
+            "atomic-absorption": "aas_system",
+            "icp": "icp_ms", "uv-vis": "uv_vis_spectrometer", "ftir": "ftir_spectrometer",
+        },
+        domain_hint="analytical",
+        default_category="other",
+        max_depth=4, max_urls=400,
+        user_agent_override=BROWSER_UA,
+        # Curl + proxy достаточно — 200 OK
+    )
+
+
+@vendor_app.command("waters")
+def vendor_waters(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl waters.com — UPLC, ACQUITY, Xevo, Synapt mass spec."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Waters", brand_slug="waters",
+        base_url="https://www.waters.com",
+        entry_urls=[
+            "https://www.waters.com/nextgen/global/products.html",
+            "https://www.waters.com/nextgen/global/products/chromatography.html",
+            "https://www.waters.com/nextgen/global/products/mass-spectrometry.html",
+        ],
+        category_keyword_map={
+            "acquity": "hplc_system", "uplc": "hplc_system", "hplc": "hplc_system",
+            "xevo": "mass_spectrometer", "synapt": "mass_spectrometer",
+            "select-series": "mass_spectrometer",
+        },
+        domain_hint="analytical",
+        default_category="other",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+        # Waters даёт HTTP/2 error при некоторых rendering — fallback на Playwright если надо
+    )
+
+
+@vendor_app.command("sciex")
+def vendor_sciex(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl sciex.com — Triple Quad, QTRAP, ZenoTOF mass spec."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="AB Sciex", brand_slug="sciex",
+        base_url="https://sciex.com",
+        entry_urls=[
+            "https://sciex.com/products",
+            "https://sciex.com/products/",
+        ],
+        category_keyword_map={
+            "triple-quad": "mass_spectrometer", "qtrap": "mass_spectrometer",
+            "zenotof": "mass_spectrometer", "tof": "mass_spectrometer",
+            "x-series": "mass_spectrometer",
+        },
+        domain_hint="analytical",
+        default_category="mass_spectrometer",
+        max_depth=4, max_urls=200,
+        user_agent_override=BROWSER_UA,
+        # Sciex полностью открыт через residential
+    )
+
+
+@vendor_app.command("bruker")
+def vendor_bruker(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl bruker.com — timsTOF, MaXis, SCION GC, NMR."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Bruker", brand_slug="bruker",
+        base_url="https://www.bruker.com",
+        entry_urls=[
+            "https://www.bruker.com/en/products-and-solutions.html",
+            "https://www.bruker.com/en/products-and-solutions/mass-spectrometry.html",
+        ],
+        category_keyword_map={
+            "timstof": "mass_spectrometer", "maxis": "mass_spectrometer",
+            "amazon": "mass_spectrometer", "mass-spectro": "mass_spectrometer",
+            "scion-gc": "gc_system", "gc-": "gc_system",
+            "ftir": "ftir_spectrometer", "tensor": "ftir_spectrometer",
+            "nmr": "other",
+        },
+        domain_hint="analytical",
+        default_category="other",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+        # Bruker открыт через residential
+    )
+
+
 @gluvex_app.command("structure")
 def gluvex_structure(
     upload: bool = typer.Option(True, help="Загрузить дамп в MinIO"),

@@ -107,7 +107,10 @@ class VendorAdapter(ABC):
                 rate_limit_seconds=self.rate_limit_seconds,
             )
         else:
-            fetcher_cm = Fetcher(user_agent=self.user_agent_override)
+            fetcher_cm = Fetcher(
+                user_agent=self.user_agent_override,
+                proxy_url=self.proxy_url,
+            )
 
         async with fetcher_cm as fetcher:
             # 1. список URL

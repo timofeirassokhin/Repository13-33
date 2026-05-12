@@ -46,6 +46,7 @@ class PlaywrightFetcher:
         rate_limit_seconds: float = 1.0,
         block_assets: bool = True,
         wait_until: str = "domcontentloaded",
+        page_timeout_ms: int = 60000,
     ):
         self.base_url = base_url
         self.user_agent = user_agent or (
@@ -57,6 +58,7 @@ class PlaywrightFetcher:
         self.rate_limit_seconds = rate_limit_seconds
         self.block_assets = block_assets
         self.wait_until = wait_until
+        self.page_timeout_ms = page_timeout_ms
 
         self._pw = None
         self._browser: Browser | None = None
@@ -86,6 +88,15 @@ class PlaywrightFetcher:
             "extra_http_headers": {
                 "Accept-Language": "en-US,en;q=0.9",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Sec-Ch-Ua": '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
+                "Sec-Ch-Ua-Mobile": "?0",
+                "Sec-Ch-Ua-Platform": '"Windows"',
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Upgrade-Insecure-Requests": "1",
                 **self.extra_headers,
             },
             # стелс — скрыть webdriver flag
@@ -136,12 +147,17 @@ class PlaywrightFetcher:
                     await self._stealth_async(page)
                 except Exception:
                     pass  # best-effort
-            response = await page.goto(url, wait_until=self.wait_until, timeout=30000)
+            response = await page.goto(url, wait_until=self.wait_until, timeout=self.page_timeout_ms)
             if response is None:
                 raise RuntimeError(f"no response for {url}")
             status = response.status
             if status >= 400:
                 raise RuntimeError(f"HTTP {status} for {url}")
+            # дать challenge JS шанс сработать (DataDome / Cloudflare иногда заменяет HTML после load)
+            try:
+                await page.wait_for_load_state("networkidle", timeout=10000)
+            except Exception:
+                pass  # networkidle может никогда не наступить — это ok, продолжаем с тем что есть
             html = await page.content()
             return html
         finally:

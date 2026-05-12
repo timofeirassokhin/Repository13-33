@@ -58,6 +58,8 @@ class VendorAdapter(ABC):
     base_url: str        # "https://www.agilent.com"
     domain_hint: str = "general_lab"   # product_domain_t default
     user_agent_override: str | None = None  # если бренду нужен специфический UA
+    use_playwright: bool = False               # JS-heavy сайты + anti-bot
+    proxy_url: str | None = None               # http://user:pass@host:port (e.g. IPRoyal residential)
 
     # rate limit per-vendor, sec между запросами; base 0.7s = ~1.5 RPS
     rate_limit_seconds: float = 0.7
@@ -90,8 +92,24 @@ class VendorAdapter(ABC):
         print(f"    rate limit: {self.rate_limit_seconds}s/request")
         if self.user_agent_override:
             print(f"    UA override: {self.user_agent_override[:60]}...")
+        if self.use_playwright:
+            print(f"    fetcher:  PlaywrightFetcher (headless Chromium + stealth)")
+            if self.proxy_url:
+                print(f"    proxy:    {self.proxy_url.split('@')[-1] if '@' in self.proxy_url else self.proxy_url}")
+        else:
+            print(f"    fetcher:  httpx (plain HTTP)")
 
-        async with Fetcher(user_agent=self.user_agent_override) as fetcher:
+        if self.use_playwright:
+            from catalog_crawler.core.playwright_fetcher import PlaywrightFetcher
+            fetcher_cm = PlaywrightFetcher(
+                user_agent=self.user_agent_override,
+                proxy_url=self.proxy_url,
+                rate_limit_seconds=self.rate_limit_seconds,
+            )
+        else:
+            fetcher_cm = Fetcher(user_agent=self.user_agent_override)
+
+        async with fetcher_cm as fetcher:
             # 1. список URL
             urls = await self.list_product_urls(fetcher, limit=limit)
             print(f"    product URLs: {len(urls)}")

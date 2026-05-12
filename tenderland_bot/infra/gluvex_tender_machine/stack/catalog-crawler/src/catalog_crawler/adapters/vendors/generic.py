@@ -52,6 +52,8 @@ class GenericVendorAdapter(VendorAdapter):
         url_must_not_contain: list[str] | None = None,
         user_agent_override: str | None = None,
         rate_limit_seconds: float = 0.7,
+        use_playwright: bool = False,
+        proxy_url: str | None = None,
     ):
         super().__init__(settings)
         # инстанс-переменные override class-attributes
@@ -64,6 +66,8 @@ class GenericVendorAdapter(VendorAdapter):
         self.default_category = default_category
         self.max_depth = max_depth
         self.max_urls = max_urls
+        self.use_playwright = use_playwright
+        self.proxy_url = proxy_url
         # фильтры на URL пути: must_contain — минимум одно из, must_not_contain — ни одно
         self.url_must_contain = url_must_contain or ["/product"]
         self.url_must_not_contain = url_must_not_contain or [
@@ -73,9 +77,17 @@ class GenericVendorAdapter(VendorAdapter):
             "/applications", "/calculator", "/whitepaper", "/webinar",
             # multilingual locale paths — пропускаем всё кроме явно разрешённого entry
             "/es/", "/fr/", "/de/", "/it/", "/jp/", "/zh/", "/ru/",
-            "/cn/", "/kr/", "/br/", "/pl/",
-            "/america/", "/dach/", "/asia/", "/india/",
-            "/productos/", "/produits/", "/prodotti/", "/produkte/",
+            "/cn/", "/kr/", "/br/", "/pl/", "/nl/", "/pt/",
+            "/bg/", "/cz/", "/hu/", "/sk/", "/ro/", "/tr/", "/ar/",
+            "/id/", "/vi/", "/th/", "/uk/", "/dk/", "/no/", "/se/", "/fi/",
+            "/america/", "/dach/", "/asia/", "/india/", "/africa/",
+            "/productos/", "/produits/", "/prodotti/", "/produkte/", "/producten/",
+            "/produkty/", "/termekek/",
+            # downloads/company/career обычно зацикливают BFS
+            "/downloads/", "/download/", "/company/", "/careers/",
+            "/dealer/", "/dealers/", "/reseller/",
+            # самозамкнутые двойные пути ("/products/X/products/")
+            "/products/products/",
         ]
         self.user_agent_override = user_agent_override
         self.rate_limit_seconds = rate_limit_seconds

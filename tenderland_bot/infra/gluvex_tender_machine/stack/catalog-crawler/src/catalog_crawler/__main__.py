@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 
 import typer
@@ -54,10 +55,23 @@ BROWSER_UA = (
 
 
 def _run_generic(**kw):
-    """Helper — создать GenericVendorAdapter и запустить."""
+    """Helper — создать GenericVendorAdapter и запустить.
+
+    Дополнительные env-управляемые опции:
+      USE_PLAYWRIGHT=1 — использовать headless Chromium вместо curl
+      PROXY_URL=http://user:pass@host:port — residential proxy для тяжёлых брендов
+    """
     from catalog_crawler.adapters.vendors.generic import GenericVendorAdapter
     limit = kw.pop("limit", 0)
     skip = kw.pop("skip_fresh_days", 30)
+
+    # env-overrides — позволяет включить через ENV без CLI флагов
+    if os.environ.get("USE_PLAYWRIGHT") in ("1", "true", "yes"):
+        kw["use_playwright"] = True
+    proxy_url = os.environ.get("PROXY_URL")
+    if proxy_url:
+        kw["proxy_url"] = proxy_url
+
     adapter = GenericVendorAdapter(settings, **kw)
     asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip))
 

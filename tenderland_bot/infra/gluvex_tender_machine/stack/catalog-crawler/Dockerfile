@@ -11,6 +11,10 @@ COPY src ./src
 
 RUN pip install --no-cache-dir .
 
+# Playwright + Chromium headless (~250MB) — для JS-render и stealth crawl
+RUN pip install --no-cache-dir playwright>=1.50 playwright-stealth>=1.0.6 \
+ && playwright install --with-deps chromium
+
 ENV PYTHONUNBUFFERED=1
 
 # CLI entrypoint

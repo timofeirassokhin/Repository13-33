@@ -341,28 +341,14 @@ def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
 
 
 @vendor_app.command("shimadzu")
-def vendor_shimadzu(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl shimadzu.com — HPLC/GC/MS/AAS/UV-Vis/FTIR/ICP."""
-    _run_generic(
-        limit=limit, skip_fresh_days=skip_fresh_days,
-        brand_name="Shimadzu", brand_slug="shimadzu",
-        base_url="https://www.shimadzu.com",
-        entry_urls=[
-            "https://www.shimadzu.com/an/products/index.html",
-        ],
-        category_keyword_map={
-            "liquid-chromatograph": "hplc_system", "hplc": "hplc_system", "uhplc": "hplc_system",
-            "gas-chromatograph": "gc_system",
-            "mass-spectrometer": "mass_spectrometer", "lcms": "mass_spectrometer", "gcms": "mass_spectrometer",
-            "atomic-absorption": "aas_system",
-            "icp": "icp_ms", "uv-vis": "uv_vis_spectrometer", "ftir": "ftir_spectrometer",
-        },
-        domain_hint="analytical",
-        default_category="other",
-        max_depth=4, max_urls=400,
-        user_agent_override=BROWSER_UA,
-        # Curl + proxy достаточно — 200 OK
-    )
+def vendor_shimadzu(
+    limit: int = typer.Option(0, help="Ограничить число товаров (0 = все ~631)"),
+    skip_fresh_days: int = typer.Option(30, help="Skip товары обновлённые менее N дней назад"),
+):
+    """Crawl shimadzu.com — JSON-driven adapter, ~631 products (HPLC/LC-MS/GC/GC-MS/AA/ICP/UV-Vis/FTIR/...)."""
+    from catalog_crawler.adapters.vendors.shimadzu import ShimadzuAdapter
+    adapter = ShimadzuAdapter(settings)
+    asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
 
 
 @vendor_app.command("waters")

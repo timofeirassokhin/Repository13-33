@@ -18,6 +18,20 @@ app = typer.Typer(no_args_is_help=True, add_completion=False)
 gluvex_app = typer.Typer(no_args_is_help=True)
 app.add_typer(gluvex_app, name="gluvexlab")
 
+vendor_app = typer.Typer(no_args_is_help=True)
+app.add_typer(vendor_app, name="vendor")
+
+
+@vendor_app.command("memmert")
+def vendor_memmert(
+    limit: int = typer.Option(0, help="Ограничить число моделей (0 = все)"),
+    skip_fresh_days: int = typer.Option(30, help="Skip товары обновлённые менее N дней назад"),
+):
+    """Crawl memmert.com — официальный сайт."""
+    from catalog_crawler.adapters.vendors.memmert import MemmertAdapter
+    adapter = MemmertAdapter(settings)
+    asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
+
 
 @gluvex_app.command("structure")
 def gluvex_structure(

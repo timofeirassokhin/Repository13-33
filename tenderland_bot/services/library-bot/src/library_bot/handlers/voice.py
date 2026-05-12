@@ -25,7 +25,13 @@ router = Router(name="voice")
 
 
 async def _transcribe(audio_bytes: bytes, settings: Settings) -> str:
-    """POST к Whisper ASR. Возвращает строку (распознанный текст)."""
+    """POST к Whisper ASR. Возвращает строку (распознанный текст).
+
+    NB: onerahmet/openai-whisper-asr-webservice возвращает JSON в теле, но
+    отдаёт `Content-Type: text/plain` — поэтому resp.json(content_type=None)
+    + fallback на raw-text если парсинг JSON упадёт.
+    """
+    import json as _json
     url = f"{settings.whisper_url}/asr"
     params = {
         "task": "transcribe",
@@ -40,11 +46,18 @@ async def _transcribe(audio_bytes: bytes, settings: Settings) -> str:
                        filename="voice.ogg",
                        content_type="audio/ogg")
         async with session.post(url, params=params, data=data) as resp:
+            body = await resp.text()
             if resp.status != 200:
-                body = (await resp.text())[:300]
-                raise RuntimeError(f"Whisper HTTP {resp.status}: {body}")
-            payload = await resp.json()
-            return (payload.get("text") or "").strip()
+                raise RuntimeError(f"Whisper HTTP {resp.status}: {body[:300]}")
+            # Whisper web service quirk: иногда отдаёт raw text вместо JSON, иногда JSON.
+            stripped = body.strip()
+            if stripped.startswith("{"):
+                try:
+                    payload = _json.loads(stripped)
+                    return (payload.get("text") or "").strip()
+                except _json.JSONDecodeError:
+                    pass
+            return stripped
 
 
 @router.message(F.voice | F.audio)

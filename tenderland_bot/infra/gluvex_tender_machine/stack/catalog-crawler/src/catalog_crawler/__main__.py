@@ -326,20 +326,17 @@ def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
         brand_name="Thermo Fisher Scientific", brand_slug="thermofisher",
         base_url="https://www.thermofisher.com",
         entry_urls=[
-            # Industrial / analytical hubs (200 OK, статика)
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography.html",
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc.html",
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc/hplc-uhplc-systems.html",
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography/gas-chromatography-gc.html",
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography/gas-chromatography-gc/gc-systems.html",
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography/ion-chromatography-ic.html",
-            "https://www.thermofisher.com/us/en/home/industrial/chromatography/ion-chromatography-ic/ion-chromatography-systems.html",
-            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry.html",
-            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/liquid-chromatography-mass-spectrometry-lc-ms.html",
+            # Mass Spec families (200 OK, статика, содержат deep model links + assets.thermofisher.com PDFs)
             "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-systems/orbitrap-lc-ms.html",
+            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-systems/triple-quadrupole-lc-ms.html",
+            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/gas-chromatography-mass-spectrometry-gc-ms/gc-ms-systems.html",
+            # Chromatography families
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc/hplc-uhplc-systems.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/gas-chromatography-gc/gc-systems.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/ion-chromatography-ic/ion-chromatography-systems.html",
+            # Spectroscopy / Elemental hub
             "https://www.thermofisher.com/us/en/home/industrial/spectroscopy-elemental-isotope-analysis.html",
-            # Life Science / NGS Ion Torrent
-            "https://www.thermofisher.com/us/en/home/life-science/sequencing/next-generation-sequencing.html",
+            # Life Science / NGS Ion Torrent hub
             "https://www.thermofisher.com/us/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-technology.html",
         ],
         category_keyword_map={
@@ -379,18 +376,43 @@ def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
         },
         domain_hint="analytical",
         default_category="other",
-        max_depth=5, max_urls=600,
+        max_depth=2, max_urls=400,
         user_agent_override=BROWSER_UA,
         # CRITICAL: Thermo URL'ы — /us/en/home/industrial/... — default `/product` filter
-        # отсекал бы всё. Поэтому переопределяем url_must_contain под Thermo namespace.
+        # отсекал бы всё. Переопределяем url_must_contain под Thermo namespace.
+        # NB: /order/catalog/product НЕ включаем — это e-commerce SKU rabbit hole.
         url_must_contain=[
             "/us/en/home/industrial",
             "/us/en/home/life-science",
-            "/order/catalog/product",
         ],
-        # url_must_not_contain default уже отсекает /forms, /learning-center и т.п.
-        # Но Thermo имеет специфические локали внутри `/us/en/home/...` — отсекаем дубли
-        # other-locales и mobile.
+        url_must_not_contain=[
+            # учебные / маркетинговые секции — НЕ продукты
+            "/learning-center", "/applications-area", "/resource-library",
+            "/resources-library", "/learning-resource", "/insights",
+            # workflows / методические — не приборы
+            "/workflows/", "/proteomics-mass-spectrometry/",
+            "/metabolomics-mass-spectrometry/",
+            "/translational-proteomics", "/quantitation",
+            # industry verticals
+            "/pharma-biopharma/", "/food-beverage/", "/forensics/",
+            "/environmental/", "/clinical/", "/diagnostics/",
+            "/industry/", "/services/", "/cdmo/",
+            # forms / contact / privacy / events / careers
+            "/forms/", "/contact", "/career", "/legal", "/imprint",
+            "/privacy", "/about", "/news", "/event", "/webinar",
+            "/cart", "/checkout", "/login", "/auth/",
+            # explicit other-locale paths (всё что внутри Thermo не /us/en/)
+            "/ar/", "/au/", "/br/", "/ca/", "/cl/", "/cn/", "/de/", "/es/",
+            "/fr/", "/hk/", "/ht/", "/id/", "/in/", "/io/", "/jp/", "/kr/",
+            "/mx/", "/ng/", "/ru/", "/sa/", "/sg/", "/tg/", "/tr/", "/tw/",
+            "/uk/", "/za/", "/it/", "/nl/", "/pl/", "/se/", "/dk/", "/no/",
+            "/fi/", "/cz/", "/hu/", "/sk/", "/ro/", "/bg/", "/my/", "/th/",
+            "/vn/", "/ph/", "/pk/", "/lk/", "/bd/", "/np/", "/mn/",
+        ],
+        # NB: max_depth=2 — entry URLs визитятся (depth=0), их links фильтруются и
+        # либо идут в found (>=3 segments в path — это и есть наш case), либо в очередь.
+        # Глубже одного-двух хопов BFS не имеет смысла — Thermo deep instrument pages
+        # уже найдены прямой ссылкой с family-страниц.
     )
 
 

@@ -33,6 +33,17 @@ def vendor_memmert(
     asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
 
 
+@vendor_app.command("sartorius")
+def vendor_sartorius(
+    limit: int = typer.Option(0, help="Ограничить число товаров (0 = все)"),
+    skip_fresh_days: int = typer.Option(30, help="Skip товары обновлённые менее N дней назад"),
+):
+    """Crawl sartorius.com — официальный сайт."""
+    from catalog_crawler.adapters.vendors.sartorius import SartoriusAdapter
+    adapter = SartoriusAdapter(settings)
+    asyncio.run(adapter.run(limit=limit, skip_existing_fresh_days=skip_fresh_days))
+
+
 @gluvex_app.command("structure")
 def gluvex_structure(
     upload: bool = typer.Option(True, help="Загрузить дамп в MinIO"),

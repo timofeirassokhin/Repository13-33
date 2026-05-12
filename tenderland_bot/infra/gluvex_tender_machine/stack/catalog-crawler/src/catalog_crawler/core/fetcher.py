@@ -28,14 +28,22 @@ async def _enforce_rate_limit():
 
 
 class Fetcher:
-    def __init__(self, base_url: str = ""):
+    def __init__(self, base_url: str = "", user_agent: str | None = None, extra_headers: dict[str, str] | None = None):
         self.base_url = base_url
+        self.user_agent = user_agent or settings.user_agent
+        self.extra_headers = extra_headers or {}
         self._client: httpx.AsyncClient | None = None
 
     async def __aenter__(self) -> "Fetcher":
+        headers = {
+            "User-Agent": self.user_agent,
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        }
+        headers.update(self.extra_headers)
         self._client = httpx.AsyncClient(
             timeout=settings.request_timeout,
-            headers={"User-Agent": settings.user_agent},
+            headers=headers,
             follow_redirects=True,
         )
         return self

@@ -57,7 +57,7 @@ class VendorAdapter(ABC):
     brand_slug: str      # "agilent" — для file paths
     base_url: str        # "https://www.agilent.com"
     domain_hint: str = "general_lab"   # product_domain_t default
-    user_agent_extra: str = ""         # если нужен особый UA
+    user_agent_override: str | None = None  # если бренду нужен специфический UA
 
     # rate limit per-vendor, sec между запросами; base 0.7s = ~1.5 RPS
     rate_limit_seconds: float = 0.7
@@ -88,8 +88,10 @@ class VendorAdapter(ABC):
         print(f"==> {self.brand_name}: starting crawl")
         print(f"    base URL: {self.base_url}")
         print(f"    rate limit: {self.rate_limit_seconds}s/request")
+        if self.user_agent_override:
+            print(f"    UA override: {self.user_agent_override[:60]}...")
 
-        async with Fetcher() as fetcher:
+        async with Fetcher(user_agent=self.user_agent_override) as fetcher:
             # 1. список URL
             urls = await self.list_product_urls(fetcher, limit=limit)
             print(f"    product URLs: {len(urls)}")

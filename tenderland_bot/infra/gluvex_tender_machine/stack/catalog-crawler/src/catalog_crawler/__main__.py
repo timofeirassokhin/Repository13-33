@@ -314,29 +314,83 @@ def vendor_agilent(limit: int = 0, skip_fresh_days: int = 30):
 
 @vendor_app.command("thermofisher")
 def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl thermofisher.com — analytical + NGS Ion Torrent."""
+    """Crawl thermofisher.com — family-level pages (Orbitrap, Vanquish, TSQ, ICP, FTIR + Ion Torrent NGS).
+
+    Thermo runs on Adobe AEM (Komodo). Family/category .html pages are static-rendered
+    с brochures, **но** индивидуальные инструменты подгружаются filter-tool-app.js
+    через XHR (для них нужен Playwright). Этот adapter покрывает family-level —
+    адекватно для tender-matching ("LC-MS triple quadrupole" → Thermo TSQ family).
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Thermo Fisher Scientific", brand_slug="thermofisher",
         base_url="https://www.thermofisher.com",
         entry_urls=[
-            "https://www.thermofisher.com/us/en/home/industrial/spectroscopy-elemental-isotope-analysis.html",
-            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry.html",
+            # Industrial / analytical hubs (200 OK, статика)
             "https://www.thermofisher.com/us/en/home/industrial/chromatography.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc/hplc-uhplc-systems.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/gas-chromatography-gc.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/gas-chromatography-gc/gc-systems.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/ion-chromatography-ic.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/ion-chromatography-ic/ion-chromatography-systems.html",
+            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry.html",
+            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/liquid-chromatography-mass-spectrometry-lc-ms.html",
+            "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-systems/orbitrap-lc-ms.html",
+            "https://www.thermofisher.com/us/en/home/industrial/spectroscopy-elemental-isotope-analysis.html",
+            # Life Science / NGS Ion Torrent
+            "https://www.thermofisher.com/us/en/home/life-science/sequencing/next-generation-sequencing.html",
+            "https://www.thermofisher.com/us/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-technology.html",
         ],
         category_keyword_map={
-            "chromatography": "hplc_system", "hplc": "hplc_system", "uhplc": "hplc_system",
-            "mass-spectrometry": "mass_spectrometer", "orbitrap": "mass_spectrometer",
+            # HPLC / UHPLC
+            "vanquish": "hplc_system", "ultimate-3000": "hplc_system",
+            "hplc-uhplc-systems": "hplc_system", "hplc-uhplc": "hplc_system",
+            "liquid-chromatography-lc": "hplc_system", "uhplc": "hplc_system",
+            "hplc": "hplc_system",
+            # GC
+            "gc-systems": "gc_system", "gas-chromatography-gc": "gc_system",
+            "trace-1300": "gc_system", "trace-1600": "gc_system",
+            # IC (Ion Chromatography)
+            "ion-chromatography-systems": "hplc_system",  # IC closest to HPLC bucket
+            "dionex": "hplc_system",
+            # MS — Orbitrap / TSQ / ISQ / LTQ / EM / GC-MS
+            "orbitrap-lc-ms": "mass_spectrometer", "orbitrap": "mass_spectrometer",
             "tsq": "mass_spectrometer", "isq": "mass_spectrometer",
-            "icp": "icp_ms", "atomic-absorption": "aas_system",
-            "ion-torrent": "sequencer_platform", "ion-gene-studio": "sequencer_platform",
-            "ftir": "ftir_spectrometer", "uv-vis": "uv_vis_spectrometer",
+            "lc-ms": "mass_spectrometer", "gc-ms": "mass_spectrometer",
+            "mass-spectrometry": "mass_spectrometer",
+            "tribrid": "mass_spectrometer", "tof-ms": "mass_spectrometer",
+            "altis": "mass_spectrometer", "stellar": "mass_spectrometer",
+            "exploris": "mass_spectrometer", "ascend": "mass_spectrometer",
+            "eclipse": "mass_spectrometer", "ardia": "mass_spectrometer",
+            # AA / ICP
+            "icap": "icp_ms", "icp-ms": "icp_ms", "icp-oes": "icp_oes",
+            "atomic-absorption": "aas_system", "ice-3000": "aas_system",
+            "elemental": "icp_ms",
+            # FTIR / UV-Vis / Raman
+            "nicolet": "ftir_spectrometer", "ftir": "ftir_spectrometer",
+            "is50": "ftir_spectrometer",
+            "evolution": "uv_vis_spectrometer", "uv-vis": "uv_vis_spectrometer",
+            "raman": "uv_vis_spectrometer",
+            # NGS / Ion Torrent
+            "ion-torrent": "sequencer_platform", "genestudio": "sequencer_platform",
+            "ion-gene-studio": "sequencer_platform", "ion-proton": "sequencer_platform",
+            "ion-genexus": "sequencer_platform", "next-generation-sequencing": "sequencer_platform",
         },
         domain_hint="analytical",
         default_category="other",
-        max_depth=4, max_urls=300,
+        max_depth=5, max_urls=600,
         user_agent_override=BROWSER_UA,
-        # Curl + proxy достаточно — Thermo не блокирует residential
+        # CRITICAL: Thermo URL'ы — /us/en/home/industrial/... — default `/product` filter
+        # отсекал бы всё. Поэтому переопределяем url_must_contain под Thermo namespace.
+        url_must_contain=[
+            "/us/en/home/industrial",
+            "/us/en/home/life-science",
+            "/order/catalog/product",
+        ],
+        # url_must_not_contain default уже отсекает /forms, /learning-center и т.п.
+        # Но Thermo имеет специфические локали внутри `/us/en/home/...` — отсекаем дубли
+        # other-locales и mobile.
     )
 
 

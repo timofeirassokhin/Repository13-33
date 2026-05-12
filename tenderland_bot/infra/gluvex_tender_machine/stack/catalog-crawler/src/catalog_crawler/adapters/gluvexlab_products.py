@@ -34,16 +34,24 @@ SITEMAP_NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 # Из 542 категорий покрываем топовые ~30-40, остальные → 'other' + subcategory=<slug>.
 # Расширяется при анализе результатов первого прогона.
 GLUVEX_CATEGORY_MAP: dict[str, str] = {
-    # хроматография
+    # хроматография — системы
     "zhidkostnye_khromatografy": "hplc_system",
     "gazovye_khromatografy": "gc_system",
     "gazovye-mass-spektrometry": "mass_spectrometer",
     "gidkostnye-mass-spektrometry": "mass_spectrometer",
     "khromatomass-spektrometry": "mass_spectrometer",
+    "mass-spektrometry": "mass_spectrometer",
+    # колонки
     "kolonki_dlya_khromatografii": "hplc_column",
-    "kolonki-dlya-gh": "gc_column",
-    "kolonki-dlya-vegkh": "hplc_column",
+    "kolonki-dlya-gkh": "gc_column",        # фикс опечатки
+    "kolonki-dlya-vezhkh": "hplc_column",   # фикс опечатки
+    "kolonki-dlya-gh": "gc_column",          # alt slug (на случай)
+    "kolonki-dlya-vegkh": "hplc_column",    # alt slug
     "khromatograficheskie_kolonki": "hplc_column",
+    # HPLC модули — для slot-based config
+    "moduli-avtosamplerov-dlya-vegch": "hplc_autosampler",
+    "avtosamplery": "hplc_autosampler",
+    "moduli-detektorov-dlya-vegch": "hplc_detector",
     # спектроскопия
     "atomno_absorbtsionnye_spektrofotometry": "aas_system",
     "ik-fure-spektrometry": "ftir_spectrometer",

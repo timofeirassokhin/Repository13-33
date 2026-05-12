@@ -77,7 +77,56 @@
 | **Ultima Genomics** | UG100 | — |
 | **Singular Genomics** | G4 | — |
 
-### 2.6. NGS реагенты, панели и library prep
+### 2.6. Общелабораторное оборудование (из портфеля Gluvex)
+
+После первого crawl сайта gluvexlab.com подтверждено что у Глювекса 42 бренда. Помимо аналитики и NGS (разделы 2.1-2.5) — большой объём общелабораторного и расходников. Все требуют парсинга через 2-й уровень (cross-check с официальных сайтов).
+
+#### Аналитика — дополнительные бренды у Gluvex
+- **Metrohm** ([metrohm.com](https://www.metrohm.com)) — титраторы (потенциометрические, KF), ion chromatography
+- **CAMAG** ([camag.com](https://www.camag.com)) — TLC / planar chromatography, ATS, scanners
+- **SCHMIDT&HAENSCH** ([schmidt-haensch.com](https://schmidt-haensch.com)) — рефрактометры, поляриметры, plato meters
+- **HTA** ([hta.it](https://www.hta.it)) — автосемплеры для GC/HPLC
+- **Hawach Scientific** ([hawach.com](https://www.hawach.com)) — chromatography accessories, columns, filters
+- **Sciencix** ([sciencix.com](https://sciencix.com)) — replacement parts для HPLC/GC/MS (Agilent/Waters compatible)
+- **Macherey-Nagel** ([mn-net.com](https://www.mn-net.com)) — SPE, paper chromatography, sample prep
+
+#### Общелабораторное (термостаты, мешалки, центрифуги, насосы)
+- **Sartorius** ([sartorius.com](https://www.sartorius.com)) — весы, балансы, фильтрация, биотех
+- **Memmert** ([memmert.com](https://www.memmert.com)) — сушильные шкафы (UN/UF), инкубаторы, климатические камеры
+- **Heidolph** ([heidolph-instruments.com](https://www.heidolph-instruments.com)) — роторные испарители, шейкеры, плиты
+- **Binder** ([binder-world.com](https://www.binder-world.com)) — климатические камеры, сушильные шкафы, CO2-инкубаторы
+- **BANDELIN** ([bandelin.com](https://www.bandelin.com)) — ультразвуковые ванны, гомогенизаторы (SONOREX, SONOPULS)
+- **BRAND GmbH + CO KG** ([brand.de](https://www.brand.de)) — пипетки, дозаторы, диспенсеры, пластиковая лаборатория
+- **2mag** ([2mag.de](https://www.2mag.de)) — магнитные мешалки (Magsuspension, MIX-Drive)
+- **Funke-Dr. N. Gerber** ([funke-gerber.de](https://www.funke-gerber.de)) — анализаторы молочной продукции
+- **Huber** ([huber-online.com](https://www.huber-online.com)) — циркуляционные термостаты, чиллеры
+- **KNF Neuberger** ([knf.com](https://www.knf.com)) — мембранные насосы (вакуум, газ), компрессоры
+- **Lauda (GFL)** ([lauda.de](https://www.lauda.de)) — термостаты, водяные бани, шейкеры
+- **Retsch GmbH** ([retsch.com](https://www.retsch.com)) — мельницы (Mixer Mill, Cryomill), сита, измельчители
+- **SHP Steriltechnik** ([shp-steriltechnik.com](https://www.shp-steriltechnik.com)) — автоклавы паровые, сухожаровые шкафы
+- **SOTAX** ([sotax.com](https://www.sotax.com)) — тестеры растворения, сыпучести, твёрдости (фарма)
+- **Sigma Laborzentrifugen** ([sigma-zentrifugen.de](https://www.sigma-zentrifugen.de)) — лабораторные центрифуги (НЕ Sigma-Aldrich!)
+- **Vibra** ([vibra.co.jp](https://www.vibra.co.jp)) — весы Shinko Denshi
+- **Top Industrie** ([top-industrie.fr](https://www.top-industrie.fr)) — оборудование высокого давления
+- **BOYU Cleanse Technologies** — clean room оборудование
+- **TopAir** — лабораторные вытяжные шкафы
+- **Waldner** ([waldner.de](https://www.waldner.de)) — мебель для лабораторий
+- **DAIHAN** ([daihansci.com](https://www.daihansci.com)) — Корея, лабораторное оборудование
+- **Lamsystems** ([lamsystems.ru](https://lamsystems.ru)) — Россия, ламинары, биоксы безопасности
+- **behr Labor-Technik** ([behr-labor.de](https://www.behr-labor.com)) — экстракторы Сокслет, минерализаторы Кьельдаль
+- **B Medical Systems** ([bmedicalsystems.com](https://www.bmedicalsystems.com)) — медицинские холодильники для вакцин/крови
+- **ООО «НЦСО»** — российский НТЦ научного оборудования
+
+#### Расходники и стекло
+- **DWK Life Sciences GmbH** ([dwk.com](https://www.dwk.com)) — стекло DURAN, бутыли, виалы
+- **Vitlab** ([vitlab.com](https://www.vitlab.com)) — пластиковая лабораторная посуда
+- **LLG Labware** ([llg-labware.com](https://www.llg-labware.com)) — общелабораторные расходники
+- **Linbel** — российские расходники
+
+#### Gluvex (собственная марка)
+- **Gluvex** — 3013 артикулов на сайте, собственное производство расходников (особенно хроматография — виалы, фильтры, колонки) + ребрендинг
+
+### 2.7. NGS реагенты, панели и library prep
 
 - **IDT** (Integrated DNA Technologies) — xGen NGS panels, Lockdown probes, custom oligos, ssODN, primer pools
 - **Twist Biosciences** — Twist Exome 2.5/Comprehensive Exome Spike-in, Custom Panels, Library Prep (Library Prep EF / Mag), Methylation Detection

@@ -332,12 +332,18 @@ def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
             "https://www.thermofisher.com/us/en/home/industrial/mass-spectrometry/gas-chromatography-mass-spectrometry-gc-ms/gc-ms-systems.html",
             # Chromatography families
             "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc/hplc-uhplc-systems.html",
+            "https://www.thermofisher.com/us/en/home/industrial/chromatography/liquid-chromatography-lc/hplc-uhplc-systems/vanquish-uhplc-systems.html",
             "https://www.thermofisher.com/us/en/home/industrial/chromatography/gas-chromatography-gc/gc-systems.html",
             "https://www.thermofisher.com/us/en/home/industrial/chromatography/ion-chromatography-ic/ion-chromatography-systems.html",
             # Spectroscopy / Elemental hub
             "https://www.thermofisher.com/us/en/home/industrial/spectroscopy-elemental-isotope-analysis.html",
             # Life Science / NGS Ion Torrent hub
             "https://www.thermofisher.com/us/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-technology.html",
+            # Sanger / Capillary Electrophoresis Genetic Analyzers (3500, 3500xl, SeqStudio,
+            # 3730/3730xl) + Sanger reagents/kits/accessories — individual instrument pages
+            # отдельно 404, но из этого хаба BFS подтягивает kits/reagents/accessories pages.
+            # NB: individual 3500/SeqStudio appliance pages нужен Playwright (next session).
+            "https://www.thermofisher.com/us/en/home/life-science/sequencing/sanger-sequencing.html",
         ],
         category_keyword_map={
             # HPLC / UHPLC
@@ -373,6 +379,16 @@ def vendor_thermo(limit: int = 0, skip_fresh_days: int = 30):
             "ion-torrent": "sequencer_platform", "genestudio": "sequencer_platform",
             "ion-gene-studio": "sequencer_platform", "ion-proton": "sequencer_platform",
             "ion-genexus": "sequencer_platform", "next-generation-sequencing": "sequencer_platform",
+            # Sanger / Capillary Electrophoresis Genetic Analyzers
+            # (3500, 3500xl, 3730, 3730xl, SeqStudio — capillary electrophoresis Sanger sequencers)
+            "seqstudio": "sequencer_platform", "3500-genetic": "sequencer_platform",
+            "3500xl-genetic": "sequencer_platform", "3730-dna": "sequencer_platform",
+            "3730xl-dna": "sequencer_platform", "3730-3730xl": "sequencer_platform",
+            "applied-biosystems-genetic-analyzers": "sequencer_platform",
+            "sanger-sequencing-kits-reagents": "ngs_library_prep_kit",  # Sanger kits
+            "sanger-sequencing-technology-accessories": "accessory",
+            "fragment-analysis": "sequencer_platform",
+            "capillary-electrophoresis": "sequencer_platform",
         },
         domain_hint="analytical",
         default_category="other",

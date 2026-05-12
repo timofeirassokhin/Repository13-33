@@ -90,7 +90,15 @@ class ShimadzuAdapter(VendorAdapter):
         "hplc-column": "hplc_column",
         "lc-consumables": "consumable",
         "lc-column": "hplc_column",
+        # liquid-chromatography hub URL slug (was missing — Nexera-e/MSS/Co-Sense fell in 'other')
+        "liquid-chromatography": "hplc_system",
+        "hplc-system": "hplc_system",
+        "nexera": "hplc_system",        # все Nexera-X3, Nexera-Lite, Nexera MX, Mikros — HPLC
+        "uhplc": "hplc_system",
+        "hplc": "hplc_system",
         # gas chromatography drill-down
+        "gas-chromatography": "gc_system",
+        "gc-system": "gc_system",
         "gc-column": "gc_column",
         "gc-consumables": "consumable",
         # mass spec

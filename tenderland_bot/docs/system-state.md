@@ -410,3 +410,27 @@ PR: https://github.com/timofeirassokhin/Repository13-33/pull/6
 ---
 
 _Документ обновляется при каждом серьёзном изменении инфраструктуры. Любое расхождение между этим документом и реальностью — bug._
+
+## 18. Vendor crawls — текущее состояние (2026-05-12)
+
+| Brand | Records | Datasheets | Crawler status |
+|---|---|---|---|
+| Sartorius | 160 | 160 PDF | ✅ done |
+| Sciex | 116 | 115 PDF | ✅ done |
+| BANDELIN | 51 | 47 md | ✅ done (через IPRoyal proxy) |
+| Metrohm | 38 | 38 PDF | ✅ done |
+| Huber | 31 | 30 md | ✅ done (через IPRoyal proxy) |
+| Bruker | 24 | 24 PDF | ✅ done |
+| Memmert | 20 | 20 md + 435 PDF | 🟡 PDF собраны, matching не работает |
+| Heidolph | 7 | 7 md | 🟡 mало deeper pages |
+| Shimadzu | 6 | 6 md | ✅ done |
+| Thermo Fisher | 6 | 6 md | ✅ done |
+| SOTAX | 4 | 4 md | 🟡 partial |
+| CAMAG | 1 | 1 md | ❌ сайт нестабилен |
+
+**Итого vendor data:** 464 записей, 458 с datasheet (98.7%)
+**В MinIO:** ~700 файлов в product-brochures/ (PDF + markdown)
+
+**IPRoyal residential proxy:** PROXY_URL в /opt/gluvex/secrets/.env
+**Использовано трафика:** ~0.1 GB из 5 GB plan
+

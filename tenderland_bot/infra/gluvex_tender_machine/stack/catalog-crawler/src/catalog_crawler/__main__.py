@@ -23,6 +23,16 @@ vendor_app = typer.Typer(no_args_is_help=True)
 app.add_typer(vendor_app, name="vendor")
 
 
+@app.command("brochures")
+def brochures_cmd(
+    brand: str = typer.Argument(..., help="brand_slug (memmert/...)"),
+    limit: int = typer.Option(0, help="Лимит на число PDF (0 = все)"),
+):
+    """Скачивает PDF datasheets с download-center страницы вендора."""
+    from catalog_crawler.adapters.brochure_finder import run_brochures
+    asyncio.run(run_brochures(settings, brand_slug=brand, limit=limit))
+
+
 @vendor_app.command("memmert")
 def vendor_memmert(
     limit: int = typer.Option(0, help="Ограничить число моделей (0 = все)"),
@@ -83,15 +93,23 @@ def vendor_sotax(limit: int = 0, skip_fresh_days: int = 30):
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="SOTAX", brand_slug="sotax",
         base_url="https://www.sotax.com",
-        entry_urls=["https://www.sotax.com/products/"],
+        entry_urls=[
+            # SOTAX использует underscore-slug (не dash)
+            "https://www.sotax.com/products/dissolution_usp_1_2_5_6",
+            "https://www.sotax.com/products/dissolution_usp_4",
+            "https://www.sotax.com/products/physical_testing",
+            "https://www.sotax.com/products/sample_preparation",
+            "https://www.sotax.com/products/data_management",
+        ],
         category_keyword_map={
             "dissolution": "accessory", "tablet-hardness": "accessory",
+            "tablet_hardness": "accessory",
             "friability": "accessory", "disintegration": "accessory",
-            "sample-preparation": "accessory", "tablet": "accessory",
+            "sample_preparation": "accessory", "physical_testing": "accessory",
         },
         domain_hint="pharmaceutical",
         default_category="accessory",
-        max_depth=4, max_urls=400,
+        max_depth=5, max_urls=400,
         user_agent_override=BROWSER_UA,
     )
 
@@ -130,9 +148,11 @@ def vendor_retsch(limit: int = 0, skip_fresh_days: int = 30):
         ],
         category_keyword_map={
             "milling": "accessory", "mill": "accessory",
-            "sieving": "accessory", "sieve": "accessory",
-            "crusher": "accessory", "shaker": "shaker_vortex",
-            "divider": "accessory", "press": "accessory",
+            "ball-mill": "accessory", "rotor-mill": "accessory",
+            "cutting-mill": "accessory", "jaw-crusher": "accessory",
+            "sieving": "accessory", "sieve": "accessory", "test-sieve": "accessory",
+            "shaker": "shaker_vortex",
+            "divider": "accessory", "press": "accessory", "feeder": "accessory",
         },
         domain_hint="analytical",
         default_category="accessory",
@@ -149,18 +169,26 @@ def vendor_metrohm(limit: int = 0, skip_fresh_days: int = 30):
         brand_name="Metrohm", brand_slug="metrohm",
         base_url="https://www.metrohm.com",
         entry_urls=[
-            "https://www.metrohm.com/en/products.html",
-            "https://www.metrohm.com/en/products/",
+            # Metrohm: /products/<category>.html (с расширением)
+            "https://www.metrohm.com/en/products/titration.html",
+            "https://www.metrohm.com/en/products/ion-chromatography.html",
+            "https://www.metrohm.com/en/products/voltammetry.html",
+            "https://www.metrohm.com/en/products/spectroscopy.html",
+            "https://www.metrohm.com/en/products/stability-measurement.html",
+            "https://www.metrohm.com/en/products/electroanalysis.html",
+            "https://www.metrohm.com/en/products/ph-conductivity.html",
         ],
         category_keyword_map={
             "titrator": "titrator", "titration": "titrator",
             "ion-chromatography": "hplc_system",
             "voltammetry": "other",
             "ph-meter": "accessory", "conductivity": "accessory",
+            "spectroscopy": "uv_vis_spectrometer",
+            "raman": "raman_spectrometer", "nir": "nir_spectrometer",
         },
         domain_hint="analytical",
         default_category="other",
-        max_depth=4, max_urls=400,
+        max_depth=5, max_urls=400,
         user_agent_override=BROWSER_UA,
     )
 
@@ -195,18 +223,29 @@ def vendor_heidolph(limit: int = 0, skip_fresh_days: int = 30):
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Heidolph", brand_slug="heidolph",
         base_url="https://heidolph.com",
-        entry_urls=["https://heidolph.com/emea/en/Products"],
+        entry_urls=[
+            # явный список подкатегорий — иначе BFS идёт на /america/ /asia/ /dach/
+            "https://heidolph.com/emea/en/Products/Stirring",
+            "https://heidolph.com/emea/en/Products/LiquidHandling",
+            "https://heidolph.com/emea/en/Products/Evaporation",
+            "https://heidolph.com/emea/en/Products/VortexingAndShaking",
+            "https://heidolph.com/emea/en/Products/ReactorSystems",
+        ],
         category_keyword_map={
             "rotary-evaporator": "accessory", "rotavap": "accessory",
-            "evaporator": "accessory",
-            "shaker": "shaker_vortex", "stirrer": "shaker_vortex",
+            "evaporator": "accessory", "evaporation": "accessory",
+            "shaker": "shaker_vortex", "stirrer": "shaker_vortex", "stirring": "shaker_vortex",
             "magnetic": "shaker_vortex", "overhead": "shaker_vortex",
+            "vortex": "shaker_vortex", "vortexing": "shaker_vortex",
             "hot-plate": "drying_oven", "heating-plate": "drying_oven",
-            "pump": "accessory", "homogenizer": "shaker_vortex",
+            "pump": "accessory", "pumping": "accessory",
+            "liquidhandling": "consumable",
+            "homogenizer": "shaker_vortex",
+            "reactor": "other",
         },
         domain_hint="general_lab",
         default_category="other",
-        max_depth=4, max_urls=300,
+        max_depth=5, max_urls=300,
         user_agent_override=BROWSER_UA,
     )
 

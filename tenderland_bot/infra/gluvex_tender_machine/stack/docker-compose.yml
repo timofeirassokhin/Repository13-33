@@ -225,7 +225,11 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_BROWSER_REDIRECT_URL: https://files.${DOMAIN}
-      MINIO_SERVER_URL: https://files.${DOMAIN}
+      # NB: НЕ задаём MINIO_SERVER_URL — в нашей setup files.${DOMAIN} ведёт
+      # на Console (port 9001), а не на API (9000). Если выставить SERVER_URL
+      # одинаково с REDIRECT_URL, Console пытается reach API по той же ссылке
+      # → попадает обратно в себя → 401 на login. Когда SERVER_URL не задан,
+      # Console обращается к API локально (localhost:9000 в контейнере).
     volumes:
       - minio_data:/data
     networks:

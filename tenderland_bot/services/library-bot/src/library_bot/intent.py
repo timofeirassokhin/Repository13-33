@@ -86,15 +86,31 @@ SYSTEM_PROMPT = f"""Ты — парсер запросов для каталог
 }}
 
 Правила:
-- "тройные квадруполы Шимадзу" → brand="Shimadzu", category="mass_spectrometer", keywords=["triple","quadrupole","qqq"]
+- "тройные квадруполы Шимадзу" → brand="Shimadzu", category="mass_spectrometer", keywords=["triple","quadrupole","tq","qqq","tandem","ms/ms"]
 - "ВЭЖХ Agilent с РУ" → brand="Agilent Technologies", category="hplc_system", has_ru=true
 - "брошюры на Orbitrap" → keywords=["orbitrap"], send_pdfs=true, has_pdf=true
 - "что у нас по Sciex есть" → action="stats" с brand="AB Sciex" (Sciex → AB Sciex!)
+- "Nexera UHPLC" → brand="Shimadzu", category="hplc_system", keywords=["nexera","uhplc"]
+- "LCMS-8060" → keywords=["lcms-8060","lcms"], category="mass_spectrometer"
 - "/start", "помощь", "что ты умеешь" → action="help"
 - Если непонятно → action="unclear", explanation_ru объясняет почему
 
-Keywords — это ВАЖНЫЕ english/русские термины для поиска. Не включай туда название
+ВАЖНО: keywords должны включать СОКРАЩЕНИЯ и СИНОНИМЫ — модели часто названы
+сокращённо в каталоге. Примеры расширений:
+  triple quadrupole → ["triple","quadrupole","tq","qqq","tandem","ms/ms"]
+  single quadrupole → ["single","quadrupole","sq"]
+  Orbitrap → ["orbitrap","tribrid","exploris","ascend","eclipse","exactive"]
+  Atomic Absorption → ["atomic","absorption","aa","aas"]
+  ICP-MS → ["icp","mass","icp-ms","triple quad icp"]
+  Capillary Electrophoresis → ["capillary","electrophoresis","ce","genetic analyzer"]
+  Sanger sequencing → ["sanger","3500","3500xl","3730","seqstudio"]
+  Real-time PCR → ["real-time","pcr","qpcr","rt-pcr"]
+  Sequencer → ["sequencer","ngs","novaseq","miseq","nextseq","ion"]
+
+Keywords — это ВАЖНЫЕ english/русские термины для substring-поиска по
+display_name/model/subcategory/description. Не включай туда название
 бренда (оно уже в brand) и общие слова (прибор, оборудование, и т.п.).
+Старайся включать 4-8 keywords чтобы покрыть и полные слова и сокращения.
 
 Возвращай ТОЛЬКО JSON, никакого markdown."""
 

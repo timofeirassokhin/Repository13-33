@@ -153,17 +153,27 @@ class DB:
             # category — это enum; матчим по text-cast
             add("category::text = ${idx}", category)
 
+        # Keywords: OR-логика, любой match → засчитывается. Стратегия двойная:
+        # - если задан brand или category — keywords мягко ранжируют (не фильтруют жёстко)
+        # - если задан ТОЛЬКО keywords без brand/category — они фильтруют (any-match)
+        keyword_score_sql = "0"
+        has_strict_filter = bool(brand or category)
         if keywords:
-            # каждый keyword — должен встретиться в display_name OR model OR subcategory OR description
+            scores = []
             for kw in keywords:
                 pat = f"%{kw.lower()}%"
-                add(
-                    "(LOWER(display_name) LIKE ${idx} "
-                    "OR LOWER(model) LIKE ${idx} "
-                    "OR LOWER(COALESCE(subcategory,'')) LIKE ${idx} "
-                    "OR LOWER(COALESCE(description,'')) LIKE ${idx})",
-                    pat,
+                args.append(pat)
+                idx = len(args)
+                scores.append(
+                    f"(CASE WHEN LOWER(display_name) LIKE ${idx} OR LOWER(model) LIKE ${idx} "
+                    f"OR LOWER(COALESCE(subcategory,'')) LIKE ${idx} "
+                    f"OR LOWER(COALESCE(description,'')) LIKE ${idx} "
+                    f"THEN 1 ELSE 0 END)"
                 )
+            keyword_score_sql = "(" + " + ".join(scores) + ")"
+            if not has_strict_filter:
+                # keywords-only поиск — требуем хотя бы 1 match
+                clauses.append(keyword_score_sql + " > 0")
 
         if has_pdf is True:
             clauses.append("array_length(datasheet_paths, 1) > 0")
@@ -181,9 +191,11 @@ class DB:
             "domain::text AS domain, subcategory, description, "
             "COALESCE(datasheet_paths, ARRAY[]::text[]) AS datasheet_paths, "
             "COALESCE(source_urls, ARRAY[]::text[]) AS source_urls, "
-            "ru_number, ru_status::text AS ru_status, imported_from "
+            "ru_number, ru_status::text AS ru_status, imported_from, "
+            f"{keyword_score_sql} AS _kw_score "
             f"FROM product {where} "
-            "ORDER BY (array_length(datasheet_paths, 1) IS NOT NULL) DESC, brand, model "
+            "ORDER BY _kw_score DESC, "
+            "(array_length(datasheet_paths, 1) IS NOT NULL) DESC, brand, model "
             f"LIMIT ${len(args) + 1} OFFSET ${len(args) + 2}"
         )
         args += [limit, offset]
@@ -211,16 +223,22 @@ class DB:
             add("LOWER(brand) LIKE LOWER(${idx})", f"%{brand}%")
         if category:
             add("category::text = ${idx}", category)
-        if keywords:
+
+        has_strict_filter = bool(brand or category)
+        if keywords and not has_strict_filter:
+            # только в keywords-only режиме считаем как фильтр
+            kw_clauses = []
             for kw in keywords:
                 pat = f"%{kw.lower()}%"
-                add(
-                    "(LOWER(display_name) LIKE ${idx} "
-                    "OR LOWER(model) LIKE ${idx} "
-                    "OR LOWER(COALESCE(subcategory,'')) LIKE ${idx} "
-                    "OR LOWER(COALESCE(description,'')) LIKE ${idx})",
-                    pat,
+                args.append(pat)
+                idx = len(args)
+                kw_clauses.append(
+                    f"(LOWER(display_name) LIKE ${idx} OR LOWER(model) LIKE ${idx} "
+                    f"OR LOWER(COALESCE(subcategory,'')) LIKE ${idx} "
+                    f"OR LOWER(COALESCE(description,'')) LIKE ${idx})"
                 )
+            clauses.append("(" + " OR ".join(kw_clauses) + ")")
+
         if has_pdf is True:
             clauses.append("array_length(datasheet_paths, 1) > 0")
         elif has_pdf is False:

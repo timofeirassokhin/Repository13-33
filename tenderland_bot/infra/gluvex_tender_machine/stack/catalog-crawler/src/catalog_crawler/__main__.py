@@ -718,62 +718,85 @@ def vendor_genemind(limit: int = 0, skip_fresh_days: int = 30):
 
 @vendor_app.command("sesana")
 def vendor_sesana(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl sesana.ru — RU OEM Genemind, линейка Геноскан 3700/4000/5000/6000."""
+    """Crawl sesana.ru — RU OEM Genemind, линейка Геноскан 3700/4000/5000/6000.
+
+    Корректные URL (проверено WebFetch 2026-05-14):
+      /ngs_sequencers      — главный каталог
+      /fastaseq300         — Genoskan 3700
+      /genoLabm            — Genoskan 4000
+      /surfseq             — Genoskan 5000
+      /surfseqq            — Genoskan 6000
+      /fastaseq_s          — FASTASeq S
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Сесана", brand_slug="sesana",
         base_url="https://sesana.ru",
         entry_urls=[
-            "https://sesana.ru/produkty/",
-            "https://sesana.ru/produkty/sekvenatory/",
-            "https://sesana.ru/reagenty/",
-            "https://sesana.ru/oborudovanie/",
+            "https://sesana.ru/ngs_sequencers",
+            "https://sesana.ru/fastaseq300",
+            "https://sesana.ru/genoLabm",
+            "https://sesana.ru/surfseq",
+            "https://sesana.ru/surfseqq",
+            "https://sesana.ru/fastaseq_s",
         ],
         category_keyword_map={
-            "genoskan": "sequencer_platform", "генскан": "sequencer_platform",
-            "геноскан": "sequencer_platform",
+            "genoskan": "sequencer_platform", "геноскан": "sequencer_platform",
+            "fastaseq": "sequencer_platform", "genolabm": "sequencer_platform",
+            "surfseq": "sequencer_platform",
             "sekvenator": "sequencer_platform", "секвенатор": "sequencer_platform",
+            "ngs_sequencers": "sequencer_platform",
             "reagent": "ngs_library_prep_kit", "реаген": "ngs_library_prep_kit",
-            "set": "ngs_library_prep_kit", "набор": "ngs_library_prep_kit",
-            "extraction": "dna_extraction_kit", "выделен": "dna_extraction_kit",
         },
         domain_hint="genetics_ngs",
         default_category="sequencer_platform",
-        max_depth=5, max_urls=300,
+        max_depth=2, max_urls=50,  # маленький сайт-визитка, BFS не нужно глубоко
         user_agent_override=BROWSER_UA,
-        url_must_contain=["/produkty", "/reagenty", "/oborudovanie"],
-        url_must_not_contain=["/news", "/about", "/contacts", "/blog"],
+        # фильтры — этому сайту не нужны типичные /product/, у него flat URL структура
+        url_must_contain=[],  # пустой = разрешаем всё внутри base_url
+        url_must_not_contain=["/news", "/about", "/contact", "/contacts", "/blog", "/login"],
     )
 
 
 @vendor_app.command("salus-bio")
 def vendor_salus(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl salus-bio.ru — Salus Evo/Pro + RU OEM Биофьюжн (Р-Ген 2000)."""
+    """Crawl salus-bio.ru — Salus Evo/Pro + RU OEM Биофьюжн (Р-Ген 2000).
+
+    Корректные URL (проверено WebFetch 2026-05-14):
+      /sequencers/              — главный список
+      /sequencers/saluspro/     — Salus Pro RS / Р-Ген 2000
+      /sequencers/salusevo/     — Salus Evo
+      /sequencers/salusseqnimbo/— Saluseq Nimbo / Р-Ген 100
+      /reagents/                — реагенты
+      /chips/                   — чипы
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Salus / Биофьюжн", brand_slug="salus_bio",
         base_url="https://salus-bio.ru",
         entry_urls=[
-            "https://salus-bio.ru/products/",
-            "https://salus-bio.ru/catalog/",
-            "https://salus-bio.ru/equipment/",
-            "https://salus-bio.ru/reagenty/",
+            "https://salus-bio.ru/sequencers/",
+            "https://salus-bio.ru/sequencers/saluspro/",
+            "https://salus-bio.ru/sequencers/salusevo/",
+            "https://salus-bio.ru/sequencers/salusseqnimbo/",
+            "https://salus-bio.ru/reagents/",
+            "https://salus-bio.ru/chips/",
         ],
         category_keyword_map={
-            "salus": "sequencer_platform", "evo": "sequencer_platform",
-            "pro": "sequencer_platform", "rs": "sequencer_platform",
+            "salus": "sequencer_platform", "saluspro": "sequencer_platform",
+            "salusevo": "sequencer_platform", "salusseqnimbo": "sequencer_platform",
             "р-ген": "sequencer_platform", "p-gen": "sequencer_platform",
-            "rgen": "sequencer_platform",
             "biofusion": "sequencer_platform", "биофьюжн": "sequencer_platform",
             "sekvenator": "sequencer_platform", "секвенатор": "sequencer_platform",
+            "sequencers": "sequencer_platform",
             "reagent": "ngs_library_prep_kit", "реаген": "ngs_library_prep_kit",
-            "biopol": "ngs_library_prep_kit",
+            "chip": "sequencer_flowcell", "чип": "sequencer_flowcell",
         },
         domain_hint="genetics_ngs",
         default_category="sequencer_platform",
-        max_depth=4, max_urls=200,
+        max_depth=3, max_urls=80,
         user_agent_override=BROWSER_UA,
-        url_must_contain=["/products", "/catalog", "/equipment", "/reagenty"],
+        url_must_contain=["/sequencers", "/reagents", "/chips"],
     )
 
 
@@ -871,30 +894,53 @@ def vendor_burning_rock(limit: int = 0, skip_fresh_days: int = 30):
 
 @vendor_app.command("parseq")
 def vendor_parseq(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl parseq.pro — Prep&Seq / Ready-U-Panel / OncoScope (RU NGS panels)."""
+    """Crawl parseq.pro — Prep&Seq / Ready-U-Panel / OncoScope / PARallele / VariFind.
+
+    Корректные URL (проверено WebFetch 2026-05-14):
+      /products                   — главный
+      /prep-and-seq               — модульная пробоподготовка
+      /prep-and-seq/u-panel       — Prep&Seq U-panel
+      /prep-and-seq/ready-u-panel — Ready-U-Panel
+      /prep-and-seq/u-target-il-kit
+      /parallele                  — HLA-типирование
+      /oncoscope/nsclc-solution   — онкология (NSCLC)
+      /pure-code/dna-rna-magnetic-ffpe — выделение НК
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Parseq Lab", brand_slug="parseq",
         base_url="https://parseq.pro",
         entry_urls=[
-            "https://parseq.pro/oncology",
             "https://parseq.pro/products",
-            "https://parseq.pro/catalog",
+            "https://parseq.pro/prep-and-seq",
+            "https://parseq.pro/prep-and-seq/u-panel",
+            "https://parseq.pro/prep-and-seq/ready-u-panel",
+            "https://parseq.pro/prep-and-seq/u-target-il-kit",
+            "https://parseq.pro/parallele",
+            "https://parseq.pro/oncoscope/nsclc-solution",
+            "https://parseq.pro/pure-code/dna-rna-magnetic-ffpe",
         ],
         category_keyword_map={
-            "prepseq": "ngs_library_prep_kit", "prep&seq": "ngs_library_prep_kit",
+            "prepseq": "ngs_library_prep_kit", "prep-and-seq": "ngs_library_prep_kit",
+            "u-panel": "ngs_target_capture_panel",
             "ready-u-panel": "ngs_target_capture_panel",
             "ready-u": "ngs_target_capture_panel",
+            "u-target": "ngs_target_capture_panel",
             "oncoscope": "ngs_target_capture_panel",
+            "nsclc-solution": "ngs_target_capture_panel",
             "nsclc": "ngs_target_capture_panel",
-            "onkopanel": "ngs_target_capture_panel",
+            "parallele": "ngs_target_capture_panel",
+            "varifind": "ngs_target_capture_panel",
+            "pure-code": "dna_extraction_kit",
             "panel": "ngs_target_capture_panel",
         },
         domain_hint="genetics_ngs",
         default_category="ngs_target_capture_panel",
-        max_depth=4, max_urls=150,
+        max_depth=3, max_urls=80,
         user_agent_override=BROWSER_UA,
-        url_must_contain=["/oncology", "/products", "/catalog", "/panel"],
+        # parseq.pro имеет flat URL — не /products/ а /prep-and-seq/, /parallele/, etc.
+        url_must_contain=[],
+        url_must_not_contain=["/news", "/about", "/contact", "/blog", "/career"],
     )
 
 

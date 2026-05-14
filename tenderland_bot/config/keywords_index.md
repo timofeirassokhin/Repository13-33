@@ -40,7 +40,7 @@
 
 | №   | Имя                            | Что ищем                                                         | Ключевые бренды/модели                                          |
 |-----|--------------------------------|------------------------------------------------------------------|-----------------------------------------------------------------|
-| 01  | `MDX_01_Sequencers`           | NGS-секвенаторы, Sanger CE, ONT, PacBio, Element AVITI            | Illumina (MiSeq..NovaSeq X+), MGI DNBSEQ, ABI 3500/3500xL, SeqStudio, ONT MinION/PromethION, PacBio Revio, Helicon, Salus, Р-Ген |
+| 01  | `MDX_01_Sequencers`           | **NGS** + **Sanger CE / капиллярные генетические анализаторы** + ONT, PacBio, Element AVITI | Illumina (MiSeq..NovaSeq X+), MGI DNBSEQ, **ABI 3500/3500xL/3130/3730, SeqStudio/SeqStudio Flex** (Sanger CE), ONT MinION/PromethION, PacBio Revio, Helicon, Salus, Р-Ген |
 | 02  | `MDX_02_Reagents_Libraries`   | Картриджи, flow cells, library prep, выделение НК                | Illumina TruSeq/Nextera, MGIEasy, KAPA, NEBNext, QIAGEN QIAseq, Twist, IDT xGen, Agilent SureSelect, KingFisher, MGISP, **+Pillar, Burning Rock, Novogene** |
 | 03  | `MDX_03_Oncology_Panels`      | Онкопанели, BRCA/EGFR/KRAS/HRD/TMB/CGP                            | AmoyDx, **Pillar ONCO/Reveal, Burning Rock OncoScreen+, Novogene WES**, Parseq, OncoAtlas, TestGen, FoundationOne, Oncomine, Archer, Twist Pan-Cancer, TSO500, **+Personalis, Tempus, Caris** |
 | 04  | `MDX_04_NIPT_PGT_HLA`         | НИПТ (Veriseq/Harmony/Vanadis), ПГТ-А/М, HLA, биочипы            | Illumina VeriSeq, Vanadis, BambniTest, LinkSeq, AllType, Olerup, Affymetrix CytoScan, Infinium BeadChip |
@@ -64,9 +64,9 @@
 
 | №  | Имя                                 | Что ищем                                                | Ключевые бренды                                                  |
 |----|-------------------------------------|---------------------------------------------------------|------------------------------------------------------------------|
-| 01 | `CER_01_Capillary_Electrophoresis` | CE для фармы/биохимии (НЕ Sanger): CZE, MEKC, CIEF, CGE | Beckman PA 800 Plus / P/ACE / CESI 8000, Sciex BioPhase 8800, Agilent 7100 CE, Bio-Rad BioFocus, Lumex Капель |
+| 01 | `CER_01_Capillary_Electrophoresis` | CE для фармы/биохимии **НЕ Sanger** (CZE, MEKC, CIEF, CGE). Sanger CE-секвенаторы (ABI/SeqStudio) — в `MDX_01_Sequencers`, не здесь | Beckman PA 800 Plus / P/ACE / CESI 8000, Sciex BioPhase 8800, Agilent 7100 CE, Bio-Rad BioFocus, Lumex Капель |
 | 02 | `CER_02_Centrifuges`               | Лабораторные центрифуги (все классы)                    | Eppendorf 5418..5920R, Hettich Universal/EBA/Mikro/Rotanta/Rotina, Sigma 1-7..6-16, Thermo Sorvall (Legend/ST/LYNX/WX), Beckman Avanti/Optima/Allegra/Microfuge, Hermle Z206..Z446, Kubota, Heraeus Megafuge, Hitachi Himac, ОПН, Liston, ELMI, BioSan |
-| 03 | `CER_03_Liquid_Handling_Robotics`  | Liquid handlers, dispensers, acoustic                   | Tecan Freedom EVO/Fluent, Hamilton STAR/Vantage/NIMBUS, Beckman Biomek (i5/i7/NX/FX)/Echo 525/650, Eppendorf epMotion 5070..5075, Opentrons OT-2/Flex, Andrew+, Agilent Bravo/AssayMAP, PerkinElmer JANUS/Sciclone/Zephyr |
+| 03 | `CER_03_Liquid_Handling_Robotics`  | Liquid handlers, dispensers, acoustic, automated NGS prep | Tecan Freedom EVO/Fluent, Hamilton STAR/Vantage/NIMBUS, Beckman Biomek (i5/i7/NX/FX)/Echo 525/650, Eppendorf epMotion 5070..5075, Opentrons OT-2/Flex, Andrew+, Agilent Bravo/AssayMAP, PerkinElmer JANUS/Sciclone/Zephyr, **MGI Tech (MGISP-100/960/Smart 8, MGISTP-3000/7000, Stomatic, ZTRON, DNBelab C4)**, **Vazyme (VAHTS Smart 8, Hieff NGS Smart/Auto/MaxUp)**, **Nanodigm (IsoFlux, Nanodigm-1/А Анализатор для CTC/циркулирующих опухолевых клеток)** |
 
 ---
 

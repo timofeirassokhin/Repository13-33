@@ -575,36 +575,70 @@ def vendor_bruker(limit: int = 0, skip_fresh_days: int = 30):
 def vendor_helicon(limit: int = 0, skip_fresh_days: int = 30):
     """Crawl shop.helicon.ru — RU дистрибьютор MGI/Genemind/Illumina + расходники.
 
-    Самый широкий русский каталог по NGS. Содержит Helicon-G50/G400 (OEM MGI),
-    Геноскан (OEM Genemind), реагенты MGIEasy/Hieff/Vazyme.
+    Самый широкий русский каталог по NGS. Каждая product page содержит:
+      - vendor_code артикул (например 900-001108-00 для DNBSEQ-T7+)
+      - brand (MGI/Illumina/Genemind)
+      - model
+      - 5-10 ключевых technical specs (output, Q40, read mode, dimensions)
+    PDF datasheets НЕТ (норма для distributor-shop), но technical text богатый.
+
+    Verified URL map (WebFetch 2026-05-14):
+      /catalog/equipment/science-and-analytics/sequencers/         — NGS + Sanger
+      /catalog/equipment/science-and-analytics/pcr/                — амплификаторы / qPCR / digital PCR
+      /catalog/equipment/science-and-analytics/automated-workstations/nucleic-acids-extraction/
+      /catalog/equipment/gle/centrifuges/                          — общелабораторные центрифуги
+      /catalog/reagents/reagents-and-kits/pcr-kits/                — реагенты PCR
+      /catalog/reagents/reagents-and-kits/nucleic-acids-extraction-kits/
+      /catalog/consumables/materials-for-equipment/materials-for-pcr/
+      /catalog/consumables/laboratory/pcr-and-sequencing-plasticware/
     """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Хеликон", brand_slug="helicon",
         base_url="https://shop.helicon.ru",
         entry_urls=[
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/sequencers/",
             "https://shop.helicon.ru/catalog/equipment/science-and-analytics/sequencers/ngs/",
             "https://shop.helicon.ru/catalog/equipment/science-and-analytics/sequencers/sanger/",
-            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/dna-rna-amplification/",
-            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/dna-rna-isolation/",
-            "https://shop.helicon.ru/catalog/reagent/",
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/pcr/",
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/automated-workstations/nucleic-acids-extraction/",
+            "https://shop.helicon.ru/catalog/equipment/gle/centrifuges/",
+            "https://shop.helicon.ru/catalog/reagents/reagents-and-kits/pcr-kits/",
+            "https://shop.helicon.ru/catalog/reagents/reagents-and-kits/nucleic-acids-extraction-kits/",
+            "https://shop.helicon.ru/catalog/consumables/materials-for-equipment/materials-for-pcr/",
+            "https://shop.helicon.ru/catalog/consumables/laboratory/pcr-and-sequencing-plasticware/",
         ],
         category_keyword_map={
             "ngs": "sequencer_platform", "sequencer": "sequencer_platform",
             "sequencers": "sequencer_platform",
             "sanger": "sequencer_platform",
+            "dnbseq": "sequencer_platform", "genoskan": "sequencer_platform",
             "library-prep": "ngs_library_prep_kit", "library": "ngs_library_prep_kit",
             "reagent": "ngs_library_prep_kit",
-            "amplification": "pcr_kit", "pcr": "pcr_kit",
+            "amplification": "pcr_kit", "amplifier": "pcr_kit",
+            "pcr": "pcr_kit", "qpcr": "realtime_pcr_kit", "rt-pcr": "realtime_pcr_kit",
+            "real-time-pcr": "realtime_pcr_kit",
+            "digital-pcr": "pcr_kit",
             "isolation": "dna_extraction_kit", "extraction": "dna_extraction_kit",
+            "centrifuge": "centrifuge", "centrifuges": "centrifuge",
             "flow-cell": "sequencer_flowcell", "flowcell": "sequencer_flowcell",
+            "consumable": "consumable", "plasticware": "consumable",
+            "tip": "consumable", "tube": "consumable", "tubes": "consumable",
         },
         domain_hint="genetics_ngs",
         default_category="ngs_library_prep_kit",
-        max_depth=5, max_urls=600,
+        max_depth=4, max_urls=1500,           # Helicon — большой каталог
         user_agent_override=BROWSER_UA,
         # отключаем "/ru/" из default exclude — это и есть основной язык сайта
         url_must_contain=["/catalog/"],
+        # отключим стандартные локальные исключения которые блокировали бы /ru/ /uk/
+        url_must_not_contain=[
+            "/news", "/career", "/contact", "/about", "/legal",
+            "/imprint", "/privacy", "/login", "/cart", "/checkout",
+            "/blog", "/event", "/whitepaper", "/webinar",
+            "/personal/", "/auth/", "/search/", "/order/",
+            "/help/", "/sitemap", "/promo", "/sale", "/discounts",
+        ],
     )
 
 

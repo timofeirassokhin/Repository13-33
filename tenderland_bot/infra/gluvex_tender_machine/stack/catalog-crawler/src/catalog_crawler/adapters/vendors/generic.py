@@ -54,6 +54,8 @@ class GenericVendorAdapter(VendorAdapter):
         rate_limit_seconds: float = 0.7,
         use_playwright: bool = False,
         proxy_url: str | None = None,
+        min_product_depth: int = 3,
+        treat_entry_urls_as_products: bool = False,
     ):
         super().__init__(settings)
         # инстанс-переменные override class-attributes
@@ -91,9 +93,21 @@ class GenericVendorAdapter(VendorAdapter):
         ]
         self.user_agent_override = user_agent_override
         self.rate_limit_seconds = rate_limit_seconds
+        # min path depth для distinction "is this a product page?"
+        # default=3 для типа /products/category/model, можно опускать до 1
+        # для flat URL (sesana.ru/fastaseq300) — задать min_product_depth=1
+        self.min_product_depth = min_product_depth
+        # если True — каждый из entry_urls сам считается product, BFS не нужен
+        self.treat_entry_urls_as_products = treat_entry_urls_as_products
 
     async def list_product_urls(self, fetcher: Fetcher, limit: int = 0) -> list[str]:
         """BFS по сайту от entry_urls, ограниченный max_depth/max_urls."""
+        # Опция для маленьких flat-URL сайтов: entry_urls сами и есть продукты
+        if self.treat_entry_urls_as_products:
+            urls = sorted(set(self.entry_urls))
+            print(f"  list: treat_entry_urls_as_products=True → {len(urls)} entries as products")
+            return urls
+
         found: set[str] = set()
         visited: set[str] = set()
         queue: list[tuple[str, int]] = [(u, 0) for u in self.entry_urls]
@@ -135,7 +149,8 @@ class GenericVendorAdapter(VendorAdapter):
                 # depth подсчёт
                 parts = [s for s in p.path.strip("/").split("/") if s]
                 # эвристика — страница "продукта" обычно на depth 3+
-                if len(parts) >= 3:
+                # для flat-URL сайтов задай min_product_depth=1 в adapter config
+                if len(parts) >= self.min_product_depth:
                     found.add(full_no_q)
                 else:
                     queue.append((full_no_q, depth + 1))

@@ -752,9 +752,7 @@ def vendor_sesana(limit: int = 0, skip_fresh_days: int = 30):
         default_category="sequencer_platform",
         max_depth=2, max_urls=50,  # маленький сайт-визитка, BFS не нужно глубоко
         user_agent_override=BROWSER_UA,
-        # фильтры — этому сайту не нужны типичные /product/, у него flat URL структура
-        url_must_contain=[],  # пустой = разрешаем всё внутри base_url
-        url_must_not_contain=["/news", "/about", "/contact", "/contacts", "/blog", "/login"],
+        treat_entry_urls_as_products=True,  # flat URL = entry-уровень и есть товары
     )
 
 
@@ -796,7 +794,7 @@ def vendor_salus(limit: int = 0, skip_fresh_days: int = 30):
         default_category="sequencer_platform",
         max_depth=3, max_urls=80,
         user_agent_override=BROWSER_UA,
-        url_must_contain=["/sequencers", "/reagents", "/chips"],
+        treat_entry_urls_as_products=True,  # каждый entry url — карточка прибора
     )
 
 
@@ -938,9 +936,7 @@ def vendor_parseq(limit: int = 0, skip_fresh_days: int = 30):
         default_category="ngs_target_capture_panel",
         max_depth=3, max_urls=80,
         user_agent_override=BROWSER_UA,
-        # parseq.pro имеет flat URL — не /products/ а /prep-and-seq/, /parallele/, etc.
-        url_must_contain=[],
-        url_must_not_contain=["/news", "/about", "/contact", "/blog", "/career"],
+        treat_entry_urls_as_products=True,  # flat URL продуктовых страниц
     )
 
 

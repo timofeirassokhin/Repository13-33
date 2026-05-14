@@ -119,7 +119,12 @@ class AutosearchParameters:
                 "name": "tender_status",
                 "text": "Статус тендера",
                 "type": "value",
-                "value": 1,
+                # CRITICAL: must be a STRING "1", not int 1.
+                # Tenderland's ASP.NET deserializer crashes when listing autosearches
+                # (GetAutosearchList → HTTP 500) if `value` is int — which is what broke
+                # ids 369536 and 369543 on 2026-05-14. Bug discovered by comparing the
+                # payload shape against reference autosearch id=96700.
+                "value": "1",
                 "isEnable": True,
             })
 

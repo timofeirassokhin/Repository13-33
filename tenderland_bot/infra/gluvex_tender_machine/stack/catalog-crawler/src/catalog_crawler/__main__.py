@@ -610,16 +610,26 @@ def vendor_helicon(limit: int = 0, skip_fresh_days: int = 30):
 
 @vendor_app.command("mgi-tech")
 def vendor_mgi(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl mgi-tech.com — DNBSEQ платформы (G50/G99/G400/T1/T7/T10/T20) + reagents."""
+    """Crawl global-mgitech.com — DNBSEQ платформы (G50/G99/G400/T1/T7/T10/T20) + reagents.
+
+    Update 2026-05-14: en.mgi-tech.com → 301 redirect на global-mgitech.com.
+    Структура: /seqall/, /gli/, /multiomics/ + конкретные модели /seqall/dnbseq-g99/.
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="MGI Tech", brand_slug="mgi_tech",
-        base_url="https://en.mgi-tech.com",
+        base_url="https://global-mgitech.com",
         entry_urls=[
-            "https://en.mgi-tech.com/products/instruments_info/",
-            "https://en.mgi-tech.com/products/reagents_info/",
-            "https://en.mgi-tech.com/products/automation_info/",  # MGISP-100/960, MGISTP, Stomatic
-            "https://en.mgi-tech.com/products/",
+            "https://global-mgitech.com/products/",
+            "https://global-mgitech.com/seqall/",
+            "https://global-mgitech.com/gli/",
+            "https://global-mgitech.com/multiomics/",
+            "https://global-mgitech.com/seqall/dnbseq-g99/",
+            "https://global-mgitech.com/seqall/dnbseq-g50/",
+            "https://global-mgitech.com/seqall/dnbseq-g400/",
+            "https://global-mgitech.com/seqall/dnbseq-t7/",
+            "https://global-mgitech.com/seqall/dnbseq-t10/",
+            "https://global-mgitech.com/seqall/dnbseq-t20/",
         ],
         category_keyword_map={
             "dnbseq": "sequencer_platform", "sequencer": "sequencer_platform",
@@ -639,6 +649,7 @@ def vendor_mgi(limit: int = 0, skip_fresh_days: int = 30):
         max_depth=4, max_urls=400,
         user_agent_override=BROWSER_UA,
         use_playwright=True,        # JS-heavy
+        treat_entry_urls_as_products=True,  # явные модельные URLs из global-mgitech.com
     )
 
 
@@ -804,15 +815,34 @@ def vendor_salus(limit: int = 0, skip_fresh_days: int = 30):
 
 @vendor_app.command("amoydx")
 def vendor_amoydx(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl amoydiagnostics.com — HANDLE NGS-panel series + RT-qPCR kits."""
+    """Crawl amoydiagnostics.com — HANDLE NGS-panel series + RT-qPCR kits.
+
+    Verified URLs (WebFetch 2026-05-14):
+      /products
+      /products/amoydx-handle-classic-ngs-panel
+      /products/amoydx-hrd-focus-panel
+      /products/amoydx-hrd-complete-panel
+      /products/amoydx-master-panel
+      /products/amoydx-brca-pro-panel
+      /products/amoydx-essential-ngs-panel
+      /products/page/2..5#main  (pagination)
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="AmoyDx", brand_slug="amoydx",
         base_url="https://www.amoydiagnostics.com",
         entry_urls=[
             "https://www.amoydiagnostics.com/products",
-            "https://www.amoydiagnostics.com/products?category=NGS",
-            "https://www.amoydiagnostics.com/products?category=PCR",
+            "https://www.amoydiagnostics.com/products/page/2",
+            "https://www.amoydiagnostics.com/products/page/3",
+            "https://www.amoydiagnostics.com/products/page/4",
+            "https://www.amoydiagnostics.com/products/page/5",
+            "https://www.amoydiagnostics.com/products/amoydx-handle-classic-ngs-panel",
+            "https://www.amoydiagnostics.com/products/amoydx-hrd-focus-panel",
+            "https://www.amoydiagnostics.com/products/amoydx-hrd-complete-panel",
+            "https://www.amoydiagnostics.com/products/amoydx-master-panel",
+            "https://www.amoydiagnostics.com/products/amoydx-brca-pro-panel",
+            "https://www.amoydiagnostics.com/products/amoydx-essential-ngs-panel",
         ],
         category_keyword_map={
             "handle": "ngs_target_capture_panel",
@@ -828,6 +858,7 @@ def vendor_amoydx(limit: int = 0, skip_fresh_days: int = 30):
         max_depth=4, max_urls=200,
         user_agent_override=BROWSER_UA,
         use_playwright=True,        # китайский, может Cloudflare
+        treat_entry_urls_as_products=True,  # явные product URLs
     )
 
 
@@ -856,19 +887,35 @@ def vendor_pillar(limit: int = 0, skip_fresh_days: int = 30):
         default_category="ngs_target_capture_panel",
         max_depth=4, max_urls=150,
         user_agent_override=BROWSER_UA,
+        treat_entry_urls_as_products=True,  # явные product URLs
     )
 
 
 @vendor_app.command("burning-rock")
 def vendor_burning_rock(limit: int = 0, skip_fresh_days: int = 30):
-    """Crawl brbiotech.com — OncoScreen Plus / LungPlasma / OncoCommons / HRR / OverC."""
+    """Crawl brbiotech.com — OncoScreen Plus / OncoCompass / OncoScreen Focus.
+
+    Verified URLs (WebFetch 2026-05-14):
+      Сайт использует PHP query-string URLs (/p_details.php?class_id=NNN).
+      Корневая product страница: product.php
+      Детальные:
+        /p_details.php?class_id=102101101  (OncoScreen Focus CDx Tissue Kit CE-IVDD)
+        /p_details.php?class_id=102101102  (OncoScreen Plus Cancer Profiling Tissue Kit CE-IVDD)
+        /p_details.php?class_id=102101103  (OncoCompass Target Cancer Liquid Kit CE-IVDD)
+        /p_details.php?class_id=102101104  (OncoScreen Focus)
+        /p_details.php?class_id=102101105  (OncoScreen Plus / OncoCompass Plus)
+    """
     _run_generic(
         limit=limit, skip_fresh_days=skip_fresh_days,
         brand_name="Burning Rock", brand_slug="burning_rock",
         base_url="https://www.brbiotech.com",
         entry_urls=[
-            "https://www.brbiotech.com/en/Product/list-2.html",
-            "https://www.brbiotech.com/en/Product/",
+            "https://www.brbiotech.com/en/product.php",
+            "https://www.brbiotech.com/en/p_details.php?class_id=102101101",
+            "https://www.brbiotech.com/en/p_details.php?class_id=102101102",
+            "https://www.brbiotech.com/en/p_details.php?class_id=102101103",
+            "https://www.brbiotech.com/en/p_details.php?class_id=102101104",
+            "https://www.brbiotech.com/en/p_details.php?class_id=102101105",
         ],
         category_keyword_map={
             "oncoscreen": "ngs_target_capture_panel",
@@ -887,6 +934,7 @@ def vendor_burning_rock(limit: int = 0, skip_fresh_days: int = 30):
         max_depth=4, max_urls=200,
         user_agent_override=BROWSER_UA,
         use_playwright=True,        # китайский
+        treat_entry_urls_as_products=True,  # явные product.php URLs с class_id
     )
 
 

@@ -46,7 +46,7 @@ class PlaywrightFetcher:
         rate_limit_seconds: float = 1.0,
         block_assets: bool = True,
         wait_until: str = "domcontentloaded",
-        page_timeout_ms: int = 60000,
+        page_timeout_ms: int = 120000,            # 60→120 — Akamai/Cloudflare JS challenge нередко требует
     ):
         self.base_url = base_url
         self.user_agent = user_agent or (
@@ -147,9 +147,23 @@ class PlaywrightFetcher:
                     await self._stealth_async(page)
                 except Exception:
                     pass  # best-effort
-            response = await page.goto(url, wait_until=self.wait_until, timeout=self.page_timeout_ms)
+            # Иерархический fallback для тяжёлых сайтов (Akamai/Cloudflare):
+            #   1. domcontentloaded — самый строгий, hoпer на JS-challenge
+            #   2. load — ждёт что страница ready, но не networkidle
+            #   3. commit — сразу как только пришёл первый byte (минимум контента)
+            response = None
+            last_err: Exception | None = None
+            for wait_strategy in [self.wait_until, "load", "commit"]:
+                try:
+                    response = await page.goto(url, wait_until=wait_strategy, timeout=self.page_timeout_ms)
+                    if response is not None:
+                        break
+                except Exception as exc:
+                    last_err = exc
+                    # для следующей попытки нужно navigation сбросить
+                    continue
             if response is None:
-                raise RuntimeError(f"no response for {url}")
+                raise RuntimeError(f"page.goto failed for {url}: {last_err}")
             status = response.status
             if status >= 400:
                 raise RuntimeError(f"HTTP {status} for {url}")

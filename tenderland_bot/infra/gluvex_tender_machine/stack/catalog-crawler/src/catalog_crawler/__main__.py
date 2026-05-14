@@ -33,6 +33,30 @@ def brochures_cmd(
     asyncio.run(run_brochures(settings, brand_slug=brand, limit=limit))
 
 
+@app.command("brochure-web")
+def brochure_web_cmd(
+    brand: str = typer.Argument(..., help="Точный product.brand (например 'Agilent Technologies')"),
+    limit: int = typer.Option(0, help="Лимит продуктов (0 = все без datasheets)"),
+    rate_limit: float = typer.Option(5.0, help="Пауза между поиск-запросами, сек."),
+    max_pdfs: int = typer.Option(2, help="Максимум PDF на один продукт"),
+):
+    """Web-search brochures by vendor_code (для Agilent enrichment).
+
+    Engines (в порядке предпочтения, авто-fallback):
+      1. SerpAPI (set SERPAPI_KEY in env)
+      2. Bing Web Search API (set BING_API_KEY)
+      3. DuckDuckGo HTML scrape (no key required, slower)
+
+    Пример:
+        docker compose run --rm catalog-crawler brochure-web 'Agilent Technologies' --limit 100
+    """
+    from catalog_crawler.adapters.brochure_web_search import enrich_brand_brochures
+    asyncio.run(enrich_brand_brochures(
+        settings, brand=brand, limit=limit,
+        rate_limit_seconds=rate_limit, max_pdfs_per_product=max_pdfs,
+    ))
+
+
 @vendor_app.command("memmert")
 def vendor_memmert(
     limit: int = typer.Option(0, help="Ограничить число моделей (0 = все)"),
@@ -532,6 +556,408 @@ def vendor_bruker(limit: int = 0, skip_fresh_days: int = 30):
         max_depth=4, max_urls=300,
         user_agent_override=BROWSER_UA,
         # Bruker открыт через residential
+    )
+
+
+# ============================================================
+# NGS / Genetics instruments — главный пробел в каталоге
+# ============================================================
+# По состоянию на 2026-05-14 в БД ноль datasheets от любого NGS вендора.
+# План: 6 instrument-adapters + 6 reagent-adapters. Все enabled-by-default,
+# но первый запуск требует --limit 5 для smoke-test (структура каждого сайта своя).
+#
+# IMPORTANT: для китайских вендоров (MGI, Genemind, Vazyme, Burning Rock,
+# AmoyDx, Novogene) ставь USE_PLAYWRIGHT=1 — некоторые JS-heavy + Cloudflare.
+# Российские (Хеликон, Сесана, Salus-bio, Parseq, OncoAtlas, Nanodigm,
+# TestGen) — открыты напрямую, proxy не нужен.
+
+@vendor_app.command("helicon")
+def vendor_helicon(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl shop.helicon.ru — RU дистрибьютор MGI/Genemind/Illumina + расходники.
+
+    Самый широкий русский каталог по NGS. Содержит Helicon-G50/G400 (OEM MGI),
+    Геноскан (OEM Genemind), реагенты MGIEasy/Hieff/Vazyme.
+    """
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Хеликон", brand_slug="helicon",
+        base_url="https://shop.helicon.ru",
+        entry_urls=[
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/sequencers/ngs/",
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/sequencers/sanger/",
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/dna-rna-amplification/",
+            "https://shop.helicon.ru/catalog/equipment/science-and-analytics/dna-rna-isolation/",
+            "https://shop.helicon.ru/catalog/reagent/",
+        ],
+        category_keyword_map={
+            "ngs": "sequencer_platform", "sequencer": "sequencer_platform",
+            "sequencers": "sequencer_platform",
+            "sanger": "sequencer_platform",
+            "library-prep": "ngs_library_prep_kit", "library": "ngs_library_prep_kit",
+            "reagent": "ngs_library_prep_kit",
+            "amplification": "pcr_kit", "pcr": "pcr_kit",
+            "isolation": "dna_extraction_kit", "extraction": "dna_extraction_kit",
+            "flow-cell": "sequencer_flowcell", "flowcell": "sequencer_flowcell",
+        },
+        domain_hint="genetics_ngs",
+        default_category="ngs_library_prep_kit",
+        max_depth=5, max_urls=600,
+        user_agent_override=BROWSER_UA,
+        # отключаем "/ru/" из default exclude — это и есть основной язык сайта
+        url_must_contain=["/catalog/"],
+    )
+
+
+@vendor_app.command("mgi-tech")
+def vendor_mgi(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl mgi-tech.com — DNBSEQ платформы (G50/G99/G400/T1/T7/T10/T20) + reagents."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="MGI Tech", brand_slug="mgi_tech",
+        base_url="https://en.mgi-tech.com",
+        entry_urls=[
+            "https://en.mgi-tech.com/products/instruments_info/",
+            "https://en.mgi-tech.com/products/reagents_info/",
+            "https://en.mgi-tech.com/products/automation_info/",  # MGISP-100/960, MGISTP, Stomatic
+            "https://en.mgi-tech.com/products/",
+        ],
+        category_keyword_map={
+            "dnbseq": "sequencer_platform", "sequencer": "sequencer_platform",
+            "g50": "sequencer_platform", "g99": "sequencer_platform",
+            "g400": "sequencer_platform", "t1": "sequencer_platform",
+            "t7": "sequencer_platform", "t10": "sequencer_platform",
+            "t20": "sequencer_platform", "e25": "sequencer_platform",
+            "mgieasy": "ngs_library_prep_kit", "easy": "ngs_library_prep_kit",
+            "reagent": "ngs_library_prep_kit", "kit": "ngs_library_prep_kit",
+            "flow-cell": "sequencer_flowcell", "flowcell": "sequencer_flowcell",
+            "mgisp": "accessory", "stomatic": "accessory",
+            "mgistp": "accessory", "ztron": "software",
+            "automation": "accessory",
+        },
+        domain_hint="genetics_ngs",
+        default_category="sequencer_platform",
+        max_depth=4, max_urls=400,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,        # JS-heavy
+    )
+
+
+@vendor_app.command("illumina")
+def vendor_illumina(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl illumina.com — MiSeq/NextSeq/NovaSeq/HiSeq/iSeq + reagent kits.
+
+    У нас уже 483 stub-записи Illumina из gluvexlab — этот adapter обогатит
+    их descriptions и (где найдёт) datasheet PDFs.
+    """
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Illumina", brand_slug="illumina",
+        base_url="https://www.illumina.com",
+        entry_urls=[
+            "https://www.illumina.com/systems/sequencing-platforms.html",
+            "https://www.illumina.com/systems/sequencing-platforms/novaseq.html",
+            "https://www.illumina.com/systems/sequencing-platforms/nextseq.html",
+            "https://www.illumina.com/systems/sequencing-platforms/miseq.html",
+            "https://www.illumina.com/systems/sequencing-platforms/iseq.html",
+            "https://www.illumina.com/systems/sequencing-platforms/miniseq.html",
+            "https://www.illumina.com/products/by-type/sequencing-kits.html",
+            "https://www.illumina.com/products/by-type/sequencing-kits/cluster-gen-sequencing-reagents.html",
+            "https://www.illumina.com/products/by-type/sequencing-kits/library-prep-kits.html",
+            "https://www.illumina.com/products/by-type/microarray-kits.html",
+        ],
+        category_keyword_map={
+            "novaseq": "sequencer_platform", "nextseq": "sequencer_platform",
+            "miseq": "sequencer_platform", "iseq": "sequencer_platform",
+            "miniseq": "sequencer_platform", "hiseq": "sequencer_platform",
+            "iscan": "sequencer_platform",
+            "sequencing-platform": "sequencer_platform",
+            "reagent-kit": "sequencer_reagent_kit",
+            "library-prep": "ngs_library_prep_kit",
+            "trueseq": "ngs_library_prep_kit", "nextera": "ngs_library_prep_kit",
+            "amplisefor-illumina": "ngs_amplicon_panel",
+            "truesight": "ngs_target_capture_panel",
+            "microarray": "other", "beadchip": "other", "infinium": "other",
+        },
+        domain_hint="genetics_ngs",
+        default_category="sequencer_platform",
+        max_depth=4, max_urls=400,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,        # Illumina за Akamai, как и Agilent
+    )
+
+
+@vendor_app.command("genemind")
+def vendor_genemind(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl en.genemind.com — GenoLab M / FASTASeq 300 / SURFSeq 5000."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Genemind", brand_slug="genemind",
+        base_url="https://en.genemind.com",
+        entry_urls=[
+            "https://en.genemind.com/product/",
+            "https://en.genemind.com/product/genolab-m",
+            "https://en.genemind.com/product/fastaseq-300",
+            "https://en.genemind.com/product/surfseq-5000",
+            "https://en.genemind.com/product/surfseq-q",
+            "https://en.genemind.com/product/genocare-1600",
+        ],
+        category_keyword_map={
+            "genolab": "sequencer_platform", "fastaseq": "sequencer_platform",
+            "surfseq": "sequencer_platform", "genocare": "sequencer_platform",
+            "sequencer": "sequencer_platform",
+            "reagent": "sequencer_reagent_kit", "kit": "sequencer_reagent_kit",
+        },
+        domain_hint="genetics_ngs",
+        default_category="sequencer_platform",
+        max_depth=4, max_urls=200,
+        user_agent_override=BROWSER_UA,
+        # url_must_contain не /product (на ./en.genemind /product без -s)
+        url_must_contain=["/product"],
+    )
+
+
+@vendor_app.command("sesana")
+def vendor_sesana(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl sesana.ru — RU OEM Genemind, линейка Геноскан 3700/4000/5000/6000."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Сесана", brand_slug="sesana",
+        base_url="https://sesana.ru",
+        entry_urls=[
+            "https://sesana.ru/produkty/",
+            "https://sesana.ru/produkty/sekvenatory/",
+            "https://sesana.ru/reagenty/",
+            "https://sesana.ru/oborudovanie/",
+        ],
+        category_keyword_map={
+            "genoskan": "sequencer_platform", "генскан": "sequencer_platform",
+            "геноскан": "sequencer_platform",
+            "sekvenator": "sequencer_platform", "секвенатор": "sequencer_platform",
+            "reagent": "ngs_library_prep_kit", "реаген": "ngs_library_prep_kit",
+            "set": "ngs_library_prep_kit", "набор": "ngs_library_prep_kit",
+            "extraction": "dna_extraction_kit", "выделен": "dna_extraction_kit",
+        },
+        domain_hint="genetics_ngs",
+        default_category="sequencer_platform",
+        max_depth=5, max_urls=300,
+        user_agent_override=BROWSER_UA,
+        url_must_contain=["/produkty", "/reagenty", "/oborudovanie"],
+        url_must_not_contain=["/news", "/about", "/contacts", "/blog"],
+    )
+
+
+@vendor_app.command("salus-bio")
+def vendor_salus(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl salus-bio.ru — Salus Evo/Pro + RU OEM Биофьюжн (Р-Ген 2000)."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Salus / Биофьюжн", brand_slug="salus_bio",
+        base_url="https://salus-bio.ru",
+        entry_urls=[
+            "https://salus-bio.ru/products/",
+            "https://salus-bio.ru/catalog/",
+            "https://salus-bio.ru/equipment/",
+            "https://salus-bio.ru/reagenty/",
+        ],
+        category_keyword_map={
+            "salus": "sequencer_platform", "evo": "sequencer_platform",
+            "pro": "sequencer_platform", "rs": "sequencer_platform",
+            "р-ген": "sequencer_platform", "p-gen": "sequencer_platform",
+            "rgen": "sequencer_platform",
+            "biofusion": "sequencer_platform", "биофьюжн": "sequencer_platform",
+            "sekvenator": "sequencer_platform", "секвенатор": "sequencer_platform",
+            "reagent": "ngs_library_prep_kit", "реаген": "ngs_library_prep_kit",
+            "biopol": "ngs_library_prep_kit",
+        },
+        domain_hint="genetics_ngs",
+        default_category="sequencer_platform",
+        max_depth=4, max_urls=200,
+        user_agent_override=BROWSER_UA,
+        url_must_contain=["/products", "/catalog", "/equipment", "/reagenty"],
+    )
+
+
+# ============================================================
+# NGS reagents and panels
+# ============================================================
+
+@vendor_app.command("amoydx")
+def vendor_amoydx(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl amoydiagnostics.com — HANDLE NGS-panel series + RT-qPCR kits."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="AmoyDx", brand_slug="amoydx",
+        base_url="https://www.amoydiagnostics.com",
+        entry_urls=[
+            "https://www.amoydiagnostics.com/products",
+            "https://www.amoydiagnostics.com/products?category=NGS",
+            "https://www.amoydiagnostics.com/products?category=PCR",
+        ],
+        category_keyword_map={
+            "handle": "ngs_target_capture_panel",
+            "ngs": "ngs_target_capture_panel",
+            "amplicon": "ngs_amplicon_panel",
+            "panel": "ngs_target_capture_panel",
+            "qpcr": "realtime_pcr_kit", "rt-qpcr": "realtime_pcr_kit",
+            "pcr": "pcr_kit",
+            "andas": "ngs_target_capture_panel", "aras": "ngs_target_capture_panel",
+        },
+        domain_hint="genetics_ngs",
+        default_category="ngs_target_capture_panel",
+        max_depth=4, max_urls=200,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,        # китайский, может Cloudflare
+    )
+
+
+@vendor_app.command("pillar")
+def vendor_pillar(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl pillar-biosciences.com — oncoReveal CDx, Heredity, Lung, Pan-Cancer."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Pillar Biosciences", brand_slug="pillar",
+        base_url="https://www.pillar-biosciences.com",
+        entry_urls=[
+            "https://www.pillar-biosciences.com/products",
+            "https://www.pillar-biosciences.com/clinical",
+            "https://www.pillar-biosciences.com/research",
+        ],
+        category_keyword_map={
+            "oncoreveal": "ngs_target_capture_panel",
+            "reveal": "ngs_target_capture_panel",
+            "heredity": "ngs_target_capture_panel",
+            "pan-cancer": "ngs_target_capture_panel",
+            "lung": "ngs_target_capture_panel",
+            "amplicon": "ngs_amplicon_panel",
+            "panel": "ngs_target_capture_panel",
+        },
+        domain_hint="genetics_ngs",
+        default_category="ngs_target_capture_panel",
+        max_depth=4, max_urls=150,
+        user_agent_override=BROWSER_UA,
+    )
+
+
+@vendor_app.command("burning-rock")
+def vendor_burning_rock(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl brbiotech.com — OncoScreen Plus / LungPlasma / OncoCommons / HRR / OverC."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Burning Rock", brand_slug="burning_rock",
+        base_url="https://www.brbiotech.com",
+        entry_urls=[
+            "https://www.brbiotech.com/en/Product/list-2.html",
+            "https://www.brbiotech.com/en/Product/",
+        ],
+        category_keyword_map={
+            "oncoscreen": "ngs_target_capture_panel",
+            "lungplasma": "ngs_target_capture_panel",
+            "lungcore": "ngs_target_capture_panel",
+            "oncocommons": "ngs_target_capture_panel",
+            "oncomix": "ngs_target_capture_panel",
+            "hrr": "ngs_target_capture_panel",
+            "overc": "ngs_target_capture_panel",
+            "multi-cancer": "ngs_target_capture_panel",
+            "ctdna": "ngs_target_capture_panel",
+            "panel": "ngs_target_capture_panel",
+        },
+        domain_hint="genetics_ngs",
+        default_category="ngs_target_capture_panel",
+        max_depth=4, max_urls=200,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,        # китайский
+    )
+
+
+@vendor_app.command("parseq")
+def vendor_parseq(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl parseq.pro — Prep&Seq / Ready-U-Panel / OncoScope (RU NGS panels)."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Parseq Lab", brand_slug="parseq",
+        base_url="https://parseq.pro",
+        entry_urls=[
+            "https://parseq.pro/oncology",
+            "https://parseq.pro/products",
+            "https://parseq.pro/catalog",
+        ],
+        category_keyword_map={
+            "prepseq": "ngs_library_prep_kit", "prep&seq": "ngs_library_prep_kit",
+            "ready-u-panel": "ngs_target_capture_panel",
+            "ready-u": "ngs_target_capture_panel",
+            "oncoscope": "ngs_target_capture_panel",
+            "nsclc": "ngs_target_capture_panel",
+            "onkopanel": "ngs_target_capture_panel",
+            "panel": "ngs_target_capture_panel",
+        },
+        domain_hint="genetics_ngs",
+        default_category="ngs_target_capture_panel",
+        max_depth=4, max_urls=150,
+        user_agent_override=BROWSER_UA,
+        url_must_contain=["/oncology", "/products", "/catalog", "/panel"],
+    )
+
+
+@vendor_app.command("vazyme")
+def vendor_vazyme(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl vazyme.com — VAHTS library prep + Hieff NGS reagents + auto stations."""
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Vazyme", brand_slug="vazyme",
+        base_url="https://www.vazyme.com",
+        entry_urls=[
+            "https://en.vazyme.com/Product/",
+            "https://en.vazyme.com/product/",
+            "https://www.vazyme.com/en/Product/",
+            "https://www.vazyme.com/Product/",
+        ],
+        category_keyword_map={
+            "vahts": "ngs_library_prep_kit", "hieff": "ngs_library_prep_kit",
+            "library-prep": "ngs_library_prep_kit",
+            "rna-seq": "ngs_library_prep_kit",
+            "exome": "ngs_target_capture_panel",
+            "smart": "accessory",  # VAHTS Smart 8 — automation prep
+            "maxup": "accessory", "ma-9000": "accessory",
+            "kit": "ngs_library_prep_kit",
+            "reagent": "ngs_library_prep_kit",
+        },
+        domain_hint="genetics_ngs",
+        default_category="ngs_library_prep_kit",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,        # китайский, JS-heavy
+    )
+
+
+@vendor_app.command("novogene")
+def vendor_novogene(limit: int = 0, skip_fresh_days: int = 30):
+    """Crawl novogene.com — services + WES/WGS reagents.
+
+    Novogene преимущественно CRO-сервис, но имеет library prep kits.
+    """
+    _run_generic(
+        limit=limit, skip_fresh_days=skip_fresh_days,
+        brand_name="Novogene", brand_slug="novogene",
+        base_url="https://en.novogene.com",
+        entry_urls=[
+            "https://en.novogene.com/services/",
+            "https://en.novogene.com/products/",
+            "https://en.novogene.com/clinical-services/",
+        ],
+        category_keyword_map={
+            "wgs": "ngs_target_capture_panel", "whole-genome": "ngs_target_capture_panel",
+            "wes": "ngs_target_capture_panel", "whole-exome": "ngs_target_capture_panel",
+            "novapath": "ngs_target_capture_panel",
+            "clinical": "ngs_target_capture_panel",
+            "library-prep": "ngs_library_prep_kit",
+            "kit": "ngs_library_prep_kit",
+            "service": "service",
+        },
+        domain_hint="genetics_ngs",
+        default_category="service",
+        max_depth=4, max_urls=300,
+        user_agent_override=BROWSER_UA,
+        use_playwright=True,
     )
 
 

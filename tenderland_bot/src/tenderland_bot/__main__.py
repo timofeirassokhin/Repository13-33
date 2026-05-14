@@ -16,6 +16,12 @@ Usage examples:
 
   # Export every autosearch
   python -m tenderland_bot export-all
+
+  # Autosearch CRUD (partial — Create only on Pro tier):
+  python -m tenderland_bot autosearch list-topics                  # show topics parsed from config/keywords_*.md
+  python -m tenderland_bot autosearch get 96700                    # dump JSON of one autosearch
+  python -m tenderland_bot autosearch create-from-md 01_LC_LCMS_GPC_Prep   # create new autosearch from MD config
+  python -m tenderland_bot autosearch create-from-md 01_LC_LCMS_GPC_Prep --dry-run   # show payload, don't POST
 """
 from __future__ import annotations
 
@@ -43,10 +49,20 @@ from .api_client import Autosearch, TenderlandAPIError, TenderlandClient
 from .config import load_settings
 from .downloader import download_all
 from .exporter import write_excel, write_markdown
+from .md_parser import Topic, parse_keywords_dir
 from .models import TenderRow
+from .payload_builder import build_parameters_from_topic, parameters_summary
 
 app = typer.Typer(add_completion=False, help="Tenderland export CLI.")
+autosearch_app = typer.Typer(add_completion=False, help="Manage autosearches via API.")
+app.add_typer(autosearch_app, name="autosearch")
 console = Console()
+
+
+def _config_dir() -> Path:
+    """Path to the config/ directory with keywords_*.md files."""
+    here = Path(__file__).resolve().parents[2]  # tenderland_bot/
+    return here / "config"
 
 
 def _client() -> TenderlandClient:
@@ -246,6 +262,117 @@ def cmd_export_all(
             if e.code == "API_REQUEST_LIMIT":
                 console.print("[red]Daily limit reached, stopping.[/red]")
                 sys.exit(1)
+
+
+# ---------------- autosearch sub-commands ----------------
+
+
+@autosearch_app.command("list-topics")
+def cmd_autosearch_list_topics() -> None:
+    """Show all topics parsed from `config/keywords_*.md` (input for create-from-md)."""
+    topics = parse_keywords_dir(_config_dir())
+    table = Table(title=f"Topics parsed from {_config_dir()}: {len(topics)}")
+    table.add_column("Topic name", style="cyan")
+    table.add_column("Source file")
+    table.add_column("INCLUDE", justify="right")
+    table.add_column("EXCLUDE", justify="right")
+    table.add_column("Optional", justify="center")
+    for name, t in sorted(topics.items()):
+        table.add_row(
+            name,
+            t.file_path.name if t.file_path else "",
+            f"{len(t.include_text)}ch",
+            f"{len(t.exclude_text)}ch",
+            "*" if t.is_optional else "",
+        )
+    console.print(table)
+
+
+@autosearch_app.command("get")
+def cmd_autosearch_get(
+    autosearch_id: int = typer.Argument(..., help="Autosearch id to fetch."),
+    save: Path | None = typer.Option(None, "--save", help="Optional path to save the JSON dump."),
+) -> None:
+    """Read one autosearch as full JSON (fields, filters, interval)."""
+    import json
+    with _client() as client:
+        data = client.get_autosearch(autosearch_id)
+    pretty = json.dumps(data, ensure_ascii=False, indent=2)
+    if save:
+        save.write_text(pretty, encoding="utf-8")
+        console.print(f"[green]Saved:[/green] {save}")
+    # Always show a summary
+    console.print(parameters_summary(data))
+    console.print(f"[dim](full JSON is {len(pretty)} chars)[/dim]")
+
+
+@autosearch_app.command("create-from-md")
+def cmd_autosearch_create_from_md(
+    topic: str = typer.Argument(..., help="Topic name as defined in keywords_*.md (e.g. '01_LC_LCMS_GPC_Prep')"),
+    name: str | None = typer.Option(
+        None, "--name",
+        help="Override the autosearch display name (default = topic name)",
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run",
+        help="Show what would be POSTed; don't actually create.",
+    ),
+    only_active: bool = typer.Option(
+        True, "--only-active/--all-statuses",
+        help="Restrict to tender_status=1 (active). Default: on.",
+    ),
+) -> None:
+    """Create a new autosearch in Tenderland from a topic in keywords_*.md.
+
+    Note: on Pro tier, Update/Delete are not available — repeated runs will create
+    DUPLICATES. Cleanup unused ones manually in the UI.
+    """
+    topics = parse_keywords_dir(_config_dir())
+    if topic not in topics:
+        console.print(f"[red]Topic {topic!r} not found.[/red] Available:")
+        for name_ in sorted(topics):
+            console.print(f"  - {name_}")
+        raise typer.Exit(2)
+
+    t: Topic = topics[topic]
+    console.print(f"[green]Topic:[/green] {t.name}")
+    console.print(f"  source: {t.file_path.name}:{t.line_number}")
+    console.print(f"  INCLUDE: {len(t.include_text)}ch")
+    console.print(f"  EXCLUDE: {len(t.exclude_text)}ch")
+    console.print(f"  description: {t.description[:80]!r}")
+
+    parameters = build_parameters_from_topic(
+        include_text=t.include_text,
+        exclude_text=t.exclude_text,
+        only_active_tenders=only_active,
+    )
+    autosearch_name = name or t.name
+    console.print(f"\n[bold]Payload preview:[/bold]")
+    console.print(f"  Name = {autosearch_name!r}")
+    console.print(parameters_summary(parameters))
+
+    if dry_run:
+        console.print("\n[yellow]--dry-run: nothing sent to API.[/yellow]")
+        return
+
+    console.print(f"\n[bold]POST /Api/v1/Search/CreateAutosearch ...[/bold]")
+    with _client() as client:
+        try:
+            new_id = client.create_autosearch(
+                name=autosearch_name,
+                parameters=parameters,
+            )
+        except TenderlandAPIError as e:
+            console.print(f"[red]API error:[/red] [{e.code}] {e.description}")
+            raise typer.Exit(1)
+
+    console.print(f"[green]CREATED:[/green] new autosearch id = [bold]{new_id}[/bold]")
+    console.print(f"  Name: {autosearch_name!r}")
+    console.print(f"\n  Tenderland UI URL (approx): https://tenderland.ru/Cabinet/Autosearch/Edit?id={new_id}")
+    console.print(f"\n[dim]Tip: append `[[autosearch]] id={new_id}  topic=\"{topic}\"` to config/autosearches.toml[/dim]")
+
+
+# ---------------- entrypoint ----------------
 
 
 def main() -> None:

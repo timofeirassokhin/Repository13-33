@@ -1,11 +1,26 @@
 """Synchronous Tenderland API client.
 
 Covers what we need for the CLI:
-  - GET /Api/v1/User/GetStatistic
-  - GET /Api/v1/Dictionary/GetAutosearchList
-  - GET /Api/v1/Export/Create
-  - GET /Api/v1/Export/Get  (paged)
-  - GET /Api/v1/File/GetAll (zip archive of all docs for a tender)
+  - GET  /Api/v1/User/GetStatistic
+  - GET  /Api/v1/Dictionary/GetAutosearchList
+  - GET  /Api/v1/Dictionary/GetFilterList                (filter catalog, 99 types)
+  - GET  /Api/v1/Dictionary/GetFieldList                 (field catalog, 294 fields)
+  - GET  /Api/v1/Search/GetAutosearch?autosearchId=X     (full JSON of one autosearch)
+  - POST /Api/v1/Search/CreateAutosearch                 (create new autosearch, returns int id)
+  - GET  /Api/v1/Export/Create
+  - GET  /Api/v1/Export/Get  (paged)
+  - GET  /Api/v1/File/GetAll (zip archive of all docs for a tender)
+
+Endpoints NOT available on the Pro tier:
+  - POST /Api/v1/Search/Find         (USER_DISABLE_API_MODULE)
+  - POST /Api/v1/Search/UpdateAutosearch   (404)
+  - POST /Api/v1/Search/DeleteAutosearch   (404)
+
+For updates we use "Create-new-and-replace" workflow:
+  1. read existing autosearch JSON
+  2. patch include/exclude strings
+  3. create new autosearch with same name + suffix
+  4. user removes old one manually in UI (or we keep it as backup)
 
 Limits to remember (free tier):
   - 1 unit per tender/lot returned
@@ -160,6 +175,119 @@ class TenderlandClient:
             offset += len(page)
             # Be nice to API — small pause between pages.
             time.sleep(0.1)
+
+    # ---------- autosearch CRUD (partial: Create + Read, no Update/Delete on Pro tier) ----------
+
+    def get_autosearch(self, autosearch_id: int) -> dict[str, Any]:
+        """Read one autosearch as full JSON `{fields, filters, interval}`.
+
+        Note: the parameter is called `autosearchId` (camelCase) — `id` returns 400.
+        """
+        return self._get_json(
+            "/Api/v1/Search/GetAutosearch",
+            {"autosearchId": autosearch_id},
+        )
+
+    def create_autosearch(
+        self,
+        name: str,
+        parameters: dict[str, Any],
+        *,
+        mailing_days: list[Any] | None = None,
+        mailing_times: list[Any] | None = None,
+        delivery_fields: list[Any] | None = None,
+        distribution_ids: list[Any] | None = None,
+    ) -> int:
+        """Create a new autosearch. Returns the new autosearch id (integer).
+
+        :param name: Display name for the autosearch (must be unique-ish in UI).
+        :param parameters: The same JSON shape that ``get_autosearch`` returns —
+                           ``{"fields": [...], "filters": {"and": [...]}, "interval": [0, 1]}``.
+        :param mailing_days/times: Email distribution schedule (empty = no email).
+        :param delivery_fields/distribution_ids: Email payload config (empty = unused).
+
+        Returns: integer autosearch id (response body is a bare int, not a JSON object).
+
+        Raises ``TenderlandAPIError`` on 4xx with the Tenderland error shape.
+        """
+        url = self._url("/Api/v1/Search/CreateAutosearch")
+        body = {
+            "Name": name,
+            "Parameters": parameters,
+            "MailingDays": mailing_days or [],
+            "MailingTimes": mailing_times or [],
+            "DeliveryFields": delivery_fields or [],
+            "DistributionIds": distribution_ids or [],
+        }
+        r = self._client.post(
+            url,
+            params={"apiKey": self.api_key, "format": "json"},
+            json=body,
+        )
+        # Response body is a bare integer like `369536` (autosearch id).
+        if r.status_code == 200:
+            try:
+                payload = r.json()
+            except Exception:
+                # Defensive: maybe it's plain text
+                txt = r.text.strip()
+                if txt.isdigit():
+                    return int(txt)
+                raise TenderlandAPIError(
+                    code="UNKNOWN_RESPONSE",
+                    description=f"Cannot parse Create response: {r.text[:200]!r}",
+                    http_status=r.status_code,
+                )
+            if isinstance(payload, int):
+                return payload
+            if isinstance(payload, dict):
+                for k in ("Id", "id", "autosearchId", "AutosearchId"):
+                    if k in payload:
+                        return int(payload[k])
+            raise TenderlandAPIError(
+                code="UNKNOWN_RESPONSE",
+                description=f"Unexpected Create response shape: {payload!r}",
+                http_status=r.status_code,
+            )
+        # 4xx — could be Tenderland error envelope or ASP.NET validation `{errors: {...}}`
+        try:
+            j = r.json()
+            if isinstance(j, dict) and "errors" in j:
+                # ASP.NET model validation failure
+                errs = "; ".join(f"{k}: {v}" for k, v in j["errors"].items())
+                raise TenderlandAPIError(
+                    code="VALIDATION_FAILED",
+                    description=errs,
+                    http_status=r.status_code,
+                )
+            if isinstance(j, dict) and (j.get("Success") is False):
+                raise TenderlandAPIError(
+                    code=str(j.get("Code", "UNKNOWN")),
+                    description=str(j.get("Description", "")),
+                    http_status=r.status_code,
+                )
+        except TenderlandAPIError:
+            raise
+        except Exception:
+            pass
+        r.raise_for_status()
+        raise TenderlandAPIError(
+            code="UNKNOWN_ERROR",
+            description=f"HTTP {r.status_code}: {r.text[:200]!r}",
+            http_status=r.status_code,
+        )
+
+    # ---------- dictionary helpers (for payload validation) ----------
+
+    def get_filter_list(self) -> list[dict[str, Any]]:
+        """Return the catalog of available filter types (id, name, type, modules, ...)."""
+        return self._get_json("/Api/v1/Dictionary/GetFilterList").get("items", [])
+
+    def get_field_list(self) -> list[dict[str, Any]]:
+        """Return the catalog of available fields for export."""
+        return self._get_json("/Api/v1/Dictionary/GetFieldList").get("items", [])
+
+    # ---------- file download ----------
 
     def download_all_files(self, entity_id: str, dest_path: Path, entity_type_id: int = 1) -> int:
         """Download zip archive with all docs for a tender. Returns bytes written.

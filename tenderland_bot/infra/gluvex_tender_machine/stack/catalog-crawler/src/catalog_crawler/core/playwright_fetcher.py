@@ -76,8 +76,22 @@ class PlaywrightFetcher:
             ],
         }
         if self.proxy_url:
-            # формат: http://user:pass@host:port
-            launch_kwargs["proxy"] = {"server": self.proxy_url}
+            # Playwright НЕ парсит user:pass из URL автоматически — нужны
+            # отдельные поля username/password. Парсим URL вручную.
+            # Формат входа: http://user:pass@host:port  или  http://host:port
+            from urllib.parse import urlparse as _urlparse
+            p = _urlparse(self.proxy_url)
+            server_url = f"{p.scheme}://{p.hostname}"
+            if p.port:
+                server_url += f":{p.port}"
+            proxy_cfg: dict[str, str] = {"server": server_url}
+            if p.username:
+                # URL-encoded username/password — раскодируем
+                from urllib.parse import unquote as _unquote
+                proxy_cfg["username"] = _unquote(p.username)
+                if p.password:
+                    proxy_cfg["password"] = _unquote(p.password)
+            launch_kwargs["proxy"] = proxy_cfg
 
         self._browser = await self._pw.chromium.launch(**launch_kwargs)
 

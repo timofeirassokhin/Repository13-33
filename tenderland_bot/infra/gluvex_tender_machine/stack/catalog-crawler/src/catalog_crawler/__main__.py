@@ -33,6 +33,38 @@ def brochures_cmd(
     asyncio.run(run_brochures(settings, brand_slug=brand, limit=limit))
 
 
+@app.command("pricelist-import")
+def pricelist_import_cmd(
+    json_path: str = typer.Argument(..., help="Путь к JSON-файлу (создан tools/parse_pricelist_pdf.py)"),
+    brand: str = typer.Option("Illumina", help="Бренд для всех записей"),
+    imported_from: str = typer.Option("scientigen_pricelist",
+                                       help="Значение imported_from в БД"),
+    distributor: str = typer.Option("ScientiGen", help="Название дистрибьютора"),
+    dry_run: bool = typer.Option(False, "--dry-run",
+                                  help="Показать что будет insert'нуто, не записывать"),
+):
+    """Import pricelist JSON → product table (создаёт stub-записи).
+
+    Главный use case — Illumina ScientiGen Feb 2026 prelist (2896 артикулов).
+    После импорта эти продукты становятся целью для brochure-web pipeline.
+
+    Пример:
+        docker compose run --rm \\
+            -v /opt/gluvex/pricelists:/pricelists:ro \\
+            catalog-crawler pricelist-import /pricelists/scientigen.json
+    """
+    from pathlib import Path
+    from catalog_crawler.adapters.pricelist_importer import import_pricelist_json
+    asyncio.run(import_pricelist_json(
+        settings,
+        json_path=Path(json_path),
+        brand=brand,
+        imported_from=imported_from,
+        distributor_name=distributor,
+        dry_run=dry_run,
+    ))
+
+
 @app.command("brochure-web")
 def brochure_web_cmd(
     brand: str = typer.Argument(..., help="Точный product.brand (например 'Agilent Technologies')"),

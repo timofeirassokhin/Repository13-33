@@ -67,25 +67,56 @@ def pricelist_import_cmd(
 
 @app.command("brochure-web")
 def brochure_web_cmd(
-    brand: str = typer.Argument(..., help="Точный product.brand (например 'Agilent Technologies')"),
+    brand: str = typer.Argument(..., help="Точный product.brand (например 'Illumina')"),
     limit: int = typer.Option(0, help="Лимит продуктов (0 = все без datasheets)"),
-    rate_limit: float = typer.Option(5.0, help="Пауза между поиск-запросами, сек."),
-    max_pdfs: int = typer.Option(2, help="Максимум PDF на один продукт"),
+    rate_limit: float = typer.Option(3.0, help="Пауза между поиск-запросами, сек."),
+    max_pdfs: int = typer.Option(5, help="Максимум PDF на один продукт"),
+    category: str = typer.Option(
+        "", "--category",
+        help="Filter по product_category_t (sequencer_platform/ngs_target_capture_panel/...)",
+    ),
+    include_with_existing: bool = typer.Option(
+        False, "--include-existing",
+        help="Включать продукты у которых уже есть datasheets (для дополнения)",
+    ),
 ):
-    """Web-search brochures by vendor_code (для Agilent enrichment).
+    """Multi-query web-search для PDF документов (datasheet/app-note/brochure/tech-note).
 
-    Engines (в порядке предпочтения, авто-fallback):
-      1. SerpAPI (set SERPAPI_KEY in env)
-      2. Bing Web Search API (set BING_API_KEY)
-      3. DuckDuckGo HTML scrape (no key required, slower)
+    Для каждого продукта генерирует 6-9 search-queries:
+      - "<vendor_code>" <brand> datasheet pdf
+      - "<vendor_code>" <brand> application note pdf
+      - "<vendor_code>" <brand> brochure pdf
+      - <brand> <model> datasheet pdf
+      - site:<vendor_site> <vendor_code>
+      - site:<distributor> <vendor_code> <brand>
 
-    Пример:
-        docker compose run --rm catalog-crawler brochure-web 'Agilent Technologies' --limit 100
+    Каждый найденный PDF классифицируется (datasheet/application_note/brochure/
+    technical_note/manual/compliance) по URL/title и сохраняется в MinIO:
+      product-brochures/<brand_slug>/<vendor_code>__<doc_type>__<hash6>.pdf
+
+    Engines (auto-fallback):
+      1. SerpAPI (SERPAPI_KEY env, $50/5K)
+      2. Bing API (BING_API_KEY env, $7/1K)
+      3. DuckDuckGo HTML scrape (no key, ~3 sec/req)
+
+    Примеры:
+      # Illumina — только приборы (50 шт)
+      docker compose run --rm catalog-crawler \\
+          brochure-web 'Illumina' --category sequencer_platform --limit 10
+
+      # Все онко-панели Illumina (TSO500, Pillar, и т.д.)
+      docker compose run --rm catalog-crawler \\
+          brochure-web 'Illumina' --category ngs_target_capture_panel
+
+      # Polный pass — все продукты без datasheets
+      docker compose run --rm catalog-crawler brochure-web 'Illumina'
     """
     from catalog_crawler.adapters.brochure_web_search import enrich_brand_brochures
     asyncio.run(enrich_brand_brochures(
         settings, brand=brand, limit=limit,
         rate_limit_seconds=rate_limit, max_pdfs_per_product=max_pdfs,
+        category_filter=category or None,
+        only_no_datasheet=not include_with_existing,
     ))
 
 

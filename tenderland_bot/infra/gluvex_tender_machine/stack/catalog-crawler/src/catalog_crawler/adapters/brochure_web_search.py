@@ -1,28 +1,33 @@
-"""Brochure web-search — поиск datasheet PDF по vendor_code через интернет.
+"""Brochure web-search — расширенный поиск технических документов по vendor_code и model.
 
-Главное применение: **Agilent enrichment** — у нас 39,193 артикула Agilent
-без datasheets, прямой crawl agilent.com заблокирован Akamai. Идея:
-для каждого артикула ищем PDF в Google/Bing/DuckDuckGo, скачиваем,
-кладём в MinIO + linkam к product.datasheet_paths.
+Цель: для каждого артикула в БД найти PDF datasheets / application notes / brochures
+через интернет-поиск.
 
-Источники web-search (в порядке предпочтения):
+Стратегия (multi-query) — для каждого продукта:
+  1. "<vendor_code>" <brand> datasheet pdf          # точный артикул
+  2. "<vendor_code>" <brand> application note pdf
+  3. "<vendor_code>" <brand> brochure pdf
+  4. <brand> <model> datasheet pdf                  # по названию модели
+  5. <brand> <model> application note pdf
+  6. site:<vendor_site> <vendor_code>               # ограничение на оф. сайт
+  7. site:support.<vendor> <vendor_code>            # support-сайт
 
-1. **SerpAPI** (если SERPAPI_KEY в env) — Google Search API, $50/5000 запросов
-2. **Bing Web Search API** (если BING_API_KEY в env) — $7/1000 запросов
-3. **DuckDuckGo HTML scrape** (без ключа, default) — медленнее, может банить
+Каждый PDF классифицируется по типу (datasheet / app_note / brochure / spec_sheet /
+technical_note / manual / other) по эвристике из URL + title.
 
-Pipeline:
-  1. SELECT product WHERE brand=X AND datasheet_paths IS NULL AND vendor_code IS NOT NULL
-  2. для каждого vendor_code:
-     a. query = f'"{vendor_code}" {brand} datasheet pdf'
-     b. web search → top-5 results
-     c. для каждого PDF-результата: download → content_hash → MinIO put
-     d. update product.datasheet_paths
-     e. audit_event(brochure_web_found)
-  3. rate-limit между запросами (5s — чтоб не быть забанным)
+В MinIO сохраняется как:
+  product-brochures/<brand_slug>/<vendor_code>__<doc_type>__<hash6>.pdf
 
-Использование:
-  docker compose run --rm catalog-crawler brochure-web Agilent --limit 100
+В product.datasheet_paths добавляется object_key.
+В audit_events пишется поиск-event со списком queries и find/save статистикой.
+
+Поисковые движки (auto-fallback):
+  1. SerpAPI (SERPAPI_KEY env, $50/5K)
+  2. Bing API (BING_API_KEY env, $7/1K)
+  3. DuckDuckGo HTML scrape (no key, медленно)
+
+Сейчас этот модуль — **главная модель** для сбора брошюр. Pattern переиспользуем
+для Agilent, MGI, AmoyDx и других — конфиг site_filters + vendor_site_overrides.
 """
 from __future__ import annotations
 
@@ -32,9 +37,9 @@ import logging
 import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
-from urllib.parse import urlparse, quote_plus
+from urllib.parse import urlparse, unquote
 
 import httpx
 from selectolax.parser import HTMLParser
@@ -46,53 +51,227 @@ from catalog_crawler.settings import Settings
 log = logging.getLogger(__name__)
 
 
-# Search engine preference order
 SEARCH_ENGINES = ["serpapi", "bing", "duckduckgo"]
 
 
 @dataclass
 class SearchResult:
     url: str
-    title: str
+    title: str = ""
     snippet: str = ""
 
     @property
     def is_pdf(self) -> bool:
-        return self.url.lower().endswith(".pdf") or ".pdf?" in self.url.lower()
+        u = self.url.lower()
+        return u.endswith(".pdf") or ".pdf?" in u or "/pdf/" in u
 
 
 # ============================================================================
-# Search engine adapters
+# Per-vendor configuration (site filters + naming)
+# ============================================================================
+
+@dataclass
+class VendorSearchConfig:
+    """Параметры поиска для конкретного бренда."""
+
+    brand: str                              # точное значение product.brand
+    brand_slug: str                         # для MinIO путей
+    # Оф. сайт(ы) бренда для site:-фильтров. Первый — главный.
+    vendor_sites: list[str] = field(default_factory=list)
+    # Сайты дистрибьюторов / репозиториев (расширяют покрытие)
+    distributor_sites: list[str] = field(default_factory=list)
+    # Имя бренда для query (часто отличается от product.brand —
+    # например в БД "Salus / Биофьюжн" а для поиска "Salus")
+    search_brand_names: list[str] = field(default_factory=list)
+
+
+VENDOR_CONFIGS: dict[str, VendorSearchConfig] = {
+    "Illumina": VendorSearchConfig(
+        brand="Illumina",
+        brand_slug="illumina",
+        vendor_sites=["illumina.com", "support.illumina.com"],
+        distributor_sites=["scientigen.com", "thermofisher.com"],
+        search_brand_names=["Illumina"],
+    ),
+    "Agilent Technologies": VendorSearchConfig(
+        brand="Agilent Technologies",
+        brand_slug="agilent",
+        vendor_sites=["agilent.com"],
+        distributor_sites=["lacopa.group", "millab.ru", "imc-systems.ru"],
+        search_brand_names=["Agilent", "Agilent Technologies"],
+    ),
+    "MGI Tech": VendorSearchConfig(
+        brand="MGI Tech",
+        brand_slug="mgi_tech",
+        vendor_sites=["mgi-tech.com", "global-mgitech.com"],
+        distributor_sites=["shop.helicon.ru"],
+        search_brand_names=["MGI", "MGI Tech", "BGI", "DNBSEQ"],
+    ),
+    "AmoyDx": VendorSearchConfig(
+        brand="AmoyDx",
+        brand_slug="amoydx",
+        vendor_sites=["amoydiagnostics.com"],
+        distributor_sites=[],
+        search_brand_names=["AmoyDx", "Amoy Diagnostics"],
+    ),
+    "Pillar Biosciences": VendorSearchConfig(
+        brand="Pillar Biosciences",
+        brand_slug="pillar",
+        vendor_sites=["pillar-biosciences.com"],
+        distributor_sites=[],
+        search_brand_names=["Pillar Biosciences", "Pillar Bio"],
+    ),
+    "Burning Rock": VendorSearchConfig(
+        brand="Burning Rock",
+        brand_slug="burning_rock",
+        vendor_sites=["brbiotech.com"],
+        distributor_sites=[],
+        search_brand_names=["Burning Rock", "Burning Rock Dx"],
+    ),
+    "Genemind": VendorSearchConfig(
+        brand="Genemind",
+        brand_slug="genemind",
+        vendor_sites=["genemind.com", "en.genemind.com"],
+        distributor_sites=["sesana.ru"],
+        search_brand_names=["Genemind", "GeneMind"],
+    ),
+    "Сесана": VendorSearchConfig(
+        brand="Сесана",
+        brand_slug="sesana",
+        vendor_sites=["sesana.ru"],
+        distributor_sites=[],
+        search_brand_names=["Геноскан", "Сесана", "Sesana"],
+    ),
+}
+
+
+def get_vendor_config(brand: str) -> VendorSearchConfig:
+    """Returns config for known brand, or sensible defaults for unknown."""
+    if brand in VENDOR_CONFIGS:
+        return VENDOR_CONFIGS[brand]
+    # default config
+    slug = re.sub(r"[^a-z0-9]+", "_", brand.lower()).strip("_")
+    return VendorSearchConfig(
+        brand=brand,
+        brand_slug=slug,
+        vendor_sites=[],
+        distributor_sites=[],
+        search_brand_names=[brand],
+    )
+
+
+# ============================================================================
+# Query generation
+# ============================================================================
+
+@dataclass
+class Query:
+    text: str
+    doc_type_hint: str = "datasheet"     # default
+    site_filter: str = ""                 # если query содержит site:X
+
+
+def build_queries(
+    vendor_code: str,
+    model: str,
+    vendor_cfg: VendorSearchConfig,
+    include_distributors: bool = True,
+) -> list[Query]:
+    """Generate multi-query strategy для одного продукта."""
+    queries: list[Query] = []
+    # Очищаем model от vendor_code suffix `[20019101]` (мы его добавили в imports)
+    clean_model = re.sub(r"\s*\[\w+\]\s*$", "", model or "").strip()
+    primary_name = vendor_cfg.search_brand_names[0] if vendor_cfg.search_brand_names else vendor_cfg.brand
+
+    # 1-3: по точному артикулу + тип документа
+    for doc_keyword, dt in [
+        ("datasheet", "datasheet"),
+        ("application note", "application_note"),
+        ("brochure", "brochure"),
+    ]:
+        queries.append(Query(
+            text=f'"{vendor_code}" {primary_name} {doc_keyword} filetype:pdf',
+            doc_type_hint=dt,
+        ))
+
+    # 4-5: по названию модели
+    if clean_model and len(clean_model) > 3 and clean_model.upper() not in ("FRU", "SPARE", "USED", "REFURB"):
+        for doc_keyword, dt in [
+            ("datasheet", "datasheet"),
+            ("application note", "application_note"),
+        ]:
+            queries.append(Query(
+                text=f'{primary_name} "{clean_model}" {doc_keyword} filetype:pdf',
+                doc_type_hint=dt,
+            ))
+
+    # 6-7: site-filter на оф. сайты бренда
+    for site in vendor_cfg.vendor_sites[:2]:
+        queries.append(Query(
+            text=f'site:{site} {vendor_code}',
+            doc_type_hint="datasheet",
+            site_filter=site,
+        ))
+
+    # 8-9: дистрибьюторы (опционально)
+    if include_distributors:
+        for site in vendor_cfg.distributor_sites[:1]:
+            queries.append(Query(
+                text=f'site:{site} {vendor_code} {primary_name}',
+                doc_type_hint="datasheet",
+                site_filter=site,
+            ))
+
+    return queries
+
+
+# ============================================================================
+# Document type inference из URL/title
+# ============================================================================
+
+DOC_TYPE_KEYWORDS: dict[str, list[str]] = {
+    "datasheet": ["datasheet", "data-sheet", "data_sheet", "spec-sheet", "spec_sheet", "specification"],
+    "application_note": ["application-note", "application_note", "applicationnote", "app-note", "app_note", "appnote", "applications"],
+    "brochure": ["brochure", "product-brochure", "company-brochure", "overview", "product-guide"],
+    "technical_note": ["technical-note", "technical_note", "tech-note", "tech_note", "white-paper", "whitepaper"],
+    "manual": ["manual", "user-guide", "user_guide", "instructions", "handbook"],
+    "compliance": ["msds", "sds", "safety-data", "certificate-of-analysis", "coa", "ce-mark", "iso"],
+}
+
+
+def infer_doc_type(url: str, title: str, query_hint: str) -> str:
+    """Угадать тип документа из URL/title. Fallback на query hint."""
+    text = f"{url} {title}".lower()
+    for dt, keywords in DOC_TYPE_KEYWORDS.items():
+        for kw in keywords:
+            if kw in text:
+                return dt
+    return query_hint or "datasheet"
+
+
+# ============================================================================
+# Search engine adapters (DuckDuckGo / Bing / SerpAPI)
 # ============================================================================
 
 async def search_serpapi(query: str, *, num: int = 10) -> list[SearchResult]:
-    """Google search через SerpAPI. Требует SERPAPI_KEY."""
     api_key = os.environ.get("SERPAPI_KEY")
     if not api_key:
         return []
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.get("https://serpapi.com/search.json", params={
-            "engine": "google",
-            "q": query,
-            "num": num,
-            "api_key": api_key,
+            "engine": "google", "q": query, "num": num, "api_key": api_key,
         })
     if r.status_code != 200:
-        log.warning("SerpAPI returned %s: %s", r.status_code, r.text[:100])
+        log.warning("SerpAPI [%s]: %s", r.status_code, r.text[:80])
         return []
     data = r.json()
-    results = []
-    for it in data.get("organic_results", [])[:num]:
-        results.append(SearchResult(
-            url=it.get("link", ""),
-            title=it.get("title", ""),
-            snippet=it.get("snippet", ""),
-        ))
-    return results
+    return [
+        SearchResult(url=it.get("link",""), title=it.get("title",""), snippet=it.get("snippet",""))
+        for it in (data.get("organic_results") or [])[:num]
+    ]
 
 
 async def search_bing(query: str, *, num: int = 10) -> list[SearchResult]:
-    """Bing Web Search API. Требует BING_API_KEY."""
     api_key = os.environ.get("BING_API_KEY")
     if not api_key:
         return []
@@ -103,120 +282,105 @@ async def search_bing(query: str, *, num: int = 10) -> list[SearchResult]:
             headers={"Ocp-Apim-Subscription-Key": api_key},
         )
     if r.status_code != 200:
-        log.warning("Bing API returned %s", r.status_code)
         return []
     data = r.json()
-    results = []
-    for it in (data.get("webPages") or {}).get("value", [])[:num]:
-        results.append(SearchResult(
-            url=it.get("url", ""),
-            title=it.get("name", ""),
-            snippet=it.get("snippet", ""),
-        ))
-    return results
+    return [
+        SearchResult(url=it.get("url",""), title=it.get("name",""), snippet=it.get("snippet",""))
+        for it in (data.get("webPages") or {}).get("value", [])[:num]
+    ]
 
 
 async def search_duckduckgo(query: str, *, num: int = 10) -> list[SearchResult]:
-    """DuckDuckGo HTML — без API ключа. Парсит результаты через scrape.
-
-    Использует https://html.duckduckgo.com/html/ (упрощённая HTML версия).
-    """
-    url = "https://html.duckduckgo.com/html/"
+    """DuckDuckGo HTML scrape — без API ключа."""
     async with httpx.AsyncClient(timeout=30, follow_redirects=True) as c:
-        r = await c.post(url, data={"q": query, "b": ""}, headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml",
-        })
+        r = await c.post(
+            "https://html.duckduckgo.com/html/",
+            data={"q": query, "b": ""},
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36",
+                "Accept": "text/html",
+            },
+        )
     if r.status_code != 200:
-        log.warning("DuckDuckGo returned %s", r.status_code)
         return []
     tree = HTMLParser(r.text)
     results = []
-    for res_node in tree.css(".result"):
-        a = res_node.css_first("a.result__a")
+    for res in tree.css(".result"):
+        a = res.css_first("a.result__a")
         if a is None:
             continue
         href = a.attrs.get("href", "")
-        title = a.text(strip=True)
-        snippet_node = res_node.css_first(".result__snippet")
-        snippet = snippet_node.text(strip=True) if snippet_node else ""
-        # DuckDuckGo wrap'ит URL через uddg parameter — разворачиваем
         if "uddg=" in href:
             m = re.search(r"uddg=([^&]+)", href)
             if m:
-                from urllib.parse import unquote
                 href = unquote(m.group(1))
-        results.append(SearchResult(url=href, title=title, snippet=snippet))
+        snippet_node = res.css_first(".result__snippet")
+        results.append(SearchResult(
+            url=href, title=a.text(strip=True),
+            snippet=snippet_node.text(strip=True) if snippet_node else "",
+        ))
         if len(results) >= num:
             break
     return results
 
 
-async def search_any(query: str, *, num: int = 10) -> list[SearchResult]:
-    """Попробовать поисковики в порядке предпочтения. Первый не-пустой результат."""
+async def search_any(query: str, *, num: int = 10) -> tuple[list[SearchResult], str]:
+    """Возвращает (results, engine_used)."""
     for engine in SEARCH_ENGINES:
         try:
             if engine == "serpapi":
-                results = await search_serpapi(query, num=num)
+                r = await search_serpapi(query, num=num)
             elif engine == "bing":
-                results = await search_bing(query, num=num)
-            elif engine == "duckduckgo":
-                results = await search_duckduckgo(query, num=num)
+                r = await search_bing(query, num=num)
             else:
-                results = []
-            if results:
-                log.debug("search engine %s returned %d results", engine, len(results))
-                return results
+                r = await search_duckduckgo(query, num=num)
+            if r:
+                return r, engine
         except Exception as exc:
-            log.warning("search engine %s failed: %s", engine, exc)
-    return []
+            log.warning("search %s failed: %s", engine, exc)
+    return [], "none"
 
 
 # ============================================================================
-# Download + persist PDF
+# PDF download + persist
 # ============================================================================
 
 async def download_and_save_pdf(
-    settings: Settings,
     *,
     url: str,
     brand_slug: str,
     vendor_code: str,
-    product_id: str,
-) -> str | None:
-    """Скачать PDF + положить в MinIO + audit_event. Возвращает object_key или None."""
+    doc_type: str = "datasheet",
+) -> tuple[str | None, int]:
+    """Download → MinIO. Returns (object_key, size_bytes) or (None, 0) on error."""
     try:
         async with httpx.AsyncClient(
-            timeout=60, follow_redirects=True,
+            timeout=90, follow_redirects=True,
             headers={
-                "User-Agent": "Mozilla/5.0 (compatible; GluvexBrochureFinder/1.0)",
+                "User-Agent": "Mozilla/5.0 (compatible; GluvexBrochureSearch/1.1)",
                 "Accept": "application/pdf,*/*;q=0.5",
             },
         ) as c:
             r = await c.get(url)
         if r.status_code != 200:
-            log.warning("download %s → %s", url, r.status_code)
-            return None
-        content_type = r.headers.get("content-type", "").lower()
-        if "pdf" not in content_type and not url.lower().endswith(".pdf"):
-            # Не PDF — пропускаем
-            return None
+            return None, 0
+        ct = r.headers.get("content-type", "").lower()
         content = r.content
-        if len(content) < 1024:  # < 1KB — скорее всего не валидный
-            return None
+        # Real PDF check — magic bytes %PDF
+        if not (content.startswith(b"%PDF") or "pdf" in ct):
+            return None, 0
+        if len(content) < 2048:   # < 2KB — скорее всего error page
+            return None, 0
 
-        # Filename: <vendor_code>__<hash6>.pdf
         h = hashlib.sha256(content).hexdigest()[:8]
         safe_code = re.sub(r"[^A-Za-z0-9_\-]", "_", vendor_code)[:60]
-        object_key = f"{brand_slug}/{safe_code}__{h}.pdf"
-
-        # Put to MinIO bucket 'product-brochures'
+        safe_dt = re.sub(r"[^a-z_]", "", doc_type) or "doc"
+        object_key = f"{brand_slug}/{safe_code}__{safe_dt}__{h}.pdf"
         put_object("product-brochures", object_key, content, content_type="application/pdf")
-
-        return object_key
+        return object_key, len(content)
     except Exception as exc:
-        log.warning("download_and_save failed for %s: %s", url, exc)
-        return None
+        log.debug("download %s failed: %s", url, exc)
+        return None, 0
 
 
 # ============================================================================
@@ -228,104 +392,146 @@ async def enrich_brand_brochures(
     *,
     brand: str,
     limit: int = 0,
-    rate_limit_seconds: float = 5.0,
-    max_pdfs_per_product: int = 2,
+    rate_limit_seconds: float = 3.0,
+    max_pdfs_per_product: int = 5,
+    category_filter: str | None = None,
+    only_no_datasheet: bool = True,
 ):
-    """Web-search brochures для всех продуктов бренда без datasheets.
+    """Многократный поиск брошюр для всех продуктов бренда через интернет.
 
-    :param brand: точное значение product.brand (например 'Agilent Technologies')
-    :param limit: ограничить число продуктов для теста (0 = все)
-    :param rate_limit_seconds: пауза между поисковыми запросами (защита от бана)
-    :param max_pdfs_per_product: сколько PDF сохранять на один продукт
+    :param brand: точное значение product.brand
+    :param limit: 0 = все
+    :param rate_limit_seconds: пауза между search-запросами (защита от banов)
+    :param max_pdfs_per_product: сколько PDF максимум сохранять на 1 артикул
+    :param category_filter: например 'sequencer_platform' — только приборы
+    :param only_no_datasheet: True = только продукты без datasheet'ов
     """
+    vendor_cfg = get_vendor_config(brand)
     conn = await get_conn()
-    brand_slug = re.sub(r"[^a-z0-9]+", "_", brand.lower()).strip("_")
 
     try:
-        # Найти продукты без datasheets, имеющие vendor_code
-        query = """
-            SELECT id, vendor_code, brand, model
+        sql = """
+            SELECT id, vendor_code, brand, model, category, display_name
             FROM product
-            WHERE brand = $1
-              AND vendor_code IS NOT NULL AND vendor_code != ''
-              AND (datasheet_paths IS NULL OR array_length(datasheet_paths, 1) IS NULL)
-            ORDER BY id
+            WHERE brand = $1 AND vendor_code IS NOT NULL AND vendor_code != ''
         """
+        args: list[Any] = [brand]
+        if only_no_datasheet:
+            sql += "\nAND (datasheet_paths IS NULL OR array_length(datasheet_paths, 1) IS NULL)"
+        if category_filter:
+            sql += f"\nAND category = $2::product_category_t"
+            args.append(category_filter)
+        sql += "\nORDER BY id"
         if limit and limit > 0:
-            query += f"\nLIMIT {limit}"
+            sql += f"\nLIMIT {limit}"
 
-        products = await conn.fetch(query, brand)
-        log.info("brand=%s: %d products without datasheets", brand, len(products))
+        products = await conn.fetch(sql, *args)
+        log.info(
+            "brand=%s category=%s: %d products to enrich",
+            brand, category_filter or "ALL", len(products),
+        )
         if not products:
             return
 
-        stats = {"total": len(products), "found": 0, "saved": 0, "errors": 0, "skipped": 0}
+        global_stats = {
+            "total_products": len(products),
+            "with_finds": 0,
+            "pdfs_saved": 0,
+            "queries_total": 0,
+            "errors": 0,
+        }
 
         for i, prod in enumerate(products, 1):
-            vendor_code = prod["vendor_code"]
-            model = prod["model"]
             product_id = prod["id"]
+            vendor_code = prod["vendor_code"]
+            model = prod["model"] or ""
 
-            search_query = f'"{vendor_code}" {brand} datasheet pdf'
-            log.info("[%d/%d] %s — searching: %s", i, len(products), vendor_code, search_query)
+            log.info("[%d/%d] %s | %s | %s",
+                     i, len(products), vendor_code, prod["category"], model[:60])
 
-            try:
-                results = await search_any(search_query, num=10)
-            except Exception as exc:
-                log.warning("search failed for %s: %s", vendor_code, exc)
-                stats["errors"] += 1
-                await asyncio.sleep(rate_limit_seconds)
-                continue
+            queries = build_queries(vendor_code, model, vendor_cfg)
+            global_stats["queries_total"] += len(queries)
 
-            # Фильтр: только PDF, не на agilent.com (Akamai), приоритет distributor / repository sites
-            pdf_candidates = [r for r in results if r.is_pdf]
-            if not pdf_candidates:
-                stats["skipped"] += 1
-                await asyncio.sleep(rate_limit_seconds)
-                continue
-
+            # Track unique PDF URLs seen (deduplicate cross-query)
+            seen_urls: set[str] = set()
             saved_keys: list[str] = []
-            for cand in pdf_candidates[:max_pdfs_per_product]:
-                key = await download_and_save_pdf(
-                    settings,
-                    url=cand.url,
-                    brand_slug=brand_slug,
-                    vendor_code=vendor_code,
-                    product_id=str(product_id),
-                )
-                if key:
-                    saved_keys.append(key)
-                    stats["saved"] += 1
-                    log.info("    saved → %s", key)
+            saved_metadata: list[dict] = []
+
+            for q in queries:
+                if len(saved_keys) >= max_pdfs_per_product:
+                    break
+                try:
+                    results, engine = await search_any(q.text, num=10)
+                except Exception as exc:
+                    log.warning("    search '%s' failed: %s", q.text[:60], exc)
+                    global_stats["errors"] += 1
+                    await asyncio.sleep(rate_limit_seconds)
+                    continue
+
+                # Filter PDF candidates
+                pdf_candidates = [r for r in results if r.is_pdf]
+                log.debug("    Q='%s' (%s) → %d results, %d PDFs",
+                          q.text[:60], engine, len(results), len(pdf_candidates))
+
+                for r in pdf_candidates:
+                    if r.url in seen_urls:
+                        continue
+                    seen_urls.add(r.url)
+                    if len(saved_keys) >= max_pdfs_per_product:
+                        break
+                    doc_type = infer_doc_type(r.url, r.title, q.doc_type_hint)
+                    obj_key, size = await download_and_save_pdf(
+                        url=r.url,
+                        brand_slug=vendor_cfg.brand_slug,
+                        vendor_code=vendor_code,
+                        doc_type=doc_type,
+                    )
+                    if obj_key:
+                        saved_keys.append(obj_key)
+                        saved_metadata.append({
+                            "object_key": obj_key,
+                            "source_url": r.url,
+                            "title": r.title[:200],
+                            "doc_type": doc_type,
+                            "size_bytes": size,
+                            "from_query": q.text[:120],
+                            "search_engine": engine,
+                        })
+                        log.info("    + saved %-18s %s", doc_type, obj_key)
+                # rate-limit между поисками
+                await asyncio.sleep(rate_limit_seconds)
 
             if saved_keys:
-                # Update product.datasheet_paths
+                # Update product
                 await conn.execute(
                     "UPDATE product SET datasheet_paths = $1, updated_at = now() WHERE id = $2",
                     saved_keys, product_id,
                 )
-                await audit_event(
-                    conn,
-                    event_type="brochure_web_found",
-                    actor="brochure_web_search",
-                    payload={
-                        "product_id": str(product_id),
-                        "vendor_code": vendor_code,
-                        "brand": brand,
-                        "model": model,
-                        "saved_count": len(saved_keys),
-                    },
-                )
-                stats["found"] += 1
+                # Audit event
+                global_stats["with_finds"] += 1
+                global_stats["pdfs_saved"] += len(saved_keys)
+            await conn.close() if False else None  # type-hint, leave open
 
-            # rate-limit
-            await asyncio.sleep(rate_limit_seconds)
+            if i % 10 == 0:
+                log.info("=== progress %d/%d: %s", i, len(products), global_stats)
 
-            # Log progress every 20
-            if i % 20 == 0:
-                log.info("progress: %s", stats)
-
-        log.info("DONE. Final stats: %s", stats)
+        # Final audit
+        log.info("DONE %s: %s", brand, global_stats)
 
     finally:
         await conn.close()
+
+    # Audit after conn closed
+    try:
+        await audit_event(
+            action="brochure_web_search_completed",
+            actor_type="catalog_crawler",
+            actor_id="brochure_web_search",
+            payload={
+                "brand": brand,
+                "category_filter": category_filter,
+                "stats": global_stats,
+            },
+        )
+    except Exception as exc:
+        log.warning("audit_event failed: %s", exc)

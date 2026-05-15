@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import sys
 
@@ -13,6 +14,14 @@ import typer
 
 from catalog_crawler.adapters.gluvexlab import GluvexLabAdapter
 from catalog_crawler.settings import settings
+
+# Logging: INFO by default, DEBUG via env LOG_LEVEL=DEBUG.
+# Without this, log.info() calls were silently dropped (root level=WARNING).
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    stream=sys.stderr,
+)
 
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)

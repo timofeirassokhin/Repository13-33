@@ -191,8 +191,12 @@ async def import_pricelist_json(
             vendor_code = it["catalog_number"]
             description = (it.get("description") or "").strip()
             section = it.get("category_section", "")
-            model = extract_model(description) or vendor_code
-            display_name = f"{brand} {model}"[:200]
+            extracted_model = extract_model(description) or vendor_code
+            # Unique constraint в БД на (tenant_id, brand, model). Каждый
+            # vendor_code — отдельный товар → append vendor_code в model:
+            # "AmpliSeq Library PLUS [20019101]" — гарантирует уникальность.
+            model = f"{extracted_model} [{vendor_code}]"[:200]
+            display_name = f"{brand} {extracted_model} ({vendor_code})"[:200]
 
             category, subcategory = map_category(section)
             list_price = it.get("list_price_usd")

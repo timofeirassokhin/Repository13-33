@@ -198,6 +198,13 @@ VENDOR_CONFIGS: dict[str, VendorSearchConfig] = {
         distributor_sites=[],
         search_brand_names=["HTA", "HTA Italia"],
     ),
+    "HTA Italia": VendorSearchConfig(
+        brand="HTA Italia",
+        brand_slug="hta_italia",
+        vendor_sites=["htaitalia.com", "hta.it"],
+        distributor_sites=[],
+        search_brand_names=["HTA", "HTA Italia"],
+    ),
     "Genemind": VendorSearchConfig(
         brand="Genemind",
         brand_slug="genemind",

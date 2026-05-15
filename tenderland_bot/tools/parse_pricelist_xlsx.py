@@ -56,13 +56,13 @@ class PriceItem:
 
 # Канонические ключи. Заголовки в Excel могут быть с пробелами/регистром.
 HEADER_ALIASES: dict[str, list[str]] = {
-    "catalog_number":         ["артикул", "артикул производителя", "item", "item no", "item number", "catalog", "catalog #", "номер артикула", "код товара", "code"],
+    "catalog_number":         ["артикул", "артикул производителя", "item", "item no", "item number", "article", "catalog", "catalog #", "номер артикула", "код товара", "code"],
     "description_ru":         ["наименование на русском", "наименование ru", "наименование товара", "наименование рус", "наименование", "наименование для печати", "название ru", "название на русском", "название"],
-    "description":            ["наименование на английском", "наименование en", "наименование eng", "наименование англ", "name en", "наименование (en)", "название на английском", "english name", "model", "desciption", "description"],
+    "description":            ["наименование на английском", "наименование en", "наименование eng", "наименование англ", "name en", "наименование (en)", "название на английском", "english name", "рабочее наименование", "model", "desciption", "description", "name"],
     "brand":                  ["производитель", "бренд", "manufacturer", "brand"],
     "currency":               ["валюта производителя", "валюта", "currency"],
-    "price_purchase":         ["цена закупки с ндс", "цена закупки", "цена закупочная", "входящая цена", "входящая цена, chf", "purchase price"],
-    "price_sale":             ["цена продажи/ррц с ндс22%", "цена продажи ррц с ндс", "цена продажи с ндс", "цена продажи", "цена для клиента, chf", "цена для клиента", "ррц с ндс", "ррц", "розничная цена", "sale price"],
+    "price_purchase":         ["цена закупки с ндс", "цена закупки", "цена закупочная", "цена поставщика", "цена поставщика, евро, без ндс", "входящая цена", "входящая цена, chf", "вендат price with vat, rmb", "purchase price"],
+    "price_sale":             ["цена продажи/ррц с ндс22%", "цена продажи ррц с ндс", "цена продажи с ндс", "цена продажи", "ррц евро, включая ндс 20%", "ррц евро", "цена глювекс с ндс, rbm", "цена для клиента, chf", "цена для клиента", "ррц с ндс", "ррц", "розничная цена", "sale price"],
     "vat":                    ["ндс", "vat", "tax"],
     "unit":                   ["единица измерения", "единица", "ед. изм.", "unit"],
     "manufacturer_country":   ["страна происхождения", "страна", "country", "origin"],
@@ -165,6 +165,147 @@ def _parse_price(cell) -> float | None:
         return float(s)
     except ValueError:
         return None
+
+
+# ----- Парсинг CSV --------------------------------------------------------
+
+def parse_csv(csv_path: Path) -> tuple[list[PriceItem], dict]:
+    """Парсер CSV в том же стиле, что и parse_xlsx.
+
+    Автоматически детектит encoding (utf-8/utf-8-sig/cp1251)
+    и delimiter (`,` `;` `\\t`).
+    """
+    import csv as _csv
+
+    # Detect encoding
+    raw = csv_path.read_bytes()
+    encoding = "utf-8"
+    for enc in ("utf-8-sig", "utf-8", "cp1251", "windows-1251", "latin-1"):
+        try:
+            text = raw.decode(enc)
+            encoding = enc
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        return [], {"error": "encoding_detection_failed"}
+
+    # Sniff delimiter
+    try:
+        dialect = _csv.Sniffer().sniff(text[:4096], delimiters=",;\t|")
+        delimiter = dialect.delimiter
+    except _csv.Error:
+        delimiter = ","
+
+    rows = list(_csv.reader(text.splitlines(), delimiter=delimiter))
+    if not rows:
+        return [], {"error": "empty_csv", "encoding": encoding}
+
+    # Find header row
+    headers: list[str] = []
+    header_row_idx = 0
+    for i, row in enumerate(rows[:30], start=1):
+        non_empty = sum(1 for c in row if c and c.strip())
+        if non_empty >= 3:
+            row_lower = " ".join((c or "").lower() for c in row)
+            if ("артикул" in row_lower or "наименование" in row_lower
+                or "производитель" in row_lower
+                or ("article" in row_lower and ("name" in row_lower or "price" in row_lower))
+                or ("item" in row_lower and ("desc" in row_lower or "price" in row_lower or "цена" in row_lower))):
+                headers = [str(c or "").strip() for c in row]
+                header_row_idx = i
+                break
+
+    if not headers:
+        return [], {"error": "header_row_not_found",
+                    "encoding": encoding, "delimiter": delimiter,
+                    "first_rows": rows[:3]}
+
+    header_map = _build_header_map(headers)
+    items: list[PriceItem] = []
+    file_stem = csv_path.stem
+
+    for i, row in enumerate(rows[header_row_idx:], start=header_row_idx + 1):
+        if not row or all(not (c or "").strip() for c in row):
+            continue
+
+        def get(key: str) -> str:
+            idx = header_map.get(key)
+            if idx is None or idx >= len(row):
+                return ""
+            v = row[idx]
+            return v.strip() if v else ""
+
+        cat = get("catalog_number")
+        if not cat:
+            continue
+        if cat.lower() in ("итого", "total", "subtotal", "всего"):
+            continue
+        if len(cat) < 2:
+            continue
+
+        desc_en = get("description")
+        desc_ru = get("description_ru")
+        brand = get("brand") or file_stem.split()[0]
+        currency = get("currency")
+        vat = get("vat")
+        unit = get("unit")
+        country = get("manufacturer_country")
+        distributor = get("distributor")
+        inn = get("supplier_inn")
+        section = get("category_section")
+        ru_num = get("ru_number")
+
+        purchase_idx = header_map.get("price_purchase")
+        sale_idx = header_map.get("price_sale")
+        purchase = _parse_price(row[purchase_idx]) if purchase_idx is not None and purchase_idx < len(row) else None
+        sale = _parse_price(row[sale_idx]) if sale_idx is not None and sale_idx < len(row) else None
+
+        is_quote = False
+        if sale_idx is not None and sale_idx < len(row):
+            raw_sale = str(row[sale_idx] or "").lower()
+            if "запрос" in raw_sale or "quote" in raw_sale:
+                is_quote = True
+
+        items.append(PriceItem(
+            catalog_number=cat,
+            description=desc_en or desc_ru,
+            description_ru=desc_ru,
+            brand=brand,
+            currency=currency,
+            price_purchase=purchase,
+            price_sale=sale,
+            vat=vat,
+            unit=unit,
+            manufacturer_country=country,
+            distributor=distributor,
+            supplier_inn=inn,
+            category_section=section,
+            ru_number=ru_num,
+            is_quote_only=is_quote,
+            page=i,
+        ))
+
+    # Deduplicate by catalog_number (MEMMERT CSV has many duplicate rows)
+    seen: set[str] = set()
+    dedup: list[PriceItem] = []
+    for it in items:
+        if it.catalog_number in seen:
+            continue
+        seen.add(it.catalog_number)
+        dedup.append(it)
+
+    meta = {
+        "sheet_name": "csv",
+        "encoding": encoding,
+        "delimiter": delimiter,
+        "header_row_idx": header_row_idx,
+        "detected_headers": headers,
+        "header_map": header_map,
+        "rows_total": len(dedup),
+        "rows_before_dedup": len(items),
+    }
+    return dedup, meta
 
 
 # ----- Парсинг XLSX -------------------------------------------------------
@@ -310,7 +451,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     print(f"Parsing {xlsx_path.name}...")
-    items, meta = parse_xlsx(xlsx_path)
+    if xlsx_path.suffix.lower() == ".csv":
+        items, meta = parse_csv(xlsx_path)
+    else:
+        items, meta = parse_xlsx(xlsx_path)
 
     if not items:
         print(f"ERROR: no items parsed. meta={meta}", file=sys.stderr)

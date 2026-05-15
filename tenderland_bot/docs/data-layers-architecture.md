@@ -1,7 +1,109 @@
 # Gluvex — архитектура слоёв данных каталог → specs → тендеры
 
-**Версия:** 1.0
-**Дата:** 2026-05-14
+**Версия:** 1.1
+**Дата:** 2026-05-15 (обновлено: правила English-only + smart per-category crawling)
+**Changelog 1.1:**
+- ⚠️ **English-only**: собираем только англоязычные документы (skip FR/DE/CN/RU/JP translations)
+- ⚠️ **Smart по категориям**: для приборов → PDF datasheets/brochures; для расходки/мелочи → каталоги и **legal docs** (MSDS, Declaration of Conformity, Certificate of Origin)
+- ⚠️ **Agilent: gluvexlab first** — у нас 35,641 артикулов Agilent в Gluvex-каталоге, многое уже есть с описаниями; перед brochure-web обогащать из gluvexlab cross-reference
+- ⚠️ **Markdown слой**: тех. характеристики + тендерные описания хранятся как MD рядом с PDF (новый Layer 2, между Layer 1 raw и Layer 3 structured specs)
+
+---
+
+## 0.5. Правила сбора (v1.1)
+
+### Английский язык по умолчанию
+
+- Собираем **только English** документы для всех международных вендоров
+- Skip patterns в URLs: `/fra/`, `-fra.pdf`, `/de/`, `/cn/`, `/zh/`, `/jp/`, `/ja/`, `/ru/`, `/-rus.pdf`, `/-jpn.pdf`, `/-deu.pdf`, `/-chs.pdf`, `/-cht.pdf`
+- Skip title contains: `Französisch`, `français`, `Deutsch`, `中文`, `日本語`, `한국어`
+- Для русских вендоров (Хеликон, Сесана, Salus-bio, Parseq, ОнкоАтлас) — наоборот, русский OK
+
+### Smart crawling по категории продукта
+
+| Категория | Источник документов | Что собираем |
+|---|---|---|
+| **`sequencer_platform`** (приборы) | brochure-web (Bing) + vendor site | datasheet + brochure + tech_note PDF |
+| **`hplc_system` / `gc_system` / `mass_spectrometer`** | brochure-web + vendor site | datasheet + brochure + tech_note PDF |
+| **`incubator` / `drying_oven` / `centrifuge`** etc. | vendor site | datasheet + manual PDF |
+| **`ngs_target_capture_panel` / `ngs_library_prep_kit`** | brochure-web | brochure + app_note + protocol PDF |
+| **`sequencer_reagent_kit` / `sequencer_flowcell`** | **master catalog crawler** | extract from big PDFs |
+| **`consumable` / `spare_part` / `accessory`** | **master catalog crawler** | extract + **MSDS / DoC / Origin** |
+| **`software`** | vendor site | spec sheet + version notes |
+| **`service`** | skip — описание из pricelist достаточно | — |
+
+**Что НЕ ищем:**
+- ❌ Отдельные PDF для каждого spare part / consumable (у них их нет — они в общих catalog'ах)
+- ❌ Не-английские translations (FR/DE/CN/RU/JP) — занимают место без новой информации
+- ❌ Service contract / training PDFs (это not technical product info)
+
+### Legal docs для расходки
+
+Для consumable/spare_part/accessory кроме технических спецификаций нужны **юридические документы**:
+
+- **MSDS** (Material Safety Data Sheet) — для реагентов с химией
+- **DoC / Declaration of Conformity** — CE marking
+- **Certificate of Origin** — страна производства (важно для растаможки)
+- **IVD certificate** — для in vitro diagnostics products
+- **CE-IVD certificate** — европейский regulatory
+- **Sterilization Certificate** — для расходки
+
+Эти **новые `doc_type`** в нашей классификации:
+- `msds` / `safety_data_sheet`
+- `declaration_of_conformity` / `doc`
+- `certificate_of_origin` / `coo`
+- `ivd_certificate` / `ce_ivd`
+- `sterilization_cert`
+
+### Двухуровневая модель документов (PDF + Markdown)
+
+**Layer 1.A — Raw PDF docs** (MinIO `product-brochures/`):
+- `<brand_slug>/<vendor_code>__<doc_type>__<hash6>.pdf`
+- Бинарный архив, не индексируется напрямую
+- Используется как **референс** ("вот оригинал")
+
+**Layer 1.B — Markdown text** (MinIO `product-brochures/` рядом с PDF):
+- `<brand_slug>/<vendor_code>__<doc_type>__<hash6>.md`
+- Извлечён через **`document_extractor`** (pdfplumber → text + tables → markdown)
+- **Индексируется** в Qdrant + FTS для RAG
+- Содержит:
+  - извлечённый text (paragraphs + tables как md-tables)
+  - метаданные (source_url, title, doc_type)
+  - structured spec values если удалось распарсить ("Pressure: 1300 bar" → frontmatter)
+- **Используется** для:
+  - Bot Q&A ("какое макс. давление у Vanquish UHPLC?")
+  - tender_matcher (поиск релевантных приборов через RAG)
+  - kp_agent (вставка characteristics в КП)
+
+**Связь:**
+```
+product.datasheet_paths = [
+   "illumina/20063021__datasheet__0a8bbc56.pdf",
+   "illumina/20063021__datasheet__0a8bbc56.md",  ← parsed MD рядом
+]
+product.metadata.docs = [
+  {"object_key": "...pdf", "doc_type": "datasheet", "lang": "en", "size": 1234567},
+  {"object_key": "...md",  "doc_type": "datasheet", "lang": "en", "extracted_from": "pdf"},
+]
+```
+
+### Agilent strategy (изменена)
+
+**Не делаем массовый brochure-web на 39K stubs.** Вместо этого:
+
+1. **Cross-reference с gluvexlab** (35,641 артикулов Agilent уже в БД с описаниями) — **MERGE** по vendor_code:
+   - Если stub from agilent_sitemap имеет тот же vendor_code что и запись из gluvexlab — берём description + source_url из gluvexlab
+   - Stubs без cross-ref остаются как есть
+2. **brochure-web запускать только на instruments**: ~200 Agilent моделей (1290 Infinity II, 6495 LC-MS, 7890B GC, etc.) — через category filter
+3. **master catalog crawler** для:
+   - Agilent HPLC Columns Catalog → linkbang vendor_codes колонок
+   - Agilent Spare Parts Catalog → spare_part linking
+   - Agilent Consumables Catalog → consumable linking
+4. **Legal docs**: MSDS PDFs для реагентов Agilent → отдельный fetcher из их MSDS-системы
+
+---
+
+
 **Иерархия документов:**
 1. [`master-data-architecture.md`](master-data-architecture.md) — 1С как master, контуры
 2. [`storage-architecture.md`](storage-architecture.md) — низкоуровневое хранилище (Postgres / MinIO / Qdrant)

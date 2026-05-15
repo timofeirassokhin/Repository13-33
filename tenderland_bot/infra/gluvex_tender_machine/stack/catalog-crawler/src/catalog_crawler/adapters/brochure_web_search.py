@@ -182,30 +182,87 @@ def build_queries(
     vendor_code: str,
     model: str,
     vendor_cfg: VendorSearchConfig,
+    *,
+    category: str = "",
     include_distributors: bool = True,
 ) -> list[Query]:
-    """Generate multi-query strategy для одного продукта."""
+    """Generate multi-query strategy для одного продукта.
+
+    Стратегия зависит от category:
+      - Приборы (sequencer_platform/hplc_system/...) → datasheet + brochure + tech_note
+      - Реагенты/панели (ngs_target_capture_panel/...) → brochure + app_note + protocol
+      - Расходка (consumable/spare_part/accessory) → MSDS + DoC + Origin + brochure
+      - Software → spec sheet only
+    """
     queries: list[Query] = []
     # Очищаем model от vendor_code suffix `[20019101]` (мы его добавили в imports)
     clean_model = re.sub(r"\s*\[\w+\]\s*$", "", model or "").strip()
     primary_name = vendor_cfg.search_brand_names[0] if vendor_cfg.search_brand_names else vendor_cfg.brand
 
-    # 1-3: по точному артикулу + тип документа
-    for doc_keyword, dt in [
-        ("datasheet", "datasheet"),
-        ("application note", "application_note"),
-        ("brochure", "brochure"),
-    ]:
+    # Skip generic model names (ASSY/SPARE/FRU и т.п.)
+    is_generic_model = clean_model.upper() in ("FRU", "SPARE", "USED", "REFURB", "ASSY",
+                                                 "ACCESSORY", "ACCESSORIES", "ADAPTER", "ABSORBER",
+                                                 "ITEM")
+
+    # === Category-specific query set ===
+    instrument_cats = {
+        "sequencer_platform", "hplc_system", "gc_system", "mass_spectrometer",
+        "icp_oes", "icp_ms", "aas_system",
+        "uv_vis_spectrometer", "ftir_spectrometer", "nir_spectrometer",
+        "incubator", "drying_oven", "climate_chamber", "centrifuge",
+        "biological_safety_cabinet", "laminar_hood", "balance", "titrator",
+    }
+    reagent_cats = {
+        "ngs_target_capture_panel", "ngs_library_prep_kit", "ngs_amplicon_panel",
+        "pcr_kit", "realtime_pcr_kit", "dna_extraction_kit", "rna_extraction_kit",
+        "sequencer_reagent_kit",
+    }
+    consumable_cats = {
+        "consumable", "spare_part", "accessory", "sequencer_flowcell",
+        "hplc_column", "gc_column", "vial", "syringe_filter", "spe_cartridge",
+    }
+    skip_cats = {"service", "software"}   # для них не ищем PDF
+
+    if category in skip_cats:
+        return []   # skip целиком
+
+    # 1-3: по точному артикулу с категория-специфичными doc_types
+    if category in consumable_cats:
+        # Расходка: legal docs + brochure (datasheet редко есть)
+        doc_types = [
+            ("msds", "msds"),
+            ("declaration of conformity", "declaration_of_conformity"),
+            ("certificate of origin", "certificate_of_origin"),
+            ("brochure", "brochure"),
+        ]
+    elif category in reagent_cats:
+        # Реагенты/панели: protocol + app note + brochure (data sheet может не быть)
+        doc_types = [
+            ("brochure", "brochure"),
+            ("application note", "application_note"),
+            ("protocol", "protocol"),
+            ("datasheet", "datasheet"),
+        ]
+    else:
+        # Приборы (default): datasheet + brochure + tech note
+        doc_types = [
+            ("datasheet", "datasheet"),
+            ("brochure", "brochure"),
+            ("application note", "application_note"),
+        ]
+
+    for doc_keyword, dt in doc_types[:3]:
         queries.append(Query(
             text=f'"{vendor_code}" {primary_name} {doc_keyword} filetype:pdf',
             doc_type_hint=dt,
         ))
 
-    # 4-5: по названию модели
-    if clean_model and len(clean_model) > 3 and clean_model.upper() not in ("FRU", "SPARE", "USED", "REFURB"):
+    # 4-5: по названию модели (для приборов)
+    if (clean_model and len(clean_model) > 3 and not is_generic_model
+            and category in instrument_cats):
         for doc_keyword, dt in [
             ("datasheet", "datasheet"),
-            ("application note", "application_note"),
+            ("brochure", "brochure"),
         ]:
             queries.append(Query(
                 text=f'{primary_name} "{clean_model}" {doc_keyword} filetype:pdf',
@@ -220,8 +277,8 @@ def build_queries(
             site_filter=site,
         ))
 
-    # 8-9: дистрибьюторы (опционально)
-    if include_distributors:
+    # 8: дистрибьюторы (опционально, только для приборов)
+    if include_distributors and category in instrument_cats:
         for site in vendor_cfg.distributor_sites[:1]:
             queries.append(Query(
                 text=f'site:{site} {vendor_code} {primary_name}',
@@ -237,13 +294,84 @@ def build_queries(
 # ============================================================================
 
 DOC_TYPE_KEYWORDS: dict[str, list[str]] = {
+    # Технические документы
     "datasheet": ["datasheet", "data-sheet", "data_sheet", "spec-sheet", "spec_sheet", "specification"],
     "application_note": ["application-note", "application_note", "applicationnote", "app-note", "app_note", "appnote", "applications"],
     "brochure": ["brochure", "product-brochure", "company-brochure", "overview", "product-guide"],
     "technical_note": ["technical-note", "technical_note", "tech-note", "tech_note", "white-paper", "whitepaper"],
-    "manual": ["manual", "user-guide", "user_guide", "instructions", "handbook"],
-    "compliance": ["msds", "sds", "safety-data", "certificate-of-analysis", "coa", "ce-mark", "iso"],
+    "manual": ["manual", "user-guide", "user_guide", "instructions", "handbook", "package-insert"],
+    "protocol": ["protocol", "workflow"],
+
+    # Legal docs (для расходки / реагентов)
+    "msds": ["msds", "sds-sheet", "safety-data-sheet", "safetydata", "material-safety"],
+    "declaration_of_conformity": ["declaration-of-conformity", "doc-ce", "ce-marking", "ce-mark", "conformity"],
+    "certificate_of_origin": ["certificate-of-origin", "country-of-origin", "origin-certificate"],
+    "ivd_certificate": ["ivd-certificate", "ce-ivd", "ivdr", "ivdd"],
+    "sterilization_cert": ["sterilization", "gamma-cert", "iso-11135"],
+    "iso_cert": ["iso-9001", "iso-13485", "iso-14001", "iso-cert"],
+    "coa": ["certificate-of-analysis", "coa-", "cofa"],
 }
+
+
+# Language-detection: skip non-English document variants.
+# Patterns в URLs + titles которые означают translation на другой язык.
+NON_ENGLISH_URL_PATTERNS = [
+    "/fra/", "-fra.pdf", "-fra-", "/fr/", "_fr.pdf", "_fr_", "french",
+    "/de/", "-deu.pdf", "_de.pdf", "_de_", "deutsch",
+    "/cn/", "/zh/", "/zh-cn/", "-chs.pdf", "-cht.pdf", "_zh.pdf", "_cn.pdf",
+    "/jp/", "/ja/", "-jpn.pdf", "_jp.pdf", "japanese",
+    "/kr/", "/ko/", "-kor.pdf", "_kr.pdf", "korean",
+    "/ru/", "-rus.pdf", "_ru.pdf",
+    "/es/", "-esp.pdf", "_es.pdf", "spanish",
+    "/it/", "-ita.pdf", "_it.pdf", "italian",
+    "/pt/", "/pt-br/", "-por.pdf", "portuguese",
+    "/nl/", "_nl.pdf", "dutch",
+    "/pl/", "_pl.pdf", "polish",
+    "/tr/", "_tr.pdf", "turkish",
+    "/ar/", "_ar.pdf", "arabic",
+    "/he/", "/iw/", "hebrew",
+    "/sv/", "_sv.pdf", "swedish",
+    "/no/", "/nb/", "_no.pdf", "norwegian",
+    "/da/", "_da.pdf", "danish",
+    "/fi/", "_fi.pdf", "finnish",
+]
+
+NON_ENGLISH_TITLE_PATTERNS = [
+    "français", "francais", "französische", "französisch",
+    "deutsch", "german translation",
+    "中文", "中国", "简体", "繁體",
+    "日本語", "日本",
+    "한국어", "korean", "韓國",
+    "русский", "russian translation",
+    "español", "spanish translation",
+    "italiano", "italian translation",
+    "português", "portuguese",
+    "nederlands", "dutch translation",
+]
+
+# Allow English markers (override above при коллизии — иногда multilingual sites имеют /en/ или /us/)
+ENGLISH_OVERRIDE_PATTERNS = ["/en/", "/en-us/", "/en-gb/", "/us/en/", "-eng.pdf", "_en.pdf", "english"]
+
+
+def is_non_english(url: str, title: str = "") -> bool:
+    """Returns True если URL/title указывают на не-английскую языковую версию.
+
+    Override: если есть явный English marker — НЕ skip (multilingual sites
+    часто имеют /us/en/ путь с английским контентом).
+    """
+    text = f"{url.lower()} {title.lower()}"
+    # Сначала English override — если есть, definitely english
+    for pat in ENGLISH_OVERRIDE_PATTERNS:
+        if pat in text:
+            return False
+    # Иначе ищем non-English markers
+    for pat in NON_ENGLISH_URL_PATTERNS:
+        if pat in url.lower():
+            return True
+    for pat in NON_ENGLISH_TITLE_PATTERNS:
+        if pat in title.lower():
+            return True
+    return False
 
 
 def infer_doc_type(url: str, title: str, query_hint: str) -> str:
@@ -555,11 +683,15 @@ async def enrich_brand_brochures(
             product_id = prod["id"]
             vendor_code = prod["vendor_code"]
             model = prod["model"] or ""
+            cat = prod["category"] or ""
 
             log.info("[%d/%d] %s | %s | %s",
-                     i, len(products), vendor_code, prod["category"], model[:60])
+                     i, len(products), vendor_code, cat, model[:60])
 
-            queries = build_queries(vendor_code, model, vendor_cfg)
+            queries = build_queries(vendor_code, model, vendor_cfg, category=cat)
+            if not queries:
+                log.info("    skip category %s (service/software)", cat)
+                continue
             global_stats["queries_total"] += len(queries)
 
             # Track unique PDF URLs seen (deduplicate cross-query)
@@ -578,10 +710,17 @@ async def enrich_brand_brochures(
                     await asyncio.sleep(rate_limit_seconds)
                     continue
 
-                # Filter PDF candidates
-                pdf_candidates = [r for r in results if r.is_pdf]
-                log.debug("    Q='%s' (%s) → %d results, %d PDFs",
-                          q.text[:60], engine, len(results), len(pdf_candidates))
+                # Filter PDF candidates + skip non-English translations
+                pdf_candidates = [
+                    r for r in results
+                    if r.is_pdf and not is_non_english(r.url, r.title)
+                ]
+                skipped_lang = sum(
+                    1 for r in results
+                    if r.is_pdf and is_non_english(r.url, r.title)
+                )
+                log.debug("    Q='%s' (%s) → %d results, %d PDFs (+ %d non-English skipped)",
+                          q.text[:60], engine, len(results), len(pdf_candidates), skipped_lang)
 
                 for r in pdf_candidates:
                     if r.url in seen_urls:

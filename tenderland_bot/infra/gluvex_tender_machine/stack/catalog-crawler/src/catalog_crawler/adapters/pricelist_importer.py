@@ -101,12 +101,34 @@ CATEGORY_MAP: dict[str, str] = {
 }
 
 
-def map_category(section: str) -> tuple[str, str]:
+# Description-level overrides — некоторые позиции в pricelist под заголовком
+# "Systems and Instruments" реально являются spare parts (например "ASSY", "FRU").
+# Distinguishing by description text:
+DESCRIPTION_OVERRIDE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"^\s*(ASSY|ASSEMBLY)\b", re.IGNORECASE), "spare_part"),
+    (re.compile(r"^\s*(FRU|REFURB|USED|SPARE)\b", re.IGNORECASE), "spare_part"),
+    (re.compile(r"^\s*(SUB-ASSY|SUB-ASSEMBLY|REPLACEMENT)\b", re.IGNORECASE), "spare_part"),
+    (re.compile(r"\b(FRU|REPL\.?|SPARE PART)\b", re.IGNORECASE), "spare_part"),
+    (re.compile(r"\bservice contract\b|\bsupport plan\b|\bwarranty\b", re.IGNORECASE), "service"),
+    (re.compile(r"\btraining\b|\bcertification\b|\bcourse\b", re.IGNORECASE), "service"),
+]
+
+
+def map_category(section: str, description: str = "") -> tuple[str, str]:
     """Returns (product_category, subcategory) tuple.
 
     product_category — значение `product_category_t` ENUM (default 'other').
     subcategory — оригинальный section текст (raw, для filtering позже).
+
+    :param section: category header в pricelist
+    :param description: product description (для description-level overrides)
     """
+    # Description-level override (e.g. ASSY в Systems and Instruments)
+    if description:
+        for pat, cat in DESCRIPTION_OVERRIDE_PATTERNS:
+            if pat.search(description):
+                return (cat, section or "")
+
     if not section:
         return ("other", "")
     s = section.lower().strip()
@@ -198,7 +220,7 @@ async def import_pricelist_json(
             model = f"{extracted_model} [{vendor_code}]"[:200]
             display_name = f"{brand} {extracted_model} ({vendor_code})"[:200]
 
-            category, subcategory = map_category(section)
+            category, subcategory = map_category(section, description)
             list_price = it.get("list_price_usd")
             cust_price = it.get("customer_price_usd")
             is_quote = it.get("is_quote_only", False)

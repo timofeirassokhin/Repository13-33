@@ -285,11 +285,18 @@ async def import_pricelist_json(
                 stats["errors"] += 1
                 log.warning("failed for %s: %s", vendor_code, exc)
 
-        # Final audit event
+        # Final audit event (open separate conn — audit_event opens own connection)
+        log.info("DONE. Final stats: %s", stats)
+
+    finally:
+        await conn.close()
+
+    # Audit event после закрытия — audit_event имеет свой conn
+    try:
         await audit_event(
-            conn,
-            event_type="pricelist_imported",
-            actor="pricelist_importer",
+            action="pricelist_imported",
+            actor_type="catalog_crawler",
+            actor_id="pricelist_importer",
             payload={
                 "imported_from": imported_from,
                 "brand": brand,
@@ -298,8 +305,5 @@ async def import_pricelist_json(
                 "stats": stats,
             },
         )
-
-        log.info("DONE. Final stats: %s", stats)
-
-    finally:
-        await conn.close()
+    except Exception as exc:
+        log.warning("audit_event failed: %s", exc)

@@ -51,7 +51,7 @@ from catalog_crawler.settings import Settings
 log = logging.getLogger(__name__)
 
 
-SEARCH_ENGINES = ["serpapi", "bing", "duckduckgo"]
+SEARCH_ENGINES = ["serpapi", "bing", "bing_html", "google_playwright", "duckduckgo"]
 
 
 @dataclass
@@ -291,7 +291,10 @@ async def search_bing(query: str, *, num: int = 10) -> list[SearchResult]:
 
 
 async def search_duckduckgo(query: str, *, num: int = 10) -> list[SearchResult]:
-    """DuckDuckGo HTML scrape — без API ключа."""
+    """DuckDuckGo HTML scrape — без API ключа.
+
+    NB: DDG активно банит серверные IP. Если 403 — переключаемся на bing_html.
+    """
     async with httpx.AsyncClient(timeout=30, follow_redirects=True) as c:
         r = await c.post(
             "https://html.duckduckgo.com/html/",
@@ -324,17 +327,117 @@ async def search_duckduckgo(query: str, *, num: int = 10) -> list[SearchResult]:
     return results
 
 
+async def search_bing_html(query: str, *, num: int = 10) -> list[SearchResult]:
+    """Bing HTML scrape — без API ключа.
+
+    Bing намного terpимее серверных IP чем DuckDuckGo. Хороший first-choice
+    free engine. Парсит результаты из `<li class="b_algo">` блоков.
+    """
+    async with httpx.AsyncClient(timeout=30, follow_redirects=True) as c:
+        r = await c.get(
+            "https://www.bing.com/search",
+            params={"q": query, "count": num, "form": "QBLH"},
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                              "AppleWebKit/537.36 (KHTML, like Gecko) "
+                              "Chrome/130.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-US,en;q=0.9",
+            },
+        )
+    if r.status_code != 200:
+        log.warning("Bing HTML returned %s", r.status_code)
+        return []
+    tree = HTMLParser(r.text)
+    results: list[SearchResult] = []
+    # Bing organic results: <li class="b_algo">
+    for node in tree.css("li.b_algo"):
+        # title link
+        h2_a = node.css_first("h2 a")
+        if h2_a is None:
+            continue
+        href = h2_a.attrs.get("href", "")
+        title = h2_a.text(strip=True)
+        # snippet — <div class="b_caption"><p>
+        snippet_node = node.css_first(".b_caption p")
+        results.append(SearchResult(
+            url=href, title=title,
+            snippet=snippet_node.text(strip=True) if snippet_node else "",
+        ))
+        if len(results) >= num:
+            break
+    return results
+
+
+async def search_google_playwright(query: str, *, num: int = 10) -> list[SearchResult]:
+    """Google search через PlaywrightFetcher + IPRoyal residential proxy.
+
+    Использует наш существующий headless Chromium со stealth. proxy подмешивает
+    residential IP — выглядит как обычный browser у обычного юзера.
+    Требует PROXY_URL env.
+    """
+    if not os.environ.get("PROXY_URL"):
+        return []
+    try:
+        from catalog_crawler.core.playwright_fetcher import PlaywrightFetcher
+    except ImportError:
+        return []
+
+    url = f"https://www.google.com/search?q={httpx.QueryParams({'q': query})['q']}&num={num}"
+    try:
+        async with PlaywrightFetcher(
+            rate_limit_seconds=1.0,
+            block_assets=True,
+            wait_until="domcontentloaded",
+        ) as f:
+            html = await f.get(url)
+    except Exception as exc:
+        log.warning("Google playwright failed: %s", exc)
+        return []
+
+    tree = HTMLParser(html)
+    results: list[SearchResult] = []
+    # Google organic results: <div class="yuRUbf"> contains <a href> with title h3
+    # CSS structure changes; try multiple selectors.
+    for node in tree.css("div.yuRUbf a, div.tF2Cxc a, div.g a"):
+        href = node.attrs.get("href", "")
+        if not href or not href.startswith("http"):
+            continue
+        # Skip Google's own URLs (calculator, etc.)
+        if "google.com" in href.lower():
+            continue
+        h3 = node.css_first("h3")
+        title = h3.text(strip=True) if h3 else node.text(strip=True)[:120]
+        if not title or len(title) < 5:
+            continue
+        results.append(SearchResult(url=href, title=title))
+        if len(results) >= num:
+            break
+    return results
+
+
 async def search_any(query: str, *, num: int = 10) -> tuple[list[SearchResult], str]:
-    """Возвращает (results, engine_used)."""
+    """Возвращает (results, engine_used). Auto-fallback по списку SEARCH_ENGINES.
+
+    Порядок: serpapi → bing(api) → bing_html → google_playwright → duckduckgo.
+    Серверные IP banятся DuckDuckGo, поэтому он fallback-of-last-resort.
+    """
     for engine in SEARCH_ENGINES:
         try:
             if engine == "serpapi":
                 r = await search_serpapi(query, num=num)
             elif engine == "bing":
                 r = await search_bing(query, num=num)
-            else:
+            elif engine == "bing_html":
+                r = await search_bing_html(query, num=num)
+            elif engine == "google_playwright":
+                r = await search_google_playwright(query, num=num)
+            elif engine == "duckduckgo":
                 r = await search_duckduckgo(query, num=num)
+            else:
+                r = []
             if r:
+                log.debug("engine=%s returned %d", engine, len(r))
                 return r, engine
         except Exception as exc:
             log.warning("search %s failed: %s", engine, exc)

@@ -37,7 +37,22 @@ log = logging.getLogger(__name__)
 # Все остальные категории → 'other' (попадают как stub с category_section в metadata).
 
 CATEGORY_MAP: dict[str, str] = {
-    # Главные приборы
+    # === RU группы из 1С прайслистов Glüvex ===
+    "оборудование": "sequencer_platform",       # generic instruments group
+    "приборы": "sequencer_platform",
+    "расходные материалы": "consumable",
+    "расходники": "consumable",
+    "реагенты": "ngs_library_prep_kit",          # default for reagent group
+    "запасные части": "spare_part",
+    "запчасти": "spare_part",
+    "аксессуары": "accessory",
+    "программное обеспечение": "software",
+    "по": "software",
+    "сервис": "service",
+    "услуги": "service",
+    "обучение": "service",
+    "сервисный контракт": "service",
+    # === EN: главные приборы ===
     "systems and instruments": "sequencer_platform",
     "instruments": "sequencer_platform",
     "sequencer": "sequencer_platform",
@@ -192,11 +207,15 @@ async def import_pricelist_json(
     if dry_run:
         log.info("DRY-RUN — first 5 records preview:")
         for it in items[:5]:
-            cat, sub = map_category(it.get("category_section", ""))
-            model = extract_model(it.get("description", ""))
-            log.info("  vendor_code=%s model=%r category=%s section=%r price=%s",
-                     it["catalog_number"], model, cat, sub,
-                     it.get("customer_price_usd"))
+            desc = it.get("description") or it.get("description_ru", "")
+            cat, sub = map_category(it.get("category_section", ""), desc)
+            model = extract_model(desc)
+            price = (it.get("price_sale") or it.get("customer_price_usd")
+                     or it.get("price_purchase") or it.get("list_price_usd"))
+            log.info("  vendor_code=%s brand=%s model=%r category=%s section=%r price=%s %s country=%s РУ=%s",
+                     it["catalog_number"], it.get("brand", "?"),
+                     model, cat, sub, price, it.get("currency", ""),
+                     it.get("manufacturer_country", ""), it.get("ru_number", ""))
         return
 
     conn: asyncpg.Connection = await get_conn()
@@ -212,31 +231,70 @@ async def import_pricelist_json(
         for it in items:
             vendor_code = it["catalog_number"]
             description = (it.get("description") or "").strip()
+            description_ru = (it.get("description_ru") or "").strip()
             section = it.get("category_section", "")
-            extracted_model = extract_model(description) or vendor_code
+            # Per-row brand from XLSX (если разные бренды в одном файле),
+            # fallback на CLI-аргумент `brand`
+            row_brand = (it.get("brand") or "").strip() or brand
+            extracted_model = extract_model(description) or extract_model(description_ru) or vendor_code
             # Unique constraint в БД на (tenant_id, brand, model). Каждый
             # vendor_code — отдельный товар → append vendor_code в model:
             # "AmpliSeq Library PLUS [20019101]" — гарантирует уникальность.
             model = f"{extracted_model} [{vendor_code}]"[:200]
-            display_name = f"{brand} {extracted_model} ({vendor_code})"[:200]
+            display_name = f"{row_brand} {extracted_model} ({vendor_code})"[:200]
 
-            category, subcategory = map_category(section, description)
+            # Combined description: EN сначала, потом RU в скобках (для tender матча)
+            combined_desc = description
+            if description_ru and description_ru != description:
+                combined_desc = f"{description} | RU: {description_ru}".strip(" |") if description else description_ru
+
+            category, subcategory = map_category(section, description or description_ru)
+
+            # ScientiGen-PDF style price fields (legacy)
             list_price = it.get("list_price_usd")
             cust_price = it.get("customer_price_usd")
+            # Glüvex-XLSX style fields (новый формат)
+            price_purchase = it.get("price_purchase")
+            price_sale = it.get("price_sale")
+            currency = it.get("currency", "")
+            vat = it.get("vat", "")
+            unit = it.get("unit", "")
+            manufacturer_country = it.get("manufacturer_country", "")
+            row_distributor = it.get("distributor", "") or distributor_name
+            supplier_inn = it.get("supplier_inn", "")
+            ru_number = (it.get("ru_number") or "").strip()
+
             is_quote = it.get("is_quote_only", False)
             page = it.get("page", 0)
 
             metadata = {
+                # legacy ScientiGen PDF fields
                 "list_price_usd": list_price,
                 "customer_price_usd": cust_price,
+                # new Glüvex 1С XLSX fields
+                "price_purchase": price_purchase,
+                "price_sale": price_sale,
+                "currency": currency,
+                "vat": vat,
+                "unit": unit,
+                "description_ru": description_ru,
+                "supplier_inn": supplier_inn,
+                # common
                 "is_quote_only": is_quote,
                 "source_pdf": data.get("source_pdf", ""),
+                "source_xlsx": data.get("source_xlsx", ""),
                 "source_page": page,
                 "category_section": section,
-                "distributor": distributor_name,
+                "distributor": row_distributor,
                 "stub_from_pricelist": True,
                 "needs_brochure": True,
             }
+            # Чистим None'ы из metadata (jsonb не любит)
+            metadata = {k: v for k, v in metadata.items() if v not in (None, "")}
+
+            # ru_status — если есть номер РУ → 'active' (предположение, можно
+            # позже уточнить через проверку Росздравнадзора)
+            ru_status_value = "active" if ru_number else "none"
 
             try:
                 # UPSERT через (tenant_id, brand, vendor_code) — если уже есть запись
@@ -249,7 +307,7 @@ async def import_pricelist_json(
                     WHERE tenant_id = $1 AND brand = $2 AND vendor_code = $3
                     LIMIT 1
                     """,
-                    tenant_id, brand, vendor_code,
+                    tenant_id, row_brand, vendor_code,
                 )
 
                 if existing:
@@ -270,12 +328,16 @@ async def import_pricelist_json(
                             category = $5::product_category_t,
                             subcategory = $6,
                             metadata = $7::jsonb,
+                            ru_number = COALESCE(NULLIF($8, ''), ru_number),
+                            ru_status = CASE WHEN $8 != '' THEN $9::ru_status_t ELSE ru_status END,
+                            manufacturer_country = COALESCE(NULLIF($10, ''), manufacturer_country),
                             updated_at = now()
                         WHERE id = $1
                         """,
                         existing["id"],
-                        model, display_name, description, category, subcategory,
+                        model, display_name, combined_desc, category, subcategory,
                         json.dumps(merged_metadata, ensure_ascii=False),
+                        ru_number, ru_status_value, manufacturer_country,
                     )
                     stats["updated"] += 1
                 else:
@@ -286,20 +348,23 @@ async def import_pricelist_json(
                             display_name, description,
                             category, subcategory, domain,
                             metadata, source_urls,
+                            ru_status, ru_number, manufacturer_country,
                             imported_at, imported_from
                         ) VALUES (
                             $1, $2, $3, $4,
                             $5, $6,
                             $7::product_category_t, $8, $9::product_domain_t,
                             $10, $11,
-                            now(), $12
+                            $12::ru_status_t, $13, $14,
+                            now(), $15
                         )
                         """,
-                        tenant_id, brand, model, vendor_code,
-                        display_name, description,
+                        tenant_id, row_brand, model, vendor_code,
+                        display_name, combined_desc,
                         category, subcategory, "genetics_ngs",
                         json.dumps(metadata, ensure_ascii=False),
-                        [data.get("source_pdf", "")],
+                        [data.get("source_pdf", "") or data.get("source_xlsx", "")],
+                        ru_status_value, ru_number or None, manufacturer_country or None,
                         imported_from,
                     )
                     stats["inserted"] += 1
@@ -328,6 +393,7 @@ async def import_pricelist_json(
                 "brand": brand,
                 "distributor": distributor_name,
                 "source_pdf": data.get("source_pdf", ""),
+                "source_xlsx": data.get("source_xlsx", ""),
                 "stats": stats,
             },
         )

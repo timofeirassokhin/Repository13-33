@@ -1178,6 +1178,48 @@ def gluvex_products(
     asyncio.run(crawl_products(settings, limit=limit, sitemap_shards=shard_list))
 
 
+@app.command("brochure-stats")
+def brochure_stats_cmd(
+    brand: str = typer.Option("", help="Filter by brand (например Illumina)"),
+):
+    """Quick monitoring: сколько продуктов в БД, сколько с datasheet файлами.
+
+    Группирует по brand × category. Полезно во время длительного brochure-web
+    crawl чтобы видеть прогресс live.
+
+    Пример:
+        docker compose run --rm catalog-crawler brochure-stats --brand Illumina
+    """
+    async def _run():
+        from catalog_crawler.core.db import get_conn
+        conn = await get_conn()
+        try:
+            where = "WHERE 1=1"
+            args = []
+            if brand:
+                where += " AND brand = $1"
+                args.append(brand)
+            rows = await conn.fetch(f"""
+                SELECT brand, category,
+                       COUNT(*) AS total,
+                       COUNT(*) FILTER (WHERE array_length(datasheet_paths,1) > 0) AS with_files,
+                       COUNT(*) FILTER (WHERE updated_at > now() - interval '30 minutes') AS updated_30min
+                FROM product {where}
+                GROUP BY brand, category
+                ORDER BY brand, total DESC
+            """, *args)
+            print(f"{'brand':<25} {'category':<28} {'total':>8} {'with_files':>12} {'updated_30m':>12}")
+            print("-" * 95)
+            for r in rows:
+                print(f"{(r['brand'] or '')[:24]:<25} "
+                      f"{(r['category'] or 'NULL')[:27]:<28} "
+                      f"{r['total']:>8} {r['with_files']:>12} {r['updated_30min']:>12}")
+        finally:
+            await conn.close()
+
+    asyncio.run(_run())
+
+
 @app.command("ping")
 def ping():
     """Проверка коннектов к Postgres / MinIO."""

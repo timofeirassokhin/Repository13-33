@@ -56,13 +56,13 @@ class PriceItem:
 
 # Канонические ключи. Заголовки в Excel могут быть с пробелами/регистром.
 HEADER_ALIASES: dict[str, list[str]] = {
-    "catalog_number":         ["артикул", "артикул производителя", "catalog", "catalog #", "номер артикула", "код товара", "code"],
-    "description_ru":         ["наименование на русском", "наименование ru", "наименование товара", "наименование рус", "наименование", "название ru", "название на русском", "название"],
-    "description":            ["наименование на английском", "наименование en", "наименование eng", "наименование англ", "name en", "наименование (en)", "название на английском", "english name"],
+    "catalog_number":         ["артикул", "артикул производителя", "item", "item no", "item number", "catalog", "catalog #", "номер артикула", "код товара", "code"],
+    "description_ru":         ["наименование на русском", "наименование ru", "наименование товара", "наименование рус", "наименование", "наименование для печати", "название ru", "название на русском", "название"],
+    "description":            ["наименование на английском", "наименование en", "наименование eng", "наименование англ", "name en", "наименование (en)", "название на английском", "english name", "model", "desciption", "description"],
     "brand":                  ["производитель", "бренд", "manufacturer", "brand"],
     "currency":               ["валюта производителя", "валюта", "currency"],
-    "price_purchase":         ["цена закупки", "цена закупочная", "purchase price"],
-    "price_sale":             ["цена продажи/ррц с ндс22%", "цена продажи ррц с ндс", "цена продажи с ндс", "цена продажи", "ррц с ндс", "ррц", "розничная цена", "sale price"],
+    "price_purchase":         ["цена закупки с ндс", "цена закупки", "цена закупочная", "входящая цена", "входящая цена, chf", "purchase price"],
+    "price_sale":             ["цена продажи/ррц с ндс22%", "цена продажи ррц с ндс", "цена продажи с ндс", "цена продажи", "цена для клиента, chf", "цена для клиента", "ррц с ндс", "ррц", "розничная цена", "sale price"],
     "vat":                    ["ндс", "vat", "tax"],
     "unit":                   ["единица измерения", "единица", "ед. изм.", "unit"],
     "manufacturer_country":   ["страна происхождения", "страна", "country", "origin"],
@@ -195,7 +195,8 @@ def parse_xlsx(xlsx_path: Path) -> tuple[list[PriceItem], dict]:
         if non_empty >= 4:
             # Эвристика: содержит "артикул" или "наименование" или "производитель"
             row_lower = " ".join(str(c or "").lower() for c in row)
-            if "артикул" in row_lower or "наименование" in row_lower or "производитель" in row_lower:
+            if ("артикул" in row_lower or "наименование" in row_lower or "производитель" in row_lower
+                or ("item" in row_lower and ("desc" in row_lower or "цена" in row_lower or "price" in row_lower))):
                 headers = [str(c or "").strip() for c in row]
                 header_row_idx = i
                 break

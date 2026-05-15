@@ -84,6 +84,10 @@ def brochure_web_cmd(
         "", "--category",
         help="Filter по product_category_t (sequencer_platform/ngs_target_capture_panel/...)",
     ),
+    categories: str = typer.Option(
+        "", "--categories",
+        help="Comma-separated list categories (e.g. 'hplc_system,gc_system,mass_spectrometer')",
+    ),
     include_with_existing: bool = typer.Option(
         False, "--include-existing",
         help="Включать продукты у которых уже есть datasheets (для дополнения)",
@@ -121,10 +125,12 @@ def brochure_web_cmd(
       docker compose run --rm catalog-crawler brochure-web 'Illumina'
     """
     from catalog_crawler.adapters.brochure_web_search import enrich_brand_brochures
+    cats_list = [c.strip() for c in categories.split(",") if c.strip()] if categories else None
     asyncio.run(enrich_brand_brochures(
         settings, brand=brand, limit=limit,
         rate_limit_seconds=rate_limit, max_pdfs_per_product=max_pdfs,
         category_filter=category or None,
+        categories_filter=cats_list,
         only_no_datasheet=not include_with_existing,
     ))
 

@@ -633,6 +633,7 @@ async def enrich_brand_brochures(
     rate_limit_seconds: float = 3.0,
     max_pdfs_per_product: int = 5,
     category_filter: str | None = None,
+    categories_filter: list[str] | None = None,
     only_no_datasheet: bool = True,
 ):
     """Многократный поиск брошюр для всех продуктов бренда через интернет.
@@ -656,8 +657,13 @@ async def enrich_brand_brochures(
         args: list[Any] = [brand]
         if only_no_datasheet:
             sql += "\nAND (datasheet_paths IS NULL OR array_length(datasheet_paths, 1) IS NULL)"
-        if category_filter:
-            sql += f"\nAND category = $2::product_category_t"
+        if categories_filter:
+            # Multi-category filter (--categories cat1,cat2,cat3)
+            placeholders = ",".join(f"${len(args)+i+1}::product_category_t" for i in range(len(categories_filter)))
+            sql += f"\nAND category IN ({placeholders})"
+            args.extend(categories_filter)
+        elif category_filter:
+            sql += f"\nAND category = ${len(args)+1}::product_category_t"
             args.append(category_filter)
         sql += "\nORDER BY id"
         if limit and limit > 0:

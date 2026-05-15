@@ -51,7 +51,14 @@ from catalog_crawler.settings import Settings
 log = logging.getLogger(__name__)
 
 
-SEARCH_ENGINES = ["serpapi", "bing", "bing_html", "google_playwright", "duckduckgo"]
+# Order matters — каждый query пробует engines sequentially.
+# DuckDuckGo возвращает HTTP 202 (rate-limit) на серверный IP — пропускаем default.
+# Bing HTML работает без API и хорошо терпит серверные IP — основной free engine.
+# google_playwright требует PROXY_URL — только когда set.
+# Включить DDG: SEARCH_ENGINES_INCLUDE_DDG=1 env (для регионов где DDG не banned).
+SEARCH_ENGINES = ["serpapi", "bing", "bing_html", "google_playwright"]
+if os.environ.get("SEARCH_ENGINES_INCLUDE_DDG", "").lower() in ("1", "true", "yes"):
+    SEARCH_ENGINES.append("duckduckgo")
 
 
 @dataclass

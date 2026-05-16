@@ -205,6 +205,20 @@ VENDOR_CONFIGS: dict[str, VendorSearchConfig] = {
         distributor_sites=[],
         search_brand_names=["HTA", "HTA Italia"],
     ),
+    "SOTAX": VendorSearchConfig(
+        brand="SOTAX",
+        brand_slug="sotax",
+        vendor_sites=["sotax.com"],
+        distributor_sites=[],
+        search_brand_names=["SOTAX", "Sotax"],
+    ),
+    "TopAir Systems": VendorSearchConfig(
+        brand="TopAir Systems",
+        brand_slug="topair",
+        vendor_sites=["topairsystems.com"],
+        distributor_sites=[],
+        search_brand_names=["TopAir", "TopAir Systems"],
+    ),
     "Genemind": VendorSearchConfig(
         brand="Genemind",
         brand_slug="genemind",

@@ -56,13 +56,13 @@ class PriceItem:
 
 # Канонические ключи. Заголовки в Excel могут быть с пробелами/регистром.
 HEADER_ALIASES: dict[str, list[str]] = {
-    "catalog_number":         ["артикул", "артикул производителя", "item", "item no", "item number", "article", "catalog", "catalog #", "номер артикула", "код товара", "code"],
+    "catalog_number":         ["артикул", "артикул производителя", "item", "item no", "item number", "article", "sales part no", "part no", "part number", "catalog", "catalog #", "номер артикула", "код товара", "code"],
     "description_ru":         ["наименование на русском", "наименование ru", "наименование товара", "наименование рус", "наименование", "наименование для печати", "название ru", "название на русском", "название"],
-    "description":            ["наименование на английском", "наименование en", "наименование eng", "наименование англ", "name en", "наименование (en)", "название на английском", "english name", "рабочее наименование", "model", "desciption", "description", "name"],
+    "description":            ["наименование на английском", "наименование en", "наименование eng", "наименование англ", "name en", "наименование (en)", "название на английском", "english name", "рабочее наименование", "sales part no description", "part description", "model", "desciption", "description", "name"],
     "brand":                  ["производитель", "бренд", "manufacturer", "brand"],
     "currency":               ["валюта производителя", "валюта", "currency"],
-    "price_purchase":         ["цена закупки с ндс", "цена закупки", "цена закупочная", "цена поставщика", "цена поставщика, евро, без ндс", "входящая цена", "входящая цена, chf", "вендат price with vat, rmb", "purchase price"],
-    "price_sale":             ["цена продажи/ррц с ндс22%", "цена продажи ррц с ндс", "цена продажи с ндс", "цена продажи", "ррц евро, включая ндс 20%", "ррц евро", "цена глювекс с ндс, rbm", "цена для клиента, chf", "цена для клиента", "ррц с ндс", "ррц", "розничная цена", "sale price"],
+    "price_purchase":         ["цена закупки с ндс", "цена закупки", "цена закупочная", "цена поставщика", "цена поставщика, евро, без ндс", "transfer price", " transfer  price ", "входящая цена", "входящая цена, chf", "вендат price with vat, rmb", "purchase price"],
+    "price_sale":             ["цена продажи/ррц с ндс22%", "цена продажи ррц с ндс", "цена продажи с ндс", "цена продажи", "цена продажи usd", "ррц евро, включая ндс 20%", "ррц евро", "ррц ", "ррц", "sales price", "цена глювекс с ндс, rbm", "цена для клиента, chf", "цена для клиента", "ррц с ндс", "розничная цена", "list price", "sale price"],
     "vat":                    ["ндс", "vat", "tax"],
     "unit":                   ["единица измерения", "единица", "ед. изм.", "unit"],
     "manufacturer_country":   ["страна происхождения", "страна", "country", "origin"],
@@ -211,6 +211,7 @@ def parse_csv(csv_path: Path) -> tuple[list[PriceItem], dict]:
             if ("артикул" in row_lower or "наименование" in row_lower
                 or "производитель" in row_lower
                 or ("article" in row_lower and ("name" in row_lower or "price" in row_lower))
+                or ("part no" in row_lower and ("desc" in row_lower or "price" in row_lower or "цена" in row_lower))
                 or ("item" in row_lower and ("desc" in row_lower or "price" in row_lower or "цена" in row_lower))):
                 headers = [str(c or "").strip() for c in row]
                 header_row_idx = i

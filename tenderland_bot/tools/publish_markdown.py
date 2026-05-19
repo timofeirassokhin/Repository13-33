@@ -61,13 +61,8 @@ async def main() -> int:
         database=os.environ["PG_DB"],
     )
 
-    # Ensure markdown_paths column exists
-    if not args.dry_run:
-        await conn.execute("""
-            ALTER TABLE product
-            ADD COLUMN IF NOT EXISTS markdown_paths TEXT[]
-        """)
-        log.info("ensured markdown_paths column exists")
+    # markdown_paths column must already exist (run as postgres user):
+    #   ALTER TABLE product ADD COLUMN IF NOT EXISTS markdown_paths TEXT[];
 
     stats = {"uploaded": 0, "products_updated": 0, "links": 0}
 

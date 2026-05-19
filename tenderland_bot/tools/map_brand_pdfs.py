@@ -72,7 +72,10 @@ async def main() -> int:
             else:
                 pdf_pat = val
                 prod_pat = val
-            family_pdf_patterns[tok] = re.compile(pdf_pat, re.IGNORECASE)
+            # Python regex doesn't support \m \M (POSIX word boundaries used by PostgreSQL).
+            # Translate them to \b for the Python-side filename match.
+            py_pdf_pat = pdf_pat.replace(r"\m", r"\b").replace(r"\M", r"\b")
+            family_pdf_patterns[tok] = re.compile(py_pdf_pat, re.IGNORECASE)
             family_product_regexes[tok] = prod_pat
 
     if args.families_file:

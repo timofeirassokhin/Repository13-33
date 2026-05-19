@@ -1,0 +1,20 @@
+{
+  "HPPeco": "HPPeco|HPP eco|HPP-eco",
+  "IPPeco": "IPPeco|IPP eco|IPP-eco",
+  "HPP": "\\bHPP\\b|constant climate chamber",
+  "IPP": "\\bIPP\\b|peltier|Peltier",
+  "ICO": "\\bICO\\b|CO2 incubator|CO₂ incubator|co2-incubator",
+  "ICOmed": "ICOmed|ICOMed",
+  "ICH": "\\bICH\\b|humidity chamber",
+  "Water bath WTB": "water bath|waterbath|\\bWTB\\b|WNB|WNE",
+  "Universal Oven U": "Universal Oven|UNiversal-oven|universal-oven|\\bUF\\b|\\bUN\\b|\\bUM\\b",
+  "Sterilizer S": "[Ss]terili[sz]er|steriliser|\\bSN\\b|\\bSF\\b",
+  "Incubator I": "\\bincubator\\b|\\bIN\\b|\\bINE\\b|\\bINF\\b|\\bINP\\b|\\bIF\\b",
+  "Vacuum Oven VO": "[Vv]acuum oven|\\bVO\\b|\\bVOcool\\b",
+  "TESTA": "TESTA",
+  "m360": "m360|AtmoCONTROL|Atmosafe",
+  "myChamber": "myChamber",
+  "Paraffin": "[Pp]araffin",
+  "Environmental": "environmental test|[Cc]limate chamber|CTC|TTC",
+  "Memmert": "Memmert|memmert"
+}

@@ -1,14 +1,14 @@
 {
   "HPTLC PRO": "HPTLC[ -]?PRO",
   "visionCATS": "visionCATS|vision CATS",
-  "TLC-MS": "TLC[ -]?MS",
-  "TLC Visualizer": "TLC[ -]?Visualizer",
-  "TLC Scanner": "TLC[ -]?Scanner",
+  "TLC-MS": "TLC[ _-]?MS",
+  "TLC Visualizer": "TLC[ _-]?Visualizer|Visualizer",
+  "TLC Scanner": "TLC[ _-]?Scanner|Scanner ?[34]",
   "Derivatizer": "Derivatizer",
-  "AMD": "\\bAMD2?\\b|Automated Multiple Development",
-  "ADC": "\\bADC3?\\b|Auto.*Developing Chamber",
+  "AMD": "AMD[12]|Automated Multiple Development",
+  "ADC": "ADC[23]|Auto.*Developing Chamber",
   "Linomat": "Linomat",
-  "ATS": "\\bATS\\s*4\\b|Auto.*TLC.*Sampler",
+  "ATS": "ATS[ _]?[34]|Auto.*TLC.*Sampler",
   "HPTLC": "HPTLC",
-  "TLC": "\\bTLC\\b"
+  "TLC": "(?<![A-Za-z])TLC(?![A-Za-z])"
 }

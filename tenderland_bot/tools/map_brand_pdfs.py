@@ -57,16 +57,28 @@ async def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    # Load family patterns
-    family_patterns: dict[str, re.Pattern[str]] = {}
+    # Load family patterns. Each entry may be:
+    #   "Family": "regex"                  — same regex for filename + product DB search
+    #   "Family": {"pdf": "...", "product": "..."}  — separate regexes
+    # The product regex is converted to PostgreSQL ~* (case-insensitive POSIX).
+    family_pdf_patterns: dict[str, re.Pattern[str]] = {}
+    family_product_regexes: dict[str, str] = {}
+
+    def _load(cfg: dict):
+        for tok, val in cfg.items():
+            if isinstance(val, dict):
+                pdf_pat = val.get("pdf") or val.get("filename") or tok
+                prod_pat = val.get("product") or val.get("description") or pdf_pat
+            else:
+                pdf_pat = val
+                prod_pat = val
+            family_pdf_patterns[tok] = re.compile(pdf_pat, re.IGNORECASE)
+            family_product_regexes[tok] = prod_pat
+
     if args.families_file:
-        cfg = json.loads(Path(args.families_file).read_text(encoding="utf-8"))
-        for tok, pat in cfg.items():
-            family_patterns[tok] = re.compile(pat, re.IGNORECASE)
+        _load(json.loads(Path(args.families_file).read_text(encoding="utf-8")))
     if args.families:
-        cfg = json.loads(args.families)
-        for tok, pat in cfg.items():
-            family_patterns[tok] = re.compile(pat, re.IGNORECASE)
+        _load(json.loads(args.families))
 
     pdf_dir = Path(args.pdf_dir)
     pdfs = sorted(pdf_dir.glob("*.pdf"))
@@ -97,8 +109,8 @@ async def main() -> int:
     for pdf in pdfs:
         title = pdf.stem
         # Determine families
-        if family_patterns:
-            matched = [tok for tok, pat in family_patterns.items()
+        if family_pdf_patterns:
+            matched = [tok for tok, pat in family_pdf_patterns.items()
                        if pat.search(title)]
         else:
             matched = family_from_filename(pdf)
@@ -121,14 +133,15 @@ async def main() -> int:
         log.info("  %s → families=%s", pdf.name, matched)
 
         for family in matched:
-            pattern = f"%{family}%"
+            # Use product regex (POSIX ~*) instead of literal ILIKE
+            prod_regex = family_product_regexes.get(family, family)
             rows = await conn.fetch(
                 """
                 SELECT id FROM product
                 WHERE brand = $1
-                  AND (description ILIKE $2 OR model ILIKE $2 OR display_name ILIKE $2)
+                  AND (description ~* $2 OR model ~* $2 OR display_name ~* $2)
                 """,
-                args.brand, pattern,
+                args.brand, prod_regex,
             )
             if not rows:
                 log.info("    family=%r → 0 SKUs matched", family)

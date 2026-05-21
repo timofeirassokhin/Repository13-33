@@ -34,25 +34,96 @@ def _format_product_line(p: Product, idx: int) -> str:
     return " ".join(parts)
 
 
+_SPEC_SKIP = {"summary_ru", "product_name", "name", "model", "manufacturer",
+              "instrument_type", "product_type", "brand", "source_confidence", "ingest"}
+
+
+def _fmt_val(v: Any) -> str:
+    if isinstance(v, bool):
+        return "да" if v else "нет"
+    if isinstance(v, list):
+        if len(v) == 2 and all(isinstance(x, (int, float)) for x in v):
+            return f"{v[0]}–{v[1]}"
+        return ", ".join(str(x) for x in v[:12])
+    if isinstance(v, dict):
+        return ", ".join(f"{k}: {x}" for k, x in list(v.items())[:8])
+    return str(v)
+
+
+def _format_specs(specs: dict) -> list[str]:
+    """Рендер base_specs в читаемые строки карточки."""
+    lines: list[str] = []
+    summ = specs.get("summary_ru")
+    if summ:
+        lines.append(f"<i>{str(summ)[:550]}</i>")
+    body: list[str] = []
+    for k, v in specs.items():
+        if k in _SPEC_SKIP or k in ("applications", "catalog_numbers"):
+            continue
+        if v in (None, "", [], {}):
+            continue
+        body.append(f"• <b>{k.replace('_', ' ')}:</b> {_fmt_val(v)}")
+    if body:
+        lines.append("")
+        lines.append("<b>Характеристики:</b>")
+        lines.extend(body[:24])
+    apps = specs.get("applications")
+    if apps:
+        lines.append("")
+        lines.append(f"🔬 <b>Применения:</b> {_fmt_val(apps)}")
+    cats = specs.get("catalog_numbers")
+    if cats:
+        lines.append(f"🔖 <b>Каталожные №:</b> {_fmt_val(cats)[:240]}")
+    return lines
+
+
+def _format_product_card(p: Product) -> str:
+    """Полная карточка позиции: шапка + характеристики/описание + datasheet."""
+    lines = [f"<b>{p.brand}</b> — <b>{p.model}</b>"]
+    if p.display_name and p.display_name.lower() != p.model.lower():
+        lines.append(p.display_name[:140])
+    meta = [f"кат: <code>{p.category}</code>"]
+    if p.vendor_code:
+        meta.append(f"арт: <code>{p.vendor_code}</code>")
+    if p.ru_status == "active" and p.ru_number:
+        meta.append(f"🇷🇺 РУ {p.ru_number}")
+    lines.append(" · ".join(meta))
+    if p.base_specs:
+        lines += _format_specs(p.base_specs)
+    elif p.description:
+        lines.append("")
+        lines.append(f"<i>{p.description[:450]}</i>")
+    if p.pdf_count:
+        lines.append("")
+        lines.append(f"📄 datasheet: {p.pdf_count}")
+    return "\n".join(lines)
+
+
 def _build_results_text(intent: dict[str, Any], products: list[Product], total: int) -> str:
     lines = []
     expl = intent.get("explanation_ru") or "Обработал запрос"
     lines.append(f"🔍 <i>{expl}</i>")
-    lines.append("")
 
     if not products:
+        lines.append("")
         lines.append("<b>Ничего не нашёл.</b>")
         lines.append("")
         lines.append("Попробуй переформулировать или /brands чтобы посмотреть что есть.")
         return "\n".join(lines)
 
-    if total > len(products):
-        lines.append(f"<b>Нашёл {total} записей, показываю {len(products)}:</b>")
-    else:
-        lines.append(f"<b>Нашёл {total} {'запись' if total == 1 else ('записи' if 2 <= total <= 4 else 'записей')}:</b>")
+    cnt = (f"Нашёл {total} записей, показываю {len(products)}" if total > len(products)
+           else f"Нашёл {total} {'запись' if total == 1 else ('записи' if 2 <= total <= 4 else 'записей')}")
+    lines.append(f"<b>{cnt}.</b>")
     lines.append("")
-    for i, p in enumerate(products, 1):
-        lines.append(_format_product_line(p, i))
+    # топ-результат — полная карточка с характеристиками
+    lines.append(_format_product_card(products[0]))
+    # остальные — кратким списком (карточку можно открыть кнопкой «детали»)
+    rest = products[1:]
+    if rest:
+        lines.append("")
+        lines.append(f"<b>Ещё {len(rest)} — нажми «детали» для карточки:</b>")
+        for i, p in enumerate(rest[:8], 2):
+            lines.append(_format_product_line(p, i))
 
     return "\n".join(lines)
 
@@ -161,7 +232,7 @@ async def on_text(
 
     text_out = _build_results_text(intent, products, total)
     kb = _build_keyboard(products, page=0, has_more=total > limit) if products else None
-    await msg.answer(text_out, reply_markup=kb, disable_web_page_preview=True)
+    await msg.answer(text_out[:4000], reply_markup=kb, disable_web_page_preview=True)
 
     # если LLM явно сказал send_pdfs — отдаём сразу
     if send_pdfs and products:
@@ -219,30 +290,17 @@ async def cb_product_details(cb: CallbackQuery, db: DB, storage: Storage, settin
     if not product:
         await cb.answer("Не найдено")
         return
-    lines = [
-        f"<b>{product.brand}</b>",
-        f"<b>Модель:</b> {product.model}",
-    ]
-    if product.display_name and product.display_name != product.model:
-        lines.append(f"<b>Название:</b> {product.display_name}")
-    lines.append(f"<b>Категория:</b> <code>{product.category}</code>")
+    card = _format_product_card(product)
+    extra = []
     if product.subcategory:
-        lines.append(f"<b>Подкатегория:</b> {product.subcategory}")
-    if product.vendor_code:
-        lines.append(f"<b>Артикул:</b> <code>{product.vendor_code}</code>")
-    if product.ru_number:
-        lines.append(f"<b>РУ:</b> {product.ru_number} ({product.ru_status})")
-    if product.description:
-        lines.append("")
-        desc = product.description[:600]
-        lines.append(desc)
+        extra.append(f"<b>Подкатегория:</b> {product.subcategory}")
     if product.source_urls:
-        lines.append("")
-        lines.append(f"<a href=\"{product.source_urls[0]}\">Источник →</a>")
+        extra.append(f"<a href=\"{product.source_urls[0]}\">Источник →</a>")
     if product.imported_from:
-        lines.append(f"<i>(импорт: {product.imported_from})</i>")
+        extra.append(f"<i>(импорт: {product.imported_from})</i>")
+    text = card + ("\n\n" + "\n".join(extra) if extra else "")
     assert cb.message is not None
-    await cb.message.answer("\n".join(lines), disable_web_page_preview=True)
+    await cb.message.answer(text[:4000], disable_web_page_preview=True)
 
     # отдаём PDF если есть
     if product.datasheet_paths:

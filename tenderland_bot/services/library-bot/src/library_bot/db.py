@@ -1,6 +1,7 @@
 """Postgres-слой бота (asyncpg). Read-only access к таблице product."""
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
@@ -27,6 +28,7 @@ class Product:
     ru_number: str | None
     ru_status: str
     imported_from: str | None
+    base_specs: dict | None = None
 
     @property
     def pdf_count(self) -> int:
@@ -191,7 +193,7 @@ class DB:
             "domain::text AS domain, subcategory, description, "
             "COALESCE(datasheet_paths, ARRAY[]::text[]) AS datasheet_paths, "
             "COALESCE(source_urls, ARRAY[]::text[]) AS source_urls, "
-            "ru_number, ru_status::text AS ru_status, imported_from, "
+            "ru_number, ru_status::text AS ru_status, imported_from, base_specs, "
             f"{keyword_score_sql} AS _kw_score "
             f"FROM product {where} "
             "ORDER BY _kw_score DESC, "
@@ -260,7 +262,7 @@ class DB:
                    domain::text AS domain, subcategory, description,
                    COALESCE(datasheet_paths, ARRAY[]::text[]) AS datasheet_paths,
                    COALESCE(source_urls, ARRAY[]::text[]) AS source_urls,
-                   ru_number, ru_status::text AS ru_status, imported_from
+                   ru_number, ru_status::text AS ru_status, imported_from, base_specs
             FROM product WHERE id = $1
             """,
             product_id,
@@ -284,4 +286,19 @@ class DB:
             ru_number=r["ru_number"],
             ru_status=r["ru_status"],
             imported_from=r["imported_from"],
+            base_specs=DB._parse_specs(r.get("base_specs")),
         )
+
+    @staticmethod
+    def _parse_specs(v: Any) -> dict | None:
+        if v is None:
+            return None
+        if isinstance(v, dict):
+            return v or None
+        if isinstance(v, str):
+            try:
+                d = json.loads(v)
+                return d or None
+            except Exception:
+                return None
+        return None

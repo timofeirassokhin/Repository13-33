@@ -453,6 +453,30 @@ services:
       retries: 5
       start_period: 30s
 
+  # ============================================================
+  # catalog-mcp — universal MCP server over catalog + RAG (для агентов)
+  # ============================================================
+  # 10 read-only tools: семантика/FTS, поиск+фильтр по base_specs, карточки,
+  # секвенаторный конфигуратор, OEM/РУ, обзор каталога. Эндпоинт /mcp на :8090.
+  catalog-mcp:
+    build: ../../../services/catalog-mcp
+    image: gluvex-catalog-mcp
+    container_name: catalog-mcp
+    restart: unless-stopped
+    environment:
+      PGHOST: app-db
+      PGUSER: postgres
+      PGPASSWORD: ${APP_DB_PASSWORD}
+      PGDATABASE: gluvex_documents
+      MEMPALACE_URL: http://mempalace-gluvex:8080
+      MCP_TRANSPORT: http
+      MCP_PORT: "8090"
+    networks:
+      - app_internal
+    depends_on:
+      - app-db
+      - mempalace-gluvex
+
 # ============================================================
 # Networks
 # ============================================================

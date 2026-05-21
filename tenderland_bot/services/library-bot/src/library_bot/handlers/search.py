@@ -128,14 +128,26 @@ def _build_results_text(intent: dict[str, Any], products: list[Product], total: 
     return "\n".join(lines)
 
 
+# кэш id-списков для кнопки "все PDF" (callback_data Telegram ограничен 64 байтами,
+# поэтому пакуем не UUID'ы, а короткий токен)
+_PDF_CACHE: dict[str, list[str]] = {}
+_PDF_SEQ = 0
+
+
 def _build_keyboard(products: list[Product], page: int, has_more: bool) -> InlineKeyboardMarkup:
+    global _PDF_SEQ
     rows: list[list[InlineKeyboardButton]] = []
     # одна кнопка "Отдать все PDF" если есть pdfs суммарно
     total_pdfs = sum(p.pdf_count for p in products)
     if total_pdfs > 0:
+        _PDF_SEQ += 1
+        token = str(_PDF_SEQ)
+        if len(_PDF_CACHE) > 1000:
+            _PDF_CACHE.clear()
+        _PDF_CACHE[token] = [str(p.id) for p in products[:10]]
         rows.append([InlineKeyboardButton(
             text=f"📄 Отдать все PDF ({total_pdfs})",
-            callback_data=f"pdfs:{','.join(str(p.id) for p in products[:10])}",
+            callback_data=f"pdfs:{token}",
         )])
     # пер-продукт кнопки "детали"
     for p in products[:5]:
@@ -322,9 +334,13 @@ async def cb_product_details(cb: CallbackQuery, db: DB, storage: Storage, settin
 async def cb_send_all_pdfs(cb: CallbackQuery, db: DB, storage: Storage, settings: Settings) -> None:
     assert cb.data is not None and cb.message is not None
     from uuid import UUID
-    ids_str = cb.data.split(":", 1)[1]
+    token = cb.data.split(":", 1)[1]
+    cached = _PDF_CACHE.get(token)
+    if not cached:
+        await cb.answer("Список устарел — повтори поиск", show_alert=True)
+        return
     try:
-        ids = [UUID(x) for x in ids_str.split(",") if x]
+        ids = [UUID(x) for x in cached]
     except ValueError:
         await cb.answer("Bad ids")
         return

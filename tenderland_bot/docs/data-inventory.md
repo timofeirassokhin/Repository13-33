@@ -41,7 +41,9 @@ MinIO (файлы)  ──►  Postgres (каталог + текст/FTS)  ─�
 
 Путь: `product-brochures/<brand_slug>/<file>.pdf|.md`.
 
-### `tenders/` — ~63 файла
+Размер: **product-brochures 6.7 ГиБ / 3 896 объектов**.
+
+### `tenders/` — 6.0 МиБ / 63 файла
 ТЗ / описания объекта закупки / предложения участника. Путь: `tenders/src/<менеджер>/<год>/<file>` (docx/doc/xlsx/rtf/pdf).
 
 ### Служебные бакеты (заготовлены, пока пустые)
@@ -74,6 +76,38 @@ JSONB со структурными полями, извлечёнными LLM �
 - **Всегда:** `catalog_numbers[]`, `applications[]`, `summary_ru`.
 
 Покрытие base_specs (топ-категории): mass_spectrometer 231/243 · hplc_system 144/275 · uv_vis 41/142 · инкубаторы 30/30 · расходка (Hawach/DWK/TopAir/Gluvex/HTA) ~100%. Без структуры намеренно оставлен `spare_part` (~33k криптовых запчастей — ищутся через FTS/семантику по названию).
+
+### `product` по всем 41 категориям (всего / со структурой base_specs)
+
+| Категория | Всего | base_specs | Категория | Всего | base_specs |
+|---|---|---|---|---|---|
+| spare_part | 33195 | 1 | laminar_hood | 52 | 52 |
+| other | 26022 | 25931 | realtime_pcr_kit | 46 | 46 |
+| ngs_library_prep_kit | 3333 | 3307 | pcr_kit | 38 | 37 |
+| hplc_column | 2080 | 2079 | ftir_spectrometer | 34 | 33 |
+| gc_column | 1539 | 1539 | incubator | 30 | 30 |
+| consumable | 1220 | 1214 | dna_extraction_kit | 18 | 17 |
+| syringe_filter | 896 | 896 | hplc_autosampler | 17 | 17 |
+| accessory | 896 | 895 | biological_safety_cabinet | 17 | 17 |
+| service | 552 | 552 | gc_module | 16 | 16 |
+| spe_cartridge | 458 | 453 | water_purifier | 12 | 12 |
+| sequencer_reagent_kit | 301 | 301 | titrator | 10 | 10 |
+| hplc_system | 275 | 274 | hplc_detector | 5 | 5 |
+| mass_spectrometer | 243 | 243 | centrifuge | 4 | 4 |
+| climate_chamber | 151 | 151 | ngs_amplicon_panel | 4 | 4 |
+| gc_system | 147 | 147 | aas_system | 3 | 3 |
+| sequencer_platform | 145 | 142 | sequencer_flowcell | 1 | 0 |
+| ngs_target_capture_panel | 143 | 140 | | | |
+| uv_vis_spectrometer | 142 | 141 | | | |
+| software | 140 | 137 | | | |
+| shaker_vortex | 119 | 115 | | | |
+| icp_ms | 118 | 117 | | | |
+| vial | 92 | 91 | | | |
+| balance | 79 | 79 | | | |
+| icp_oes | 74 | 74 | | | |
+| drying_oven | 57 | 57 | | | |
+
+`spare_part` намеренно без структурных base_specs.
 
 ### NGS-каталог (структурный пилот)
 35 платформ (Illumina/MGI/GeneMind/Salus + 7 RU-OEM Геноскан/Helicon/БиоФьюжн через `oem_of_id`), 86 китов + 86 runtime-метрик + слоты + совместимость, с РУ Росздравнадзора.

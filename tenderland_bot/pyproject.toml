@@ -15,6 +15,8 @@ dependencies = [
     "typer>=0.15.1,<0.18",
     "rich==13.9.4",
     "python-slugify==8.0.4",
+    "anthropic>=0.40",
+    "python-docx>=1.1",
 ]
 
 [project.scripts]

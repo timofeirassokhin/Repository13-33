@@ -18,3 +18,8 @@ infra/gluvex_tender_machine/stack/.env
 
 # Phase 3.5: app-db init script (содержит подставленные пароли)
 infra/gluvex_tender_machine/stack/app-db-init.sql
+
+# Локальные данные API-чека и Tier-2 прогонов (большие, секретозависимые)
+_api_check/
+_check.txt
+~WRL*.tmp

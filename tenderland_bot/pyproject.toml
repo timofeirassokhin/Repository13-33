@@ -17,6 +17,8 @@ dependencies = [
     "python-slugify==8.0.4",
     "anthropic>=0.40",
     "python-docx>=1.1",
+    "psycopg[binary]>=3.2",
+    "minio>=7.2",
 ]
 
 [project.scripts]

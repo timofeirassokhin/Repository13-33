@@ -17,3 +17,6 @@ __pycache__/
 # Allow Gluvex Tender Machine deploy scripts despite global scripts/ ignore
 !tenderland_bot/infra/gluvex_tender_machine/scripts/
 !tenderland_bot/infra/gluvex_tender_machine/scripts/**
+# Allow Tenderland CLI helper scripts (probe, samples, Tier-2 runner, etc.)
+!tenderland_bot/scripts/
+!tenderland_bot/scripts/**

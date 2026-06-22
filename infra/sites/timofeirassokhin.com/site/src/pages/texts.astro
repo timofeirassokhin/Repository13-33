@@ -1,0 +1,55 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import PageCta from '~/components/PageCta.astro';
+const locale = 'ru' as const;
+
+// Стартовый набор статей-якорей. Позже — подача из Twenty CRM (published).
+const articles = [
+  { pillar: 'Душа', title: 'Лестница зрелости', summary: 'Почему мы бегаем по треугольнику Карпмана и как из него выйти — авторская модель.' },
+  { pillar: 'Человек', title: 'Человеческая бумага', summary: 'О хрупкости и ценности — эссе.' },
+  { pillar: 'Дух', title: 'Наука vs терапевты', summary: 'Честный разговор о доказательности, вере и шарлатанстве.' },
+  { pillar: 'Дух', title: 'Фрактал развития', summary: 'Манифест: как материя, душа и дух складываются в один узор.' },
+];
+const pillarTone: Record<string, string> = {
+  'Материя': 'var(--c-olive)',
+  'Душа': 'var(--c-terra)',
+  'Дух': 'var(--c-gold)',
+  'Человек': 'var(--c-cream-soft)',
+};
+---
+<Layout locale={locale} canonicalPath="/texts" title="Тексты">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Тексты</p>
+      <h1>Про науку, душу и дух. Иногда про котов</h1>
+      <p class="hero__sub">Лонгриды-якоря по четырём слоям. Каждый заканчивается мостом: продолжение и разговор — в Telegram-канале.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-2">
+        {articles.map((a) => (
+          <article class="card">
+            <p class="eyebrow" style={`color: ${pillarTone[a.pillar] ?? 'var(--accent)'};`}>{a.pillar}</p>
+            <h3>{a.title}</h3>
+            <p style="color: var(--text-soft); margin-top: var(--s-1);">{a.summary}</p>
+          </article>
+        ))}
+      </div>
+      <p style="color: var(--text-muted); margin-top: var(--s-3); font-size: 0.9rem;">
+        Полные тексты появятся здесь по мере публикации.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container" style="max-width: 720px; text-align: center;">
+      <h2>Продолжение — в Telegram</h2>
+      <p style="color: var(--text-soft);">Там регулярность, живой разговор и анонсы. Без органики, зато по-настоящему близко.</p>
+      <a class="btn btn--primary" href="https://t.me/timofei1333" target="_blank" rel="me noopener noreferrer">Открыть канал</a>
+    </div>
+  </section>
+
+  <PageCta locale={locale} />
+</Layout>

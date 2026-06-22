@@ -1,5 +1,6 @@
 ---
 import { t, localizedHref, type Locale } from '~/i18n';
+import Socials from './Socials.astro';
 
 interface Props {
   locale: Locale;
@@ -11,10 +12,12 @@ const dict = t(locale);
   <div class="container ftr__inner">
     <p class="ftr__copy">{dict.footer.rights}</p>
     <nav class="ftr__nav">
+      <a href={localizedHref('/about', locale)}>{dict.nav.about}</a>
+      <a href={localizedHref('/texts', locale)}>{dict.nav.texts}</a>
+      <a href={localizedHref('/contact', locale)}>{dict.nav.contact}</a>
       <a href={localizedHref('/subscribe', locale)}>{dict.nav.subscribe}</a>
-      <a href={localizedHref('/blog', locale)}>{dict.nav.blog}</a>
-      <a href={localizedHref('/book', locale)}>{dict.nav.book}</a>
     </nav>
+    <Socials size="sm" />
   </div>
 </footer>
 
@@ -33,7 +36,7 @@ const dict = t(locale);
     flex-wrap: wrap;
   }
   .ftr__copy { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
-  .ftr__nav { display: flex; gap: var(--s-3); }
+  .ftr__nav { display: flex; gap: var(--s-3); flex-wrap: wrap; }
   .ftr__nav a {
     color: var(--text-soft);
     font-size: 0.85rem;

@@ -1,6 +1,7 @@
 ---
 import { t, localizedHref, type Locale } from '~/i18n';
 import LangSwitcher from './LangSwitcher.astro';
+import Socials from './Socials.astro';
 
 interface Props {
   locale: Locale;
@@ -11,12 +12,12 @@ const { locale, canonicalPath } = Astro.props;
 const dict = t(locale);
 
 const links = [
-  { href: '/coaching', label: dict.nav.coaching },
-  { href: '/psychology', label: dict.nav.psychology },
-  { href: '/photo', label: dict.nav.photo },
-  { href: '/consulting', label: dict.nav.consulting },
-  { href: '/blog', label: dict.nav.blog },
-  { href: '/shop', label: dict.nav.shop },
+  { href: '/about', label: dict.nav.about },
+  { href: '/approach', label: dict.nav.approach },
+  { href: '/practice', label: dict.nav.practice },
+  { href: '/fotodrama', label: dict.nav.fotodrama },
+  { href: '/science', label: dict.nav.science },
+  { href: '/texts', label: dict.nav.texts },
 ];
 ---
 <header class="hdr">
@@ -33,9 +34,10 @@ const links = [
     </nav>
 
     <div class="hdr__right">
+      <Socials size="sm" class="hdr__socials" />
       <LangSwitcher locale={locale} canonicalPath={canonicalPath} />
-      <a class="btn btn--primary hdr__cta" href={localizedHref('/subscribe', locale)}>
-        {dict.nav.subscribe}
+      <a class="btn btn--primary hdr__cta" href={localizedHref('/contact', locale)}>
+        {dict.nav.contact}
       </a>
     </div>
   </div>
@@ -54,7 +56,7 @@ const links = [
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px var(--s-3);
+    padding: 14px var(--s-3);
     gap: var(--s-3);
   }
   .hdr__brand {
@@ -63,6 +65,7 @@ const links = [
     gap: var(--s-1);
     color: var(--text);
     border: none;
+    flex: 0 0 auto;
   }
   .hdr__brand:hover { color: var(--accent); }
   .hdr__logo {
@@ -84,18 +87,23 @@ const links = [
     justify-content: center;
   }
   .hdr__link {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: var(--text-soft);
     border: none;
+    white-space: nowrap;
   }
   .hdr__link:hover { color: var(--accent); }
   .hdr__right {
     display: flex;
     align-items: center;
     gap: var(--s-2);
+    flex: 0 0 auto;
   }
-  @media (max-width: 900px) {
+  @media (max-width: 1040px) {
     .hdr__nav { display: none; }
     .hdr__cta { display: none; }
+  }
+  @media (max-width: 560px) {
+    .hdr__socials { display: none; }
   }
 </style>

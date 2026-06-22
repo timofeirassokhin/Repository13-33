@@ -4,67 +4,127 @@ export const en: typeof ru = {
   meta: {
     siteName: 'Timofei Rassokhin',
     description:
-      'Coach, psychologist, photographer, business consultant. I work with people and teams on what matters now.',
+      'Scientist, psychologist, and Buddhist. I help people build a life with room for money, soul, and meaning. I walk this path myself.',
   },
   nav: {
-    coaching: 'Coaching',
-    psychology: 'Psychology',
-    photo: 'Photography',
-    consulting: 'Consulting',
-    blog: 'Writing',
-    shop: 'Programs',
-    book: 'Book a call',
+    about: 'About',
+    approach: 'Approach',
+    practice: 'Practice',
+    fotodrama: 'Fotodrama',
+    science: 'Science & business',
+    texts: 'Writing',
+    contact: 'Book',
     subscribe: 'Subscribe',
   },
   hero: {
     eyebrow: 'Timofei Rassokhin',
-    title: 'Helping people and teams move on what matters most',
+    title: 'From matter to spirit. And back again, with pleasure',
     subtitle:
-      'Coaching, psychotherapy, business consulting, and photography — four ways to be present when a different kind of ground is needed.',
-    primary: 'Book a conversation',
-    secondary: 'What I do',
+      'Scientist, psychologist, and Buddhist. I help people build a life with room for money, soul, and meaning. I walk this path myself.',
+    primary: 'Come and work with me',
+    secondary: 'Read the writing',
+  },
+  home: {
+    whoami: {
+      eyebrow: 'Who I am',
+      body:
+        'PhD in chemistry, former director of a biotech corporation, psychodrama coach, and practising Buddhist. I have turned 180° several times: from science into business, from business to the most interesting subject of all — the human being. At some point I understood something simple: the spiritual and the material, science and soul, are not enemies. They are parts of one whole. That is what I work on and write about — deeply, warmly, and without being dull.',
+    },
+    paths: {
+      eyebrow: 'Three paths',
+      title: 'One pattern at different altitudes',
+      materia: {
+        label: 'Matter',
+        text: 'Science, work, career: how things are built and how they run.',
+      },
+      dusha: {
+        label: 'Soul',
+        text: 'Psychology, maturity, relationships: how to stop running in circles.',
+      },
+      duh: {
+        label: 'Spirit',
+        text: 'Meaning, practice, integration: how not to choose between God and money.',
+      },
+      note: 'The same pattern repeats at every level. That is the fractal of development.',
+    },
+    problems: {
+      eyebrow: 'What people come with',
+      title: 'Points of transition',
+      items: [
+        'Career dead-ends and burnout',
+        'Relationships and maturity',
+        'Men\'s crises',
+        'Existential questions and the search for meaning',
+        'The wish to unite success and inner freedom',
+      ],
+    },
+    proof: {
+      eyebrow: 'Why you can trust me',
+      items: [
+        '17 years in international business — Dow, Agilent, Illumina',
+        '7 years of private practice',
+        'PhD in chemistry, Moscow State University',
+        'Career coaching, ICF',
+        'Co-founder of the "13-33 Space" centre',
+      ],
+    },
+    lead: {
+      eyebrow: 'Letters',
+      title: 'Get the essay "The Ladder of Maturity"',
+      body:
+        'Why we keep running around the triangle and how to step out of it. Plus letters where the complex is put simply.',
+      placeholder: 'Your email',
+      submit: 'Get the essay',
+      consent: 'No spam. Unsubscribe in one click.',
+    },
+    cta: {
+      title: 'Book an intro conversation',
+      body: 'If you\'re not sure which format fits — write a short note. We\'ll figure it out together.',
+      primary: 'Come and work with me',
+      socialsLabel: 'Find me elsewhere',
+    },
   },
   services: {
     coaching: {
-      kicker: 'Coaching',
-      title: 'Take the important step — without burning out',
+      kicker: 'Practice',
+      title: 'Coaching and psychodrama',
       summary:
-        'I work with founders, leaders and people in role transitions. Not training, not "motivation" — structured conversation about what blocks movement and how to move in your own way.',
+        'One-on-one work and groups for adults at a point of transition: a career or personal dead-end, a crisis of meaning. No mentoring, no "guru" — I walk beside you and help you put it together.',
     },
     psychology: {
-      kicker: 'Psychology',
-      title: 'Long-term psychotherapy',
+      kicker: 'Soul',
+      title: 'The psychology of life',
       summary:
-        'Long-term work grounded in the relationship, the body, and empirically validated methods. Anxiety, burnout, relationships, crises of meaning, loss.',
+        'Maturity and growing up, relationships, men\'s psychology, trauma work, transactional analysis and psychodrama. On request, and gently.',
     },
     photo: {
-      kicker: 'Photography',
-      title: 'Portraits and reportage',
+      kicker: 'Fotodrama',
+      title: 'Goddesses in shadow and light',
       summary:
-        'I photograph people as they actually are in that hour — not as they were taught to look. Personal projects, brand portraits, events.',
+        'An original method at the meeting point of photography, psychodrama and art therapy. Working with archetypes through a chiaroscuro portrait — light and shadow as a metaphor for the acknowledged and hidden parts of the self.',
     },
     consulting: {
-      kicker: 'Consulting',
-      title: 'Business consulting for owners',
+      kicker: 'Science & business',
+      title: 'Molecular diagnostics',
       summary:
-        'Not "strategy in PowerPoint". A real review of team and product, where you grow and where you leak, supported across 30/60/90 days.',
+        'I help clinics and researchers: onco-panels, sequencing, instruments, product launches. Someone who understands the technology, the people, and the market.',
     },
   },
   blog: {
     title: 'Writing',
     placeholder:
-      'Notes and cases from the work. New pieces every 1–2 weeks. Also mirrored to Telegram and Dzen.',
+      'Long-form anchor pieces about science, soul, and spirit. Sometimes about cats. The conversation continues in the Telegram channel.',
     subscribeCta: 'Subscribe to letters so you don\'t miss it',
   },
   shop: {
-    title: 'Programs and trainings',
+    title: 'Programs and groups',
     placeholder:
-      'I run group programs for people who want to go deeper. Pre-enrolment is open for the next cohort.',
+      'Fotodrama group trainings and programs for those who want to go deeper. Pre-enrolment is open for the next cohort.',
     cta: 'Leave your email — I\'ll tell you when it starts',
   },
   subscribe: {
-    title: 'Letters once a week',
-    body: 'Short letters about coaching, psychotherapy, and working with yourself. No filler, no sales pitch in every letter. Unsubscribe in one click.',
+    title: 'Letters where the complex is put simply',
+    body: 'Short letters about science, psychology, and the path to yourself. No filler, no sales pitch in every letter. Unsubscribe in one click.',
     emailLabel: 'Email',
     nameLabel: 'Your name',
     submit: 'Subscribe',

@@ -1,0 +1,83 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import PageCta from '~/components/PageCta.astro';
+const locale = 'ru' as const;
+
+const levels = [
+  { label: 'Материя', text: 'Сначала наводишь порядок в материальном — тело, деньги, дело.' },
+  { label: 'Душа', text: 'Потом в душевном — психика, отношения, старые травмы.' },
+  { label: 'Дух', text: 'Потом в духовном — смысл, дух, то, что больше тебя.' },
+];
+
+const pillars = [
+  { label: 'Радость познания', text: 'Развитие — это интересно, а не «надо».' },
+  { label: 'Сострадание', text: 'Расту, чтобы делиться. Круги на воде.' },
+  { label: 'Непривязанность', text: 'Иду своим путём, без гонки и надрыва.' },
+];
+---
+<Layout locale={locale} canonicalPath="/approach" title="Подход">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Подход</p>
+      <h1>Развитие человека — это фрактал</h1>
+      <p class="hero__sub">Один и тот же узор повторяется на каждом уровне. И на каждом новом витке всё начинается заново — тоньше и глубже.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-2">
+        {levels.map((l, i) => (
+          <div class="card">
+            <p class="eyebrow">{`0${i + 1}`}</p>
+            <h3>{l.label}</h3>
+            <p style="color: var(--text-soft); margin-top: var(--s-1);">{l.text}</p>
+          </div>
+        ))}
+        <div class="card path-note">
+          <p>Уровни не спорят друг с другом — они вложены один в другой.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container" style="max-width: 760px;">
+      <p style="font-size: 1.15rem; color: var(--text-soft);">
+        Поэтому я не заставляю выбирать между психологией и духовностью, между наукой и верой, между карьерой и душой. Наоборот — показываю, как они складываются.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Что держит всё вместе</p>
+      <h2>Три опоры</h2>
+      <div class="grid-2" style="margin-top: var(--s-4);">
+        {pillars.map((p) => (
+          <div class="card">
+            <h3>{p.label}</h3>
+            <p style="color: var(--text-soft); margin-top: var(--s-1);">{p.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <PageCta locale={locale} />
+</Layout>
+
+<style>
+  .path-note {
+    background: transparent;
+    border-style: dashed;
+    display: flex;
+    align-items: center;
+  }
+  .path-note p {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    margin: 0;
+  }
+</style>

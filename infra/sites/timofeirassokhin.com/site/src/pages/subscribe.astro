@@ -10,6 +10,7 @@ const dict = t(locale);
       <p class="eyebrow">{dict.nav.subscribe}</p>
       <h1>{dict.subscribe.title}</h1>
       <p class="hero__sub">{dict.subscribe.body}</p>
+      <p class="lead-note">В первом письме — эссе <strong>«Лестница зрелости»</strong>: почему мы бегаем по треугольнику и как из него выйти.</p>
 
       <form class="subscribe-form" id="subscribe-form" action="/subscribe" method="POST" novalidate>
         <input type="hidden" name="lang" value={locale} />
@@ -54,6 +55,13 @@ const dict = t(locale);
     outline: none;
     border-color: var(--accent);
   }
+  .lead-note {
+    color: var(--text-soft);
+    border-left: 2px solid var(--accent);
+    padding-left: var(--s-2);
+    margin-bottom: var(--s-4);
+  }
+  .lead-note strong { color: var(--text); }
   .consent {
     margin-top: var(--s-2);
     font-size: 0.78rem;
@@ -72,6 +80,12 @@ const dict = t(locale);
   // подключим server-side обработку, когда glue будет публично доступен.
   const form = document.getElementById('subscribe-form') as HTMLFormElement | null;
   const success = document.getElementById('subscribe-success');
+  // Префилл email, если пришли с главной (лид-магнит шлёт ?email=).
+  const qEmail = new URLSearchParams(location.search).get('email');
+  if (qEmail && form) {
+    const emailInput = form.querySelector('input[name="email"]') as HTMLInputElement | null;
+    if (emailInput) emailInput.value = qEmail;
+  }
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

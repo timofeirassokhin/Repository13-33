@@ -1,0 +1,82 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import PageCta from '~/components/PageCta.astro';
+const locale = 'ru' as const;
+
+const formats = [
+  { title: 'Индивидуальный коучинг', text: 'Структурный разговор о том, что блокирует движение и как двигаться по-своему. Карьера, переходы, смысл.' },
+  { title: 'Психодрама', text: 'Групповая работа: прожить телом то, что не получается просто понять головой. Роли, сцены, отношения.' },
+  { title: 'Интегративные практики', text: 'Осознанность «собственного розлива» — психологические и телесно-духовные практики, по запросу и бережно.' },
+];
+
+const forWhom = [
+  'Взрослые в точке перехода',
+  'Кризис смысла',
+  'Карьерный или личный тупик',
+  'Мужские кризисы',
+  'Желание соединить успех и внутреннюю свободу',
+];
+---
+<Layout locale={locale} canonicalPath="/practice" title="Практика">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Практика</p>
+      <h1>Я иду рядом — не веду за руку</h1>
+      <p class="hero__sub">Без менторства и «гуру». Я уже прошёл часть дороги чуть дальше — и могу идти рядом. Молча, если надо поддержать. С анекдотом, если слишком серьёзно.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Форматы</p>
+      <div class="grid-2" style="margin-top: var(--s-3);">
+        {formats.map((f) => (
+          <div class="card">
+            <h3>{f.title}</h3>
+            <p style="color: var(--text-soft); margin-top: var(--s-1);">{f.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="grid-2">
+        <div>
+          <p class="eyebrow">Для кого</p>
+          <h2>С чем приходят</h2>
+          <ul class="bullets">
+            {forWhom.map((w) => <li>{w}</li>)}
+          </ul>
+        </div>
+        <div>
+          <p class="eyebrow">Как это устроено</p>
+          <p style="color: var(--text-soft);">
+            Опираюсь и на психологию, и на телесные/духовные практики — по запросу и бережно. Не веду за руку и не спасаю: помогаю увидеть и собрать. Решение и шаги всегда твои.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <PageCta locale={locale} />
+</Layout>
+
+<style>
+  .bullets { list-style: none; padding: 0; margin: var(--s-3) 0 0; }
+  .bullets li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 18px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>

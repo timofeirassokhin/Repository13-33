@@ -1,20 +1,15 @@
 ---
-import { localizedHref, locales, type Locale } from '~/i18n';
-
+// EN-версия пока не делается — переключатель-заглушка.
+import { type Locale } from '~/i18n';
 interface Props {
   locale: Locale;
   canonicalPath: string;
 }
-const { locale, canonicalPath } = Astro.props;
+const { } = Astro.props as Props;
 ---
-<div class="lang">
-  {locales.map((l) => (
-    <a
-      class={`lang__opt ${l === locale ? 'lang__opt--on' : ''}`}
-      href={localizedHref(canonicalPath, l)}
-      aria-current={l === locale ? 'true' : 'false'}
-    >{l.toUpperCase()}</a>
-  ))}
+<div class="lang" role="group" aria-label="Язык / Language">
+  <span class="lang__opt lang__opt--on" aria-current="true">RU</span>
+  <span class="lang__opt lang__opt--soon" title="English version coming soon" aria-disabled="true">EN</span>
 </div>
 
 <style>
@@ -33,10 +28,14 @@ const { locale, canonicalPath } = Astro.props;
     border-radius: var(--r-pill);
     color: var(--text-muted);
     border: none;
+    user-select: none;
   }
-  .lang__opt:hover { color: var(--text); }
   .lang__opt--on {
     background: var(--bg-card);
     color: var(--accent);
+  }
+  .lang__opt--soon {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>

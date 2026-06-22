@@ -1,9 +1,17 @@
 ---
 import Layout from '~/layouts/Layout.astro';
+import Socials from '~/components/Socials.astro';
 import { t, localizedHref } from '~/i18n';
 const locale = 'ru' as const;
 const dict = t(locale);
-const services = ['coaching', 'psychology', 'photo', 'consulting'] as const;
+const home = dict.home;
+const cards = [
+  { ...dict.services.coaching, href: '/practice' },
+  { ...dict.services.photo, href: '/fotodrama' },
+  { ...dict.services.consulting, href: '/science' },
+  { kicker: dict.nav.texts, title: dict.blog.title, summary: dict.blog.placeholder, href: '/texts' },
+];
+const paths = ['materia', 'dusha', 'duh'] as const;
 ---
 <Layout locale={locale} canonicalPath="/" title={undefined}>
   <section class="hero">
@@ -12,22 +20,33 @@ const services = ['coaching', 'psychology', 'photo', 'consulting'] as const;
       <h1>{dict.hero.title}</h1>
       <p class="hero__sub">{dict.hero.subtitle}</p>
       <div class="hero__ctas">
-        <a class="btn btn--primary" href={localizedHref('/book', locale)}>{dict.hero.primary}</a>
-        <a class="btn btn--ghost" href="#services">{dict.hero.secondary}</a>
+        <a class="btn btn--primary" href={localizedHref('/contact', locale)}>{dict.hero.primary}</a>
+        <a class="btn btn--ghost" href={localizedHref('/texts', locale)}>{dict.hero.secondary}</a>
       </div>
     </div>
   </section>
 
-  <section id="services" class="section">
+  <section class="section section--soft">
+    <div class="container" style="max-width: 760px;">
+      <p class="eyebrow">{home.whoami.eyebrow}</p>
+      <p style="font-size: 1.15rem; color: var(--text-soft);">{home.whoami.body}</p>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="container">
-      <div class="grid-2">
-        {services.map((s) => (
-          <a class="card" href={localizedHref(`/${s}`, locale)}>
-            <p class="eyebrow">{dict.services[s].kicker}</p>
-            <h3>{dict.services[s].title}</h3>
-            <p style="color: var(--text-soft); margin-top: var(--s-2);">{dict.services[s].summary}</p>
-          </a>
+      <p class="eyebrow">{home.paths.eyebrow}</p>
+      <h2>{home.paths.title}</h2>
+      <div class="grid-2" style="margin-top: var(--s-4);">
+        {paths.map((p) => (
+          <div class="card">
+            <p class="eyebrow">{home.paths[p].label}</p>
+            <p style="color: var(--text-soft); margin: var(--s-1) 0 0;">{home.paths[p].text}</p>
+          </div>
         ))}
+        <div class="card path-note">
+          <p>{home.paths.note}</p>
+        </div>
       </div>
     </div>
   </section>
@@ -36,24 +55,115 @@ const services = ['coaching', 'psychology', 'photo', 'consulting'] as const;
     <div class="container">
       <div class="grid-2">
         <div>
-          <h2>{dict.blog.title}</h2>
-          <p>{dict.blog.placeholder}</p>
-          <a class="btn btn--ghost" href={localizedHref('/blog', locale)}>{dict.blog.title}</a>
+          <p class="eyebrow">{home.problems.eyebrow}</p>
+          <h2>{home.problems.title}</h2>
+          <ul class="bullets">
+            {home.problems.items.map((it) => <li>{it}</li>)}
+          </ul>
         </div>
         <div>
-          <h2>{dict.shop.title}</h2>
-          <p>{dict.shop.placeholder}</p>
-          <a class="btn btn--ghost" href={localizedHref('/shop', locale)}>{dict.shop.title}</a>
+          <p class="eyebrow">{home.proof.eyebrow}</p>
+          <ul class="bullets bullets--proof">
+            {home.proof.items.map((it) => <li>{it}</li>)}
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
   <section class="section">
+    <div class="container">
+      <div class="grid-2">
+        {cards.map((c) => (
+          <a class="card" href={localizedHref(c.href, locale)}>
+            <p class="eyebrow">{c.kicker}</p>
+            <h3>{c.title}</h3>
+            <p style="color: var(--text-soft); margin-top: var(--s-2);">{c.summary}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container" style="max-width: 720px; text-align: center;">
+      <p class="eyebrow">{home.lead.eyebrow}</p>
+      <h2>{home.lead.title}</h2>
+      <p style="color: var(--text-soft);">{home.lead.body}</p>
+      <form class="lead" action={localizedHref('/subscribe', locale)} method="get">
+        <input class="lead__input" type="email" name="email" placeholder={home.lead.placeholder} aria-label={home.lead.placeholder} required />
+        <button class="btn btn--primary" type="submit">{home.lead.submit}</button>
+      </form>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: var(--s-2);">{home.lead.consent}</p>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="container" style="max-width: 720px;">
-      <h2>{dict.subscribe.title}</h2>
-      <p style="color: var(--text-soft);">{dict.subscribe.body}</p>
-      <a class="btn btn--primary" href={localizedHref('/subscribe', locale)}>{dict.nav.subscribe}</a>
+      <h2>{home.cta.title}</h2>
+      <p style="color: var(--text-soft);">{home.cta.body}</p>
+      <a class="btn btn--primary" href={localizedHref('/contact', locale)}>{home.cta.primary}</a>
+      <p class="eyebrow" style="margin-top: var(--s-4);">{home.cta.socialsLabel}</p>
+      <Socials size="md" />
     </div>
   </section>
 </Layout>
+
+<style>
+  .path-note {
+    background: transparent;
+    border-style: dashed;
+    display: flex;
+    align-items: center;
+  }
+  .path-note p {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .bullets {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-3) 0 0;
+  }
+  .bullets li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 18px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .bullets--proof li { color: var(--text); }
+
+  .lead {
+    display: flex;
+    gap: var(--s-2);
+    margin: var(--s-4) auto 0;
+    max-width: 520px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .lead__input {
+    flex: 1 1 240px;
+    padding: 14px 18px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+  .lead__input::placeholder { color: var(--text-muted); }
+  .lead__input:focus { outline: none; border-color: var(--accent); }
+</style>

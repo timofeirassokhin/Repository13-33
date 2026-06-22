@@ -14,10 +14,10 @@ services:
       - traefik.http.routers.site-tr-preview.rule=Host(`preview.${TR_DOMAIN}`)
       - traefik.http.routers.site-tr-preview.entrypoints=websecure
       - traefik.http.routers.site-tr-preview.tls.certresolver=letsencrypt
-      # Черновик — закрыт basic-auth (тот же секрет TRAEFIK_BASIC_AUTH, что у mail-admin / traefik dashboard).
+      # Черновик — отдельный basic-auth для превью (TR_PREVIEW_BASIC_AUTH в infra/.env, не общий админский секрет).
       - traefik.http.routers.site-tr-preview.middlewares=tr-preview-auth@docker,secure-headers@docker
       - traefik.http.services.site-tr-preview.loadbalancer.server.port=80
-      - traefik.http.middlewares.tr-preview-auth.basicauth.users=${TRAEFIK_BASIC_AUTH}
+      - traefik.http.middlewares.tr-preview-auth.basicauth.users=${TR_PREVIEW_BASIC_AUTH}
 
 networks:
   proxy:

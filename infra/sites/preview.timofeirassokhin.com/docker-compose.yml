@@ -1,0 +1,24 @@
+services:
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: site-preview-timofeirassokhin-com:local
+    container_name: site-preview-timofeirassokhin-com
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.site-tr-preview.rule=Host(`preview.${TR_DOMAIN}`)
+      - traefik.http.routers.site-tr-preview.entrypoints=websecure
+      - traefik.http.routers.site-tr-preview.tls.certresolver=letsencrypt
+      # Черновик — закрыт basic-auth (тот же секрет TRAEFIK_BASIC_AUTH, что у mail-admin / traefik dashboard).
+      - traefik.http.routers.site-tr-preview.middlewares=tr-preview-auth@docker,secure-headers@docker
+      - traefik.http.services.site-tr-preview.loadbalancer.server.port=80
+      - traefik.http.middlewares.tr-preview-auth.basicauth.users=${TRAEFIK_BASIC_AUTH}
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,140 @@
+# Gluvex Tender Machine — Caddy reverse proxy
+#
+# Cертификаты Let's Encrypt получаются автоматически по DNS A-записям.
+# Все наши поддомены — внутренние ресурсы, индексация запрещена через robots.txt + X-Robots-Tag.
+
+{
+	email {$ACME_EMAIL}
+	# admin endpoint только на localhost внутри контейнера (для healthcheck)
+	admin localhost:2019
+}
+
+# ============================================================
+# Twenty CRM — https://crm.gluvex.com
+# ============================================================
+crm.{$DOMAIN} {
+	# noindex для всех поисковиков
+	header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	header Referrer-Policy "strict-origin-when-cross-origin"
+	header X-Content-Type-Options "nosniff"
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+	# robots.txt: запрет индексации
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+
+	reverse_proxy twenty-server:3000 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {host}
+	}
+
+	encode gzip zstd
+	log {
+		output stdout
+		format console
+	}
+}
+
+# ============================================================
+# LiteLLM — https://litellm.gluvex.com
+# ============================================================
+litellm.{$DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+
+	reverse_proxy litellm:4000
+
+	encode gzip zstd
+	log {
+		output stdout
+		format console
+	}
+}
+
+# ============================================================
+# Bot — https://bot.gluvex.com (placeholder)
+# Поднимается контейнер бота позже, пока возвращаем 503.
+# ============================================================
+bot.{$DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow"
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+	respond "Bot service not yet deployed" 503
+}
+
+# ============================================================
+# Camunda Tasklist + Cockpit + Operate — https://bpm.gluvex.com
+# ============================================================
+bpm.{$DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	header X-Content-Type-Options "nosniff"
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+
+	# Camunda Run distribution слушает на /camunda/* и /engine-rest/*
+	# Корень / редиректим на /camunda/app/welcome/ для удобства
+	redir / /camunda/app/welcome/
+
+	reverse_proxy camunda:8080 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {host}
+	}
+
+	encode gzip zstd
+	log {
+		output stdout
+		format console
+	}
+}
+
+# ============================================================
+# MinIO Console — https://files.gluvex.com
+# ============================================================
+# MinIO имеет 2 порта: 9000 API (S3 protocol) и 9001 Console (UI).
+# Здесь проксируем Console для UI-управления файлами.
+# S3 API остаётся доступен только из docker network (через minio:9000).
+files.{$DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Disallow: /
+` 200
+	}
+
+	reverse_proxy minio:9001 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {host}
+		# MinIO Console использует websocket для realtime событий
+		header_up Host {host}
+	}
+
+	encode gzip zstd
+	log {
+		output stdout
+		format console
+	}
+}

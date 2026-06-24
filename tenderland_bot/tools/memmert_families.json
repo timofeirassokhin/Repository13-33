@@ -1,0 +1,78 @@
+{
+  "HPPeco": {
+    "pdf": "HPPeco",
+    "product": "HPPeco|HPP eco|HPP-eco|HPP[ -]?[0-9]"
+  },
+  "IPPeco": {
+    "pdf": "IPPeco",
+    "product": "IPPeco|IPP eco|IPP-eco|IPP[ -]?[0-9]"
+  },
+  "HPP family": {
+    "pdf": "HPP|constant climate",
+    "product": "\\mHPP\\M|constant climate"
+  },
+  "IPP family": {
+    "pdf": "IPP|peltier",
+    "product": "\\mIPP\\M|peltier|Peltier"
+  },
+  "ICO": {
+    "pdf": "ICO|CO2.incubator|nex.Gen",
+    "product": "\\mICO\\M|CO2[ -]?incubator|co2-incubator"
+  },
+  "ICOmed": {
+    "pdf": "ICOmed|ICOMed",
+    "product": "ICOmed|icomed"
+  },
+  "ICH": {
+    "pdf": "\\mICH\\M|humidity",
+    "product": "\\mICH\\M|humidity chamber"
+  },
+  "Water bath WTB/WNB": {
+    "pdf": "WTB|water[ _-]?bath",
+    "product": "water[ _-]?bath|\\mWTB\\M|\\mWNB\\M|\\mWNE\\M"
+  },
+  "Universal oven U": {
+    "pdf": "(?<![A-Za-z])U(?![A-Za-z])|universal.oven",
+    "product": "[Uu]niversal[ _-]?oven|universal-oven|\\mUF\\M|\\mUN\\M|\\mUM\\M"
+  },
+  "Sterilizer S": {
+    "pdf": "(?<![A-Za-z])S(?![A-Za-z])|sterili",
+    "product": "[Ss]terili[sz]er|steriliser|\\mSN\\M|\\mSF\\M"
+  },
+  "Incubator I": {
+    "pdf": "(?<![A-Za-z])I(?![A-Za-z])|^FL_Memmert_I_",
+    "product": "\\mincubator\\M|\\mIN\\M|\\mINE\\M|\\mINF\\M|\\mINP\\M|\\mIF\\M"
+  },
+  "Vacuum oven VO": {
+    "pdf": "(?<![A-Za-z])VO(?![A-Za-z])|vacuum",
+    "product": "[Vv]acuum[ _-]?oven|\\mVO\\M|VOcool|vacuum-oven"
+  },
+  "TESTA": {
+    "pdf": "TESTA",
+    "product": "TESTA"
+  },
+  "m360 automation": {
+    "pdf": "m360|automation|catalogue",
+    "product": "m360|AtmoCONTROL|Atmosafe"
+  },
+  "myChamber": {
+    "pdf": "myChamber",
+    "product": "myChamber"
+  },
+  "Paraffin oven": {
+    "pdf": "paraffin",
+    "product": "[Pp]araffin"
+  },
+  "Climate chamber": {
+    "pdf": "CTC|climate.chamber|environmental",
+    "product": "\\mCTC\\M|\\mTTC\\M|climate[ -]?chamber|environmental test"
+  },
+  "ECO line": {
+    "pdf": "ECO",
+    "product": "\\mECO\\M|eco line"
+  },
+  "Memmert umbrella": {
+    "pdf": "(?:product[ _-]?range|catalogue|10[ _]gute|Gründe)",
+    "product": "."
+  }
+}

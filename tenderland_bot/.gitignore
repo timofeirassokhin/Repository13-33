@@ -1,0 +1,25 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.DS_Store
+
+# Microsoft Office / LibreOffice lock files (created when a doc is open)
+~$*
+.~lock.*
+
+# Temporary patch files (atomic rename workaround)
+*.tmp_patched
+
+# Phase 3 stack secrets (live in /opt/gluvex/secrets/.env on the server)
+infra/gluvex_tender_machine/stack/.env
+
+# Phase 3.5: app-db init script (содержит подставленные пароли)
+infra/gluvex_tender_machine/stack/app-db-init.sql
+
+# Локальные данные API-чека и Tier-2 прогонов (большие, секретозависимые)
+_api_check/
+_check.txt
+~WRL*.tmp

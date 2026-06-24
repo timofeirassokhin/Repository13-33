@@ -1,0 +1,510 @@
+# Gluvex stack — Phase 3 + Phase 3.5 (системный фундамент)
+#
+# Поднимает:
+#   - caddy           → reverse proxy + auto Let's Encrypt
+#   - twenty-server   → CRM (https://crm.${DOMAIN})
+#   - twenty-worker   → background jobs Twenty
+#   - twenty-db       → Postgres 16 для Twenty (изолированно)
+#   - twenty-redis    → Redis 7 для Twenty (BullMQ очереди)
+#   - litellm         → роутер моделей (https://litellm.${DOMAIN})
+#   - app-db          → Postgres 16 для остального стека: gluvex_documents / mempalace / camunda
+#   - minio           → object storage оригиналов файлов (https://files.${DOMAIN})
+#   - qdrant          → vector store (internal only)
+#   - camunda         → BPMN engine для workflow и approvals (https://bpm.${DOMAIN})
+#
+# Запуск:
+#   cd /opt/gluvex/repos/Repository13-33/tenderland_bot/infra/gluvex_tender_machine/stack
+#   ln -sf /opt/gluvex/secrets/.env .env
+#   docker compose pull
+#   docker compose up -d
+#
+# Что НЕ входит (поднимем позже):
+#   - mempalace (после интеграции с Qdrant backend и созданием document_chunks схемы)
+#   - tender-pipeline (FastAPI+ARQ — после структуры 1С)
+#   - 1c-bridge (после Q1+Q2 от заказчика)
+#   - whisper, ollama (по мере необходимости)
+
+name: gluvex
+
+services:
+  # ============================================================
+  # Caddy — reverse proxy с авто-SSL
+  # ============================================================
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - proxy
+    # NB: caddy:2-alpine не имеет wget/curl/nc-OpenBSD-edition, надёжного healthcheck
+    # из коробки нет. Caddy перезапустится сам через restart: unless-stopped, состояние
+    # проверяется внешним curl-ом на крайнем endpoint'е (см. manage.sh health).
+
+  # ============================================================
+  # Twenty CRM — https://crm.${DOMAIN}
+  # ============================================================
+  twenty-server:
+    image: twentycrm/twenty:v1.23.9
+    container_name: twenty-server
+    restart: unless-stopped
+    depends_on:
+      twenty-db:
+        condition: service_healthy
+      twenty-redis:
+        condition: service_healthy
+    environment:
+      NODE_PORT: 3000
+      SERVER_URL: https://crm.${DOMAIN}
+      PG_DATABASE_URL: postgres://postgres:${TWENTY_PG_PASSWORD}@twenty-db:5432/default
+      REDIS_URL: redis://twenty-redis:6379
+      APP_SECRET: ${TWENTY_APP_SECRET}
+      STORAGE_TYPE: local
+      DISABLE_DB_MIGRATIONS: "false"
+      DISABLE_CRON_JOBS_REGISTRATION: "false"
+      # --- Auth: пароль вместо magic-link, пока нет SMTP ---
+      AUTH_PASSWORD_ENABLED: "true"
+      IS_SIGN_UP_DISABLED: "false"
+      IS_EMAIL_VERIFICATION_REQUIRED: "false"
+      # --- Email driver: logger = пишет в stdout, ничего не шлёт ---
+      EMAIL_DRIVER: logger
+      EMAIL_FROM_ADDRESS: noreply@${DOMAIN}
+      EMAIL_FROM_NAME: Gluvex CRM
+      EMAIL_SYSTEM_ADDRESS: noreply@${DOMAIN}
+    volumes:
+      - twenty_server_data:/app/packages/twenty-server/.local-storage
+    networks:
+      - proxy
+      - twenty_internal
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:3000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
+
+  twenty-worker:
+    image: twentycrm/twenty:v1.23.9
+    container_name: twenty-worker
+    restart: unless-stopped
+    depends_on:
+      twenty-server:
+        condition: service_healthy
+    command: ["yarn", "worker:prod"]
+    environment:
+      PG_DATABASE_URL: postgres://postgres:${TWENTY_PG_PASSWORD}@twenty-db:5432/default
+      SERVER_URL: https://crm.${DOMAIN}
+      REDIS_URL: redis://twenty-redis:6379
+      APP_SECRET: ${TWENTY_APP_SECRET}
+      STORAGE_TYPE: local
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+      AUTH_PASSWORD_ENABLED: "true"
+      IS_SIGN_UP_DISABLED: "false"
+      IS_EMAIL_VERIFICATION_REQUIRED: "false"
+      EMAIL_DRIVER: logger
+      EMAIL_FROM_ADDRESS: noreply@${DOMAIN}
+      EMAIL_FROM_NAME: Gluvex CRM
+      EMAIL_SYSTEM_ADDRESS: noreply@${DOMAIN}
+    volumes:
+      - twenty_server_data:/app/packages/twenty-server/.local-storage
+    networks:
+      - twenty_internal
+
+  twenty-db:
+    image: postgres:16
+    container_name: twenty-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${TWENTY_PG_PASSWORD}
+      POSTGRES_DB: default
+    volumes:
+      - twenty_db_data:/var/lib/postgresql/data
+    networks:
+      - twenty_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  twenty-redis:
+    image: redis:7-alpine
+    container_name: twenty-redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - twenty_redis_data:/data
+    networks:
+      - twenty_internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ============================================================
+  # LiteLLM — https://litellm.${DOMAIN}
+  # ============================================================
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm
+    restart: unless-stopped
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml:ro
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+      - app_internal   # для library-bot и других внутренних потребителей
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4000/health/liveliness', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ============================================================
+  # app-db — Postgres 16 для всех «несамодостаточных» сервисов
+  # ============================================================
+  # Хостит 3 базы:
+  #   - gluvex_documents — master-data слой (document_registry, audit_events,
+  #     llm_runs, entity_links, sync_runs, sync_errors, status_history, human_reviews,
+  #     document_chunks с pgvector — см. master-data-architecture.md)
+  #   - mempalace        — БД для MemPalace (поднимем сервис в следующей волне)
+  #   - camunda          — Postgres backend для Camunda BPMN engine
+  app-db:
+    image: postgres:16
+    container_name: app-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - app_db_data:/var/lib/postgresql/data
+      - ./app-db-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ============================================================
+  # MinIO — object storage для оригиналов файлов
+  # ============================================================
+  # API на :9000, Console UI на :9001
+  # Через Caddy console доступна на https://files.${DOMAIN}
+  # Buckets создадим отдельным шагом после первого запуска (mc CLI)
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: https://files.${DOMAIN}
+      # NB: НЕ задаём MINIO_SERVER_URL — в нашей setup files.${DOMAIN} ведёт
+      # на Console (port 9001), а не на API (9000). Если выставить SERVER_URL
+      # одинаково с REDIRECT_URL, Console пытается reach API по той же ссылке
+      # → попадает обратно в себя → 401 на login. Когда SERVER_URL не задан,
+      # Console обращается к API локально (localhost:9000 в контейнере).
+    volumes:
+      - minio_data:/data
+    networks:
+      - proxy
+      - app_internal
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # Qdrant — векторный индекс (internal-only, без публичного URL)
+  # ============================================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - app_internal
+    # доступ только из docker network app_internal; в Caddy не выставляем
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ============================================================
+  # Catalog Crawler — парсер каталогов производителей
+  # ============================================================
+  # Запускается через `docker compose run --rm catalog-crawler <args>`
+  # Не сервис long-running — это CLI tool. Не имеет healthcheck'а и restart-policy.
+  catalog-crawler:
+    build:
+      context: ./catalog-crawler
+    image: gluvex/catalog-crawler:local
+    profiles: ["tools"]   # запускается только через --profile tools или явно через `run`
+    environment:
+      PG_HOST: app-db
+      PG_PORT: 5432
+      PG_DB: gluvex_documents
+      PG_USER: gluvex_app
+      PG_PASSWORD: ${GLUVEX_APP_PG_PASSWORD}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_SECURE: "false"
+    networks:
+      - app_internal
+
+  # ============================================================
+  # MemPalace — агентная память Gluvex (Qdrant backend)
+  # ============================================================
+  # Drawer/wing/timeline + Knowledge Graph поверх Qdrant + Postgres.
+  # Используется: tender_analyzer, product_manager, kp_agent, email_agent.
+  # internal-only (агенты ходят по сети app_internal); MCP-сервер агентов внутри
+  # сети тоже коннектится сюда.
+  mempalace-gluvex:
+    build:
+      context: ./mempalace-gluvex
+    image: gluvex/mempalace-gluvex:local
+    container_name: mempalace-gluvex
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      app-db:
+        condition: service_healthy
+    environment:
+      MEMPALACE_PALACE_PATH: /data/palace
+      MEMPALACE_EMBEDDING_MODEL: ${MEMPALACE_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      QDRANT_URL: http://qdrant:6333
+    volumes:
+      - mempalace_gluvex_data:/data
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:8080/health\",timeout=5).status==200 else 1)' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ============================================================
+  # Camunda 7 CE — BPMN engine + Cockpit + Tasklist + Operate
+  # ============================================================
+  # UI на https://bpm.${DOMAIN}
+  # Дефолтный admin demo/demo — нужно поменять при первом логине!
+  camunda:
+    image: camunda/camunda-bpm-platform:run-7.21.0
+    container_name: camunda
+    restart: unless-stopped
+    depends_on:
+      app-db:
+        condition: service_healthy
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://app-db:5432/camunda
+      DB_USERNAME: camunda
+      DB_PASSWORD: ${CAMUNDA_PG_PASSWORD}
+      WAIT_FOR: app-db:5432
+    networks:
+      - proxy
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/camunda/app/welcome/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # ============================================================
+  # Whisper ASR — локальная транскрипция голосовых сообщений для library-bot.
+  # ============================================================
+  # Образ onerahmet/openai-whisper-asr-webservice (CPU). API:
+  #   POST /asr?task=transcribe&language=ru&output=json   (form-data: audio_file)
+  # Default model — small (~1.5 ГБ RAM, ~3-5 сек на 10-сек голосовое).
+  # Внутренний (только сеть app_internal).
+  whisper-asr:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper-asr
+    restart: unless-stopped
+    environment:
+      ASR_MODEL: ${WHISPER_MODEL:-small}        # tiny|base|small|medium|large-v3
+      ASR_ENGINE: openai_whisper                 # alt: faster_whisper
+    volumes:
+      - whisper_data:/root/.cache               # кешируем модели чтобы не качать каждый раз
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:9000/docs\",timeout=5).status==200 else 1)' || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s   # первая загрузка модели может занять до 90 сек
+
+  # ============================================================
+  # @gluvexlibrary_bot — Telegram-каталог приборов и брошюр.
+  # ============================================================
+  # Text-driven NL поиск через LiteLLM intent → asyncpg → MinIO PDF отдача.
+  # Внутренний (нет публичного endpoint'а), общается только через socks5://warp:1080
+  # с api.telegram.org. Whitelist user_id через GLUVEX_LIBRARY_BOT_ALLOWED_IDS.
+  library-bot:
+    build:
+      context: ../../../services/library-bot
+    image: gluvex/library-bot:local
+    container_name: library-bot
+    restart: unless-stopped
+    depends_on:
+      app-db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+      warp:
+        condition: service_healthy
+      whisper-asr:
+        condition: service_started   # не ждём healthy — модель грузится долго
+    environment:
+      # Telegram + proxy
+      GLUVEX_LIBRARY_BOT_TOKEN: ${GLUVEX_LIBRARY_BOT_TOKEN}
+      GLUVEX_LIBRARY_BOT_USERNAME: ${GLUVEX_LIBRARY_BOT_USERNAME}
+      GLUVEX_LIBRARY_BOT_ALLOWED_IDS: ${GLUVEX_LIBRARY_BOT_ALLOWED_IDS}
+      GLUVEX_LIBRARY_BOT_PROXY: socks5://warp:1080
+      # Whisper ASR (локальный)
+      GLUVEX_LIBRARY_BOT_WHISPER_URL: http://whisper-asr:9000
+      GLUVEX_LIBRARY_BOT_WHISPER_LANGUAGE: ru
+      # Postgres
+      GLUVEX_LIBRARY_BOT_PG_HOST: app-db
+      GLUVEX_LIBRARY_BOT_PG_PORT: 5432
+      GLUVEX_LIBRARY_BOT_PG_USER: gluvex_app
+      GLUVEX_LIBRARY_BOT_PG_PASSWORD: ${GLUVEX_APP_PG_PASSWORD}
+      GLUVEX_LIBRARY_BOT_PG_DATABASE: gluvex_documents
+      # MinIO
+      GLUVEX_LIBRARY_BOT_MINIO_ENDPOINT: minio:9000
+      GLUVEX_LIBRARY_BOT_MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      GLUVEX_LIBRARY_BOT_MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      GLUVEX_LIBRARY_BOT_MINIO_BUCKET_BROCHURES: product-brochures
+      GLUVEX_LIBRARY_BOT_MINIO_SECURE: "false"
+      # LiteLLM
+      GLUVEX_LIBRARY_BOT_LITELLM_BASE_URL: http://litellm:4000
+      GLUVEX_LIBRARY_BOT_LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      GLUVEX_LIBRARY_BOT_LITELLM_INTENT_MODEL: creative
+      GLUVEX_LIBRARY_BOT_LOG_LEVEL: INFO
+    networks:
+      - app_internal
+
+  # ============================================================
+  # Cloudflare WARP sidecar — SOCKS5 proxy (1080) для outbound к Telegram API.
+  # RU-VPS Selectel блокирует прямой outbound к api.telegram.org; через
+  # IPRoyal HTTP-proxy тоже не доходит. WARP-сайдкар даёт работающий путь
+  # (этот же паттерн используется в pa-bot и tr-com на main, см. ec92057).
+  # ============================================================
+  warp:
+    image: caomingjun/warp:latest
+    container_name: warp
+    restart: unless-stopped
+    cap_add:
+      - MKNOD
+      - AUDIT_WRITE
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - warp_data:/var/lib/cloudflare-warp
+    networks:
+      - app_internal
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS --max-time 5 --proxy socks5://127.0.0.1:1080 https://api.cloudflare.com/cdn-cgi/trace || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # catalog-mcp — universal MCP server over catalog + RAG (для агентов)
+  # ============================================================
+  # 10 read-only tools: семантика/FTS, поиск+фильтр по base_specs, карточки,
+  # секвенаторный конфигуратор, OEM/РУ, обзор каталога. Эндпоинт /mcp на :8090.
+  catalog-mcp:
+    build: ../../../services/catalog-mcp
+    image: gluvex-catalog-mcp
+    container_name: catalog-mcp
+    restart: unless-stopped
+    environment:
+      PGHOST: app-db
+      PGUSER: postgres
+      PGPASSWORD: ${APP_DB_PASSWORD}
+      PGDATABASE: gluvex_documents
+      MEMPALACE_URL: http://mempalace-gluvex:8080
+      MCP_TRANSPORT: http
+      MCP_PORT: "8090"
+    networks:
+      - app_internal
+    depends_on:
+      - app-db
+      - mempalace-gluvex
+
+# ============================================================
+# Networks
+# ============================================================
+networks:
+  proxy:
+    name: gluvex_proxy
+    driver: bridge
+  twenty_internal:
+    name: gluvex_twenty_internal
+    driver: bridge
+    internal: false  # нужен outbound (twenty подтягивает npm-пакеты)
+  app_internal:
+    name: gluvex_app_internal
+    driver: bridge
+    internal: false  # нужен outbound (Camunda тянет процессы, MinIO репликации в будущем)
+
+# ============================================================
+# Volumes
+# ============================================================
+volumes:
+  caddy_data:
+  caddy_config:
+  twenty_db_data:
+  twenty_redis_data:
+  twenty_server_data:
+  app_db_data:
+  minio_data:
+  qdrant_data:
+  mempalace_gluvex_data:
+  warp_data:
+  whisper_data:

@@ -1,0 +1,263 @@
+﻿{
+    "fields":  [
+                   "tender_regNumber",
+                   "tender_name",
+                   "tender_beginPrice",
+                   "tender_lotCustomerShortName",
+                   "tender_publishDate",
+                   "tender_endDate",
+                   "tender_region",
+                   "tender_typeName",
+                   "tender_lotCategories",
+                   "tender_files",
+                   "tender_module",
+                   "tender_etpLink"
+               ],
+    "filters":  {
+                    "and":  [
+                                {
+                                    "id":  200,
+                                    "name":  "contract_products",
+                                    "text":  "ÐÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¿ÑÐ¾Ð´ÑÐºÑÐ°Ð¼",
+                                    "type":  "text",
+                                    "exclude":  "Ð¼Ð°Ð»Ñ++Ð°ÑÑ\u0085Ð¸ÑÐµÐºÑÑÑÐ½++ÑÐ¾ÑÐ¼ =ÐÐÐ¤ Ð´Ð¾ÑÐ¾Ð¶Ð½++ÑÐµÐ¼Ð¾Ð½Ñ ÑÐµÐ¼Ð¾Ð½Ñ++Ð´Ð¾ÑÐ¾Ð³ Ð°ÑÑÐ°Ð»ÑÑÐ¾Ð±ÐµÑÐ¾Ð½Ð½ Ð±Ð»Ð°Ð³Ð¾ÑÑÑÑÐ¾Ð¹ÑÑÐ²++ÑÐµÑÑÐ¸ÑÐ¾Ñ Ð´ÐµÑÑÐº++Ð¿Ð»Ð¾ÑÐ°Ð´Ðº ÑÐ¿Ð¾ÑÑÐ¸Ð²Ð½++Ð¿Ð»Ð¾ÑÐ°Ð´Ðº ÑÐ±Ð¾ÑÐ¾ÑÐ½++Ð¼Ð°ÑÐ¸Ð½ Ð¼ÑÑÐ¾ÑÐ¾ÑÐ±Ð¾ÑÐ¾ÑÐ½ Ð¿Ð¸ÑÐµÐ±Ð»Ð¾Ðº ÑÐ¿Ð°ÐºÐ¾Ð²Ð¾ÑÐ½++Ð¼Ð°ÑÐµÑÐ¸Ð°Ð» ÑÐµÑÑÐ°Ð¿Ð°Ðº ÑÑÐµÑÐ¸Ð»ÑÐ½++Ð²Ð¸Ð°Ð»++Ð¼ÐµÐ´Ð¸ÑÐ¸Ð½ÑÐº Ð²Ð¸Ð°Ð»++Ð¸Ð½ÑÑÐ»Ð¸Ð½ Ð²Ð¸Ð°Ð»++Ð²Ð°ÐºÑÐ¸Ð½ Ð²Ð¸Ð°Ð»++Ð¸Ð½ÑÐµÐºÑ Ð²Ð¸Ð°Ð»++ÑÐ°ÑÐ¾Ð²Ðº Ð²Ð¾Ð´Ð¾Ð¾ÑÐ¸ÑÑÐº++ÑÐ¸Ð»ÑÑÑ Ð²Ð¾Ð·Ð´ÑÑÐ½++ÑÐ¸Ð»ÑÑÑ Ð¿Ð¸ÑÑÐµÐ²++Ð²Ð¾Ð´ ÑÐ°Ð½Ð¸ÑÐ°ÑÐ½++ÑÐ¸Ð»ÑÑÑ Ð¼ÐµÐ¼Ð±ÑÐ°Ð½Ð½++ÑÐ¸Ð»ÑÑÑ++Ð²Ð¾Ð´Ð¾Ð¿Ð¾Ð´Ð³Ð¾ÑÐ¾Ð²Ðº Ð²ÐµÑÐ¾Ð³Ð°Ð±Ð°ÑÐ¸ÑÐ½ ÑÑÐ°Ð½ÑÐ¿Ð¾ÑÑÐ½++ÐºÐ¾Ð½ÑÑÐ¾Ð» ÐºÐ¾Ð¼Ð¿Ð»ÐµÐºÑÐ½++Ð¾Ð±ÑÐ»ÑÐ¶Ð¸Ð²Ð°Ð½++Ð¸Ð½Ð¶ÐµÐ½ÐµÑÐ½ Ð¸Ð½Ð¶ÐµÐ½ÐµÑÐ½++ÑÐµÑ ÑÐ¾Ð´ÐµÑÐ¶Ð°Ð½++ÑÑÑÑÐ¾Ð¹ÑÑÐ²",
+                                    "include":  "Ð²Ð¸Ð°Ð» Ð²Ð¸Ð°Ð»Ñ =vial Ð¾Ð±Ð¶Ð¸Ð¼Ð½++ÐºÑÑÑÐº Ð·Ð°Ð²Ð¸Ð½ÑÐ¸Ð²Ð°ÑÑ++ÐºÑÑÑÐº ÑÐµÐ¿Ñ ÑÐµÑÑÑÐ» Ð»Ð°Ð¹Ð½ÐµÑ Ð¸Ð½Ð¶ÐµÐºÑÐ¾ÑÐ½++Ð»Ð°Ð¹Ð½ÐµÑ ÑÐ¿ÑÐ¸ÑÐµÐ²++ÑÐ¸Ð»ÑÑÑ Ð¼ÐµÐ¼Ð±ÑÐ°Ð½Ð½++ÑÐ¸Ð»ÑÑÑ ÑÐ¸Ð»ÑÑÑ++ÑÐ¿ÑÐ¸ÑÐµÐ²Ð¾Ð¹ ÑÐ¸Ð»ÑÑÑ++ÐÐ­ÐÐ¥ ÑÐ¸Ð»ÑÑÑ++HPLC ÐºÐ¾Ð»Ð¾Ð½Ðº++Ñ\u0085ÑÐ¾Ð¼Ð°ÑÐ¾Ð³ÑÐ°Ñ Ñ\u0085ÑÐ¾Ð¼Ð°ÑÐ¾Ð³ÑÐ°ÑÐ¸ÑÐµÑÐº++ÐºÐ¾Ð»Ð¾Ð½Ðº Ð¿ÑÐµÐ´ÐºÐ¾Ð»Ð¾Ð½Ðº guard++column SPE-ÐºÐ°ÑÑÑÐ¸Ð´Ð¶ ÐºÐ°ÑÑÑÐ¸Ð´Ð¶++SPE ÑÐ²ÐµÑÐ´Ð¾ÑÐ°Ð·Ð½++ÑÐºÑÑÑÐ°ÐºÑ ÑÐ°ÑÐº++ÐÐ¡Ð Ð°Ð»ÑÐ¼Ð¸Ð½Ð¸ÐµÐ²++ÑÐ°ÑÐº++ÐÐ¡Ð =DSC++pan Ð±Ð»Ð¾Ðº++ÑÐµÐ³ÐµÐ½ÐµÑÐ°Ñ++ÑÐ°ÑÑÐ²Ð¾ÑÐ¸ÑÐµÐ» ÑÐµÐ³ÐµÐ½ÐµÑÐ°Ñ++ÑÐ°ÑÑÐ²Ð¾ÑÐ¸ÑÐµÐ» ÑÐ¿ÑÐ¸Ñ++ÑÐ¸Ð»ÑÑÑ ÑÐ¸Ð»ÑÑÑ++ÑÐ¿ÑÐ¸Ñ Ð¼ÐµÐ¼Ð±Ñ++ÑÐ¸Ð»ÑÑÑ ÑÐ¸Ð»ÑÑÑ++Ð¼ÐµÐ¼Ð±Ñ ÑÐ¿ÑÐ¸Ñ++Ð½Ð°ÑÐ°Ð´ Ð½Ð°ÑÐ°Ð´++ÑÐ¿ÑÐ¸Ñ Ð²Ð¸Ð°Ð» ÐºÑÑÑ++Ð²Ð¸Ð°Ð» Ð²Ð¸Ð°Ð»++ÐºÑÑÑ ÑÐµÐ¿Ñ++Ð²Ð¸Ð°Ð» Ð²Ð¸Ð°Ð»++ÑÐµÐ¿Ñ starlab ÑÑÐ°ÑÐ»Ð°Ð± hawach ÑÐ¸Ð»ÑÑÑ++Ð¿Ð²Ñ ÐºÐ¾Ð»Ð¾Ð½++Ñ\u0085ÑÐ¾Ð¼Ð°ÑÐ¾Ð³Ñ Ñ\u0085ÑÐ¾Ð¼Ð°ÑÐ¾Ð³Ñ++ÐºÐ¾Ð»Ð¾Ð½",
+                                    "isEnable":  true,
+                                    "isVisible":  true,
+                                    "ordinalNumber":  0,
+                                    "IsMainGroupLite":  false,
+                                    "ordinalNumberLite":  -1,
+                                    "ordinalNumberSber":  0,
+                                    "groupOrdinalNumber":  0,
+                                    "groupOrdinalNumberLite":  4
+                                },
+                                {
+                                    "id":  103,
+                                    "name":  "tender_lotCategories",
+                                    "text":  "ÐÐ°ÑÐµÐ³Ð¾ÑÐ¸Ñ",
+                                    "type":  "tree_list",
+                                    "exclude":  [
+                                                    {
+                                                        "key":  192,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  425,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  429,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  595,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  426,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  623,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  525,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  618,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  674,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  434,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  676,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  212,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  439,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  537,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  216,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  522,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  615,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  531,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  557,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  672,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  424,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  624,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  443,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  614,
+                                                        "with_child":  0
+                                                    }
+                                                ],
+                                    "include":  [
+                                                    {
+                                                        "key":  451,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  452,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  490,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  250,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  636,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  209,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  210,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  206,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  214,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  248,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  252,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  524,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  456,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  251,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  215,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  191,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  663,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  654,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  198,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  609,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  662,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  444,
+                                                        "with_child":  0
+                                                    },
+                                                    {
+                                                        "key":  555,
+                                                        "with_child":  0
+                                                    }
+                                                ],
+                                    "isEnable":  true,
+                                    "isVisible":  true,
+                                    "main_category":  false,
+                                    "ordinalNumber":  6,
+                                    "IsMainGroupLite":  true,
+                                    "ordinalNumberLite":  5,
+                                    "ordinalNumberSber":  5,
+                                    "groupOrdinalNumber":  0,
+                                    "undefined_category":  false,
+                                    "groupOrdinalNumberLite":  1
+                                },
+                                {
+                                    "id":  115,
+                                    "name":  "tender_status",
+                                    "text":  "Ð¡ÑÐ°ÑÑÑ ÑÐµÐ½Ð´ÐµÑÐ°",
+                                    "type":  "value",
+                                    "value":  "1",
+                                    "isEnable":  true,
+                                    "isVisible":  true,
+                                    "ordinalNumber":  9,
+                                    "IsMainGroupLite":  true,
+                                    "ordinalNumberLite":  11,
+                                    "ordinalNumberSber":  0,
+                                    "groupOrdinalNumber":  0,
+                                    "groupOrdinalNumberLite":  0
+                                }
+                            ]
+                },
+    "interval":  [
+                     0,
+                     1
+                 ]
+}

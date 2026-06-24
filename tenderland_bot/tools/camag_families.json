@@ -1,0 +1,14 @@
+{
+  "HPTLC PRO": "HPTLC[ -]?PRO",
+  "visionCATS": "visionCATS|vision CATS",
+  "TLC-MS": "TLC[ _-]?MS",
+  "TLC Visualizer": "TLC[ _-]?Visualizer|Visualizer",
+  "TLC Scanner": "TLC[ _-]?Scanner|Scanner ?[34]",
+  "Derivatizer": "Derivatizer",
+  "AMD": "AMD[12]|Automated Multiple Development",
+  "ADC": "ADC[23]|Auto.*Developing Chamber",
+  "Linomat": "Linomat",
+  "ATS": "ATS[ _]?[34]|Auto.*TLC.*Sampler",
+  "HPTLC": "HPTLC",
+  "TLC": "(?<![A-Za-z])TLC(?![A-Za-z])"
+}

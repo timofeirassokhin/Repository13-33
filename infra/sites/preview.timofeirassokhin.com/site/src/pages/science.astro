@@ -1,0 +1,61 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import { localizedHref } from '~/i18n';
+const locale = 'ru' as const;
+
+const expertise = [
+  'Геномика и секвенирование (NGS)',
+  'Прецизионная онкодиагностика, онкопанели',
+  'Вывод продуктов на рынок',
+  'Кросс-культурные продажи и переговоры',
+  'Лабораторное оборудование и расходники',
+];
+---
+<Layout locale={locale} canonicalPath="/science" title="Наука и бизнес">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Наука и бизнес</p>
+      <h1>Понимаю и технологию, и людей, и рынок</h1>
+      <p class="hero__sub">Параллельно практике я остаюсь в науке и бизнесе: помогаю клиникам и исследователям с молекулярной диагностикой — онкопанели, секвенирование, оборудование.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 760px;">
+      <p style="font-size: 1.12rem; color: var(--text-soft);">
+        17 лет в международных корпорациях — Dow, Agilent, до поста гендиректора «Иллюмина РУС». Если вам нужен человек, который говорит на языке и учёных, и бизнеса, и регуляторики — давайте поговорим.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <p class="eyebrow">Экспертиза</p>
+      <h2>С чем помогаю</h2>
+      <ul class="bullets">
+        {expertise.map((e) => <li>{e}</li>)}
+      </ul>
+      <div class="hero__ctas" style="margin-top: var(--s-4);">
+        <a class="btn btn--primary" href={localizedHref('/contact', locale)}>Обсудить задачу</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .bullets { list-style: none; padding: 0; margin: var(--s-3) 0 0; max-width: 640px; }
+  .bullets li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 18px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>

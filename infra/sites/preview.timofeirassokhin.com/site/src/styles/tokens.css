@@ -1,0 +1,57 @@
+/* tr-com design tokens — тёплая тёмная пыльная палитра.
+   Родственная 13-33, но distinct: фон тёплее (warm-charcoal vs blue-charcoal),
+   акцент — пыльное золото и терракот вместо коралла. */
+
+:root {
+  /* Палитра */
+  --c-bg-base:        #1F1A17; /* warm charcoal */
+  --c-bg-elevated-1:  #261F1B; /* плашка */
+  --c-bg-elevated-2:  #2D251F; /* карточка */
+  --c-bg-elevated-3:  #3A2F26; /* пастельный над тёмным */
+
+  --c-cream:          #E8DCC8; /* основной текст на тёмном */
+  --c-cream-soft:     #B5A892;
+  --c-cream-muted:    #8A7E6E;
+
+  --c-gold:           #C9A875; /* пыльное золото — primary accent */
+  --c-gold-soft:      #D9BD92;
+  --c-terra:          #B36545; /* терракота — secondary accent (CTA) */
+  --c-terra-soft:     #C6815F;
+  --c-olive:          #8A8E5C;
+  --c-rust:           #8B3F28;
+
+  /* Семантика */
+  --bg:               var(--c-bg-base);
+  --bg-soft:          var(--c-bg-elevated-1);
+  --bg-card:          var(--c-bg-elevated-2);
+  --text:             var(--c-cream);
+  --text-soft:        var(--c-cream-soft);
+  --text-muted:       var(--c-cream-muted);
+  --accent:           var(--c-gold);
+  --accent-cta:       var(--c-terra);
+  --border-subtle:    rgba(232, 220, 200, 0.10);
+  --border-strong:    rgba(232, 220, 200, 0.22);
+
+  /* Шрифты */
+  --font-display:     'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body:        'Manrope', -apple-system, system-ui, 'Segoe UI', sans-serif;
+  --font-mono:        ui-monospace, 'JetBrains Mono', Menlo, monospace;
+
+  /* Ритм */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  --s-1: 8px;   --s-2: 16px;  --s-3: 24px;
+  --s-4: 32px;  --s-5: 48px;  --s-6: 64px;
+  --s-7: 96px;  --s-8: 128px;
+
+  --container: 1200px;
+
+  /* Тени — тёплые, не нейтральные */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
+}

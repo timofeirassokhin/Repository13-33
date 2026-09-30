@@ -1,0 +1,79 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import PageCta from '~/components/PageCta.astro';
+const locale = 'ru' as const;
+
+const story = [
+  'Я начинал как химик — кандидат наук, постдок в Лейдене и МГУ, РНК-белковые взаимодействия. Потом двадцать лет в международных корпорациях: Dow, Agilent, до поста гендиректора «Иллюмина РУС» — это геномика, секвенирование, передний край медицины. А в 2014-м пришёл клиентом в психотерапию — и обнаружил, что самый интересный объект исследования всё это время был я сам.',
+  'Дальше — психодрама, карьерный коучинг (ICF), работа с травмой, рейки, буддизм. И в какой-то момент сложилась простая картина: всё это можно совместить. Можно расти как личность и отвечать на экзистенциальные вопросы. Можно стоять ногами на земле и смотреть в сторону духа.',
+  'Сейчас я веду частную практику, развиваю с женой Ириной центр «Пространство 13-33», помогаю клиникам и учёным с молекулярной диагностикой — и пишу. Про науку, душу и дух. Иногда про котов. Всегда — про то, как жить полнее.',
+];
+
+const credentials = [
+  'К.х.н. — химия природных соединений, МГУ',
+  'ИПКиРТ',
+  'Карьерный коучинг — ICF',
+  'Работа с травмой — израильская и норвежская школы',
+  'Рейки-мастер',
+  '17 лет управления продажами — Dow, Agilent, Illumina',
+];
+---
+<Layout locale={locale} canonicalPath="/about" title="О Тимофее">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">О Тимофее</p>
+      <h1>История как путь по фракталу</h1>
+      <p class="hero__sub">Не сухое CV, а движение: из материи — в душу, из души — в дух. И обратно.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 760px;">
+      {story.map((p) => <p style="font-size: 1.12rem; color: var(--text-soft);">{p}</p>)}
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <p class="eyebrow">Регалии</p>
+      <h2>Выверенные факты</h2>
+      <ul class="creds">
+        {credentials.map((c) => <li>{c}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <PageCta locale={locale} />
+</Layout>
+
+<style>
+  .creds {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-3) 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-2);
+  }
+  .creds li {
+    position: relative;
+    padding: 12px 16px 12px 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    color: var(--text);
+  }
+  .creds li::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 19px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  @media (max-width: 700px) {
+    .creds { grid-template-columns: 1fr; }
+  }
+</style>

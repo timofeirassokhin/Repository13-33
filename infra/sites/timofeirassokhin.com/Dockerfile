@@ -1,16 +1,6 @@
-# --- Build stage ---
-FROM node:20-alpine AS build
-WORKDIR /app
-
-COPY site/package*.json ./
-RUN npm install
-
-COPY site/ .
-RUN npm run build
-
-# --- Serve stage ---
+# Заглушка «coming soon» — статичный nginx, без сборки.
 FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY html /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

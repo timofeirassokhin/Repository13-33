@@ -1,3 +1,4 @@
+# Порты 80/443 привязаны к публичному IP: на 100.82.2.78:443 работает tailscale serve (mempalace).
 services:
   # nginx-прокси к docker.sock с перезаписью устаревшей API-версии URL.
   # Нужен из-за Traefik v3.5: его docker SDK хардкодит /v1.24/, а daemon 29.x требует >=1.40.
@@ -48,8 +49,8 @@ services:
       - --accesslog=true
 
     ports:
-      - "80:80"
-      - "443:443"
+      - "186.246.1.61:80:80"
+      - "186.246.1.61:443:443"
 
     volumes:
       - ./letsencrypt:/letsencrypt

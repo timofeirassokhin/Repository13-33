@@ -1,0 +1,64 @@
+---
+interface Props {
+  size?: 'sm' | 'md';
+  class?: string;
+}
+const { size = 'sm', class: className = '' } = Astro.props;
+
+const links = [
+  {
+    name: 'Telegram',
+    href: 'https://t.me/timofei1333',
+    // paper plane
+    path: 'M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.42-.83.42z',
+  },
+  {
+    name: 'VK',
+    href: 'https://vk.com/timofei.rassokhin',
+    path: 'M13.16 16.79c-5.07 0-7.96-3.48-8.08-9.27h2.54c.08 4.25 1.96 6.05 3.44 6.42V7.52h2.39v3.66c1.47-.16 3.01-1.83 3.53-3.66h2.39c-.4 2.26-2.07 3.93-3.25 4.62 1.18.56 3.08 2.02 3.81 4.65h-2.63c-.57-1.77-1.98-3.14-3.85-3.33v3.33h-.29z',
+  },
+  {
+    name: 'Дзен',
+    href: 'https://dzen.ru/timofei.rassokhin',
+    // stylized petal/leaf mark
+    path: 'M12 2c.18 4.27.84 6.86 2.49 8.51C16.14 12.16 18.73 12.82 23 13c-4.27.18-6.86.84-8.51 2.49C12.84 17.14 12.18 19.73 12 24c-.18-4.27-.84-6.86-2.49-8.51C7.86 13.84 5.27 13.18 1 13c4.27-.18 6.86-.84 8.51-2.49C11.16 8.86 11.82 6.27 12 2z',
+  },
+];
+---
+<div class={`socials socials--${size} ${className}`}>
+  {links.map((l) => (
+    <a
+      class="socials__btn"
+      href={l.href}
+      target="_blank"
+      rel="me noopener noreferrer"
+      aria-label={l.name}
+      title={l.name}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={l.path} /></svg>
+    </a>
+  ))}
+</div>
+
+<style>
+  .socials { display: inline-flex; gap: var(--s-1); }
+  .socials--md { gap: var(--s-2); }
+  .socials__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text-soft);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-soft);
+    transition: color 150ms ease, border-color 150ms ease, transform 100ms ease;
+  }
+  .socials--sm .socials__btn { width: 34px; height: 34px; }
+  .socials--md .socials__btn { width: 44px; height: 44px; }
+  .socials__btn svg { width: 55%; height: 55%; fill: currentColor; }
+  .socials__btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+</style>

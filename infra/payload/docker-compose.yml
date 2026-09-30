@@ -1,5 +1,5 @@
 # Payload CMS — внутренняя система, наружу не публикуется.
-# Доступ: только из сети Tailscale — http://100.82.2.78:3010/admin (порт привязан к Tailscale-IP).
+# Доступ: только из сети Tailscale — http://100.82.2.78:3010/admin (tailscale serve --tcp 3010 → 127.0.0.1:3010).
 # База — в общем Postgres (роль/база payload), медиа — в общем MinIO (бакет payload).
 # Код: apps/cms (шаблон payload with-postgres, тег v3.82.1), образ собирается из apps/cms/Dockerfile.
 services:
@@ -12,7 +12,6 @@ services:
       - /opt/stack/secrets/payload.env
     ports:
       - "127.0.0.1:3010:3000"
-      - "100.82.2.78:3010:3000"   # Tailscale-IP сервера: доступ только из сети Tailscale
     networks: [data]
     mem_limit: 768m
 

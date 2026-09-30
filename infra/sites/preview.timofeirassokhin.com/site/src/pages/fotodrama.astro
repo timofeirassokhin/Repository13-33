@@ -1,0 +1,70 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import { localizedHref } from '~/i18n';
+const locale = 'ru' as const;
+---
+<Layout locale={locale} canonicalPath="/fotodrama" title="Фотодрама">
+  <section class="hero">
+    <div class="container">
+      <img class="fd-logo" src="/fotodrama-logo.svg" alt="Фотодрама" width="120" height="120" />
+      <p class="eyebrow">Фотодрама</p>
+      <h1>Свет и тень как метафора личности</h1>
+      <p class="hero__sub">Авторский метод на стыке фотографии, психодрамы и арт-терапии. Работа с архетипами через контрастный портрет — кьяроскуро признанных и скрытых частей себя.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 760px;">
+      <p style="font-size: 1.12rem; color: var(--text-soft);">
+        Что это: контрастный портрет, где свет и тень — не приём фотографа, а язык. То, что мы в себе признаём, и то, что прячем. Камера становится зеркалом, в котором можно встретить свою тень — и присвоить её.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <p class="eyebrow">Флагман</p>
+      <h2>«Богини в тени и свете»</h2>
+      <p style="max-width: 640px; color: var(--text-soft);">
+        Однодневный тренинг по женским архетипам (по Дж. Ш. Болен): прожить каждый телом — и увидеть себя на честном портрете. Афина, Артемида, Персефона, Деметра, Гера, Афродита, Гестия — как грани одной женщины.
+      </p>
+      <div class="hero__ctas" style="margin-top: var(--s-3);">
+        <a class="btn btn--primary" href={localizedHref('/contact', locale)}>Записаться на группу</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Портфолио</p>
+      <h2>Портреты</h2>
+      <div class="gallery">
+        {Array.from({ length: 6 }).map(() => <div class="gallery__cell" aria-hidden="true"></div>)}
+      </div>
+      <p style="color: var(--text-muted); margin-top: var(--s-2); font-size: 0.9rem;">
+        Галерея портретов из прошлых проектов — скоро.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .fd-logo { display: block; margin-bottom: var(--s-3); }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .gallery__cell {
+    aspect-ratio: 4 / 5;
+    border-radius: var(--r-md);
+    background:
+      radial-gradient(ellipse at 60% 20%, rgba(201,168,117,0.18), transparent 60%),
+      var(--bg-card);
+    border: 1px solid var(--border-subtle);
+  }
+  @media (max-width: 700px) {
+    .gallery { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

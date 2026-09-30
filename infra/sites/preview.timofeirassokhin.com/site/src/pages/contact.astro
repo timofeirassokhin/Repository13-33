@@ -1,0 +1,37 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import Socials from '~/components/Socials.astro';
+import { localizedHref } from '~/i18n';
+const locale = 'ru' as const;
+---
+<Layout locale={locale} canonicalPath="/contact" title="Записаться">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Записаться</p>
+      <h1>Прийти на знакомство</h1>
+      <p class="hero__sub">Если не уверены, какой формат подходит — напишите коротко, что происходит и чего хочется. Разберёмся вместе. Без анкет и лишних данных.</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href="https://t.me/timofei1333" target="_blank" rel="me noopener noreferrer">Написать в Telegram</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="grid-2">
+        <div>
+          <p class="eyebrow">Где я ещё</p>
+          <h2>Соцсети</h2>
+          <p style="color: var(--text-soft);">Telegram — ядро и самый быстрый способ связаться. В VK и Дзене — тексты и анонсы.</p>
+          <Socials size="md" />
+        </div>
+        <div>
+          <p class="eyebrow">Письма</p>
+          <h3>Сложное — простыми словами</h3>
+          <p style="color: var(--text-soft);">Если пока не готовы писать — можно просто остаться на связи через письма.</p>
+          <a class="btn btn--ghost" href={localizedHref('/subscribe', locale)}>Подписаться на письма</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

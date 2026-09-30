@@ -1,0 +1,46 @@
+# Единое хранилище для всех сервисов сервера.
+# Postgres: у каждого приложения своя роль и своя база (twenty, payload, listmonk, course_auditor).
+# Redis: db0 — Twenty, db1 — course-auditor.
+# MinIO (/opt/stack/minio) и Qdrant (infra/qdrant) подключены к той же сети data.
+name: data
+services:
+  postgres:
+    image: postgres:16.13@sha256:71e27bf60b70bded003791b5573f8b808365613f341df20ffcf0c1ed7bc13ddf
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PG_SUPERUSER_PASSWORD}
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=200"]
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 1g
+
+  redis:
+    image: redis:8.10.1-alpine@sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1000", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_data:/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 256m
+
+volumes:
+  pg_data:
+  redis_data:
+
+networks:
+  data:
+    external: true

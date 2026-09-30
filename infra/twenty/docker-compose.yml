@@ -4,19 +4,14 @@
 
 services:
   twenty-server:
-    image: twentycrm/twenty:latest
+    image: twentycrm/twenty:v2.2.0@sha256:fb82dc757bd9eea6b8f4d765275e1eb58efbd5c1ae3d4d6245be807770c87e79
     container_name: twenty-server
     restart: unless-stopped
-    depends_on:
-      twenty-db:
-        condition: service_healthy
-      twenty-redis:
-        condition: service_healthy
     environment:
       NODE_PORT: 3000
       SERVER_URL: https://crm.${DOMAIN}
-      PG_DATABASE_URL: postgres://postgres:${TWENTY_PG_PASSWORD}@twenty-db:5432/default
-      REDIS_URL: redis://twenty-redis:6379
+      PG_DATABASE_URL: postgres://twenty:${TWENTY_PG_PASSWORD}@postgres:5432/twenty
+      REDIS_URL: redis://redis:6379/0
       APP_SECRET: ${TWENTY_APP_SECRET}
       STORAGE_TYPE: local
       DISABLE_DB_MIGRATIONS: "false"
@@ -25,7 +20,7 @@ services:
       - twenty_server_data:/app/packages/twenty-server/.local-storage
     networks:
       - proxy
-      - twenty_internal
+      - data
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://localhost:3000/healthz || exit 1"]
       interval: 5s
@@ -42,7 +37,7 @@ services:
       - traefik.http.services.twenty.loadbalancer.server.port=3000
 
   twenty-worker:
-    image: twentycrm/twenty:latest
+    image: twentycrm/twenty:v2.2.0@sha256:fb82dc757bd9eea6b8f4d765275e1eb58efbd5c1ae3d4d6245be807770c87e79
     container_name: twenty-worker
     restart: unless-stopped
     depends_on:
@@ -50,9 +45,9 @@ services:
         condition: service_healthy
     command: ["yarn", "worker:prod"]
     environment:
-      PG_DATABASE_URL: postgres://postgres:${TWENTY_PG_PASSWORD}@twenty-db:5432/default
+      PG_DATABASE_URL: postgres://twenty:${TWENTY_PG_PASSWORD}@postgres:5432/twenty
       SERVER_URL: https://crm.${DOMAIN}
-      REDIS_URL: redis://twenty-redis:6379
+      REDIS_URL: redis://redis:6379/0
       APP_SECRET: ${TWENTY_APP_SECRET}
       STORAGE_TYPE: local
       DISABLE_DB_MIGRATIONS: "true"           # сервер уже накатил
@@ -60,44 +55,13 @@ services:
     volumes:
       - twenty_server_data:/app/packages/twenty-server/.local-storage
     networks:
-      - twenty_internal
-
-  twenty-db:
-    image: postgres:16
-    container_name: twenty-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${TWENTY_PG_PASSWORD}
-      POSTGRES_DB: default
-    volumes:
-      - twenty_db_data:/var/lib/postgresql/data
-    networks:
-      - twenty_internal
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -d postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  twenty-redis:
-    image: redis
-    container_name: twenty-redis
-    restart: unless-stopped
-    command: ["--maxmemory-policy", "noeviction"]
-    networks:
-      - twenty_internal
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      - data
 
 volumes:
-  twenty_db_data:
   twenty_server_data:
 
 networks:
   proxy:
     external: true
-  twenty_internal:
+  data:
+    external: true

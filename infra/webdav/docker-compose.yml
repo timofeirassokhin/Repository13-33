@@ -1,7 +1,7 @@
 services:
   webdav:
     # Простой WebDAV-сервер на nginx+dav. Multi-user через htpasswd-файл.
-    image: dgraziotin/nginx-webdav-nononsense:latest
+    image: dgraziotin/nginx-webdav-nononsense:1.30.0@sha256:0304cbefc4d9bc9076945d3fa91605828477201b66c997575dde86608b4586c0
     container_name: webdav
     restart: unless-stopped
     environment:

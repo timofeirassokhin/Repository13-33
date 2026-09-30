@@ -2,7 +2,7 @@ services:
   whisper:
     # ASR webservice на основе faster-whisper.
     # Документация: https://github.com/ahmetoner/whisper-asr-webservice
-    image: onerahmet/openai-whisper-asr-webservice:latest
+    image: onerahmet/openai-whisper-asr-webservice:latest@sha256:03b402335881cdab2e4939b24620809df8d6ceec3bf2712217d41c8761a0f5d4
     container_name: whisper
     restart: unless-stopped
     environment:

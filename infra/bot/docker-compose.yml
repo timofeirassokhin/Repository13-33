@@ -2,7 +2,7 @@ services:
   # Cloudflare WARP в виде SOCKS5-прокси (порт 1080).
   # Нужен потому, что российский хостинг режет прямой outbound к api.telegram.org.
   warp:
-    image: caomingjun/warp:latest
+    image: caomingjun/warp:latest@sha256:0af9e8cd7bfc1c13fb2556ec87cc2c95cc1f826d6b565693bdc6b9d1b8007ebc
     container_name: warp
     restart: unless-stopped
     cap_add:
@@ -14,6 +14,7 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     volumes:
       - warp_data:/var/lib/cloudflare-warp
+    mem_limit: 512m
     networks:
       - proxy
     healthcheck:

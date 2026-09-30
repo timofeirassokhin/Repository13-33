@@ -2,7 +2,7 @@ services:
   # nginx-прокси к docker.sock с перезаписью устаревшей API-версии URL.
   # Нужен из-за Traefik v3.5: его docker SDK хардкодит /v1.24/, а daemon 29.x требует >=1.40.
   socket-proxy:
-    image: nginx:alpine
+    image: nginx:alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
     container_name: socket-proxy
     restart: unless-stopped
     user: root
@@ -13,7 +13,7 @@ services:
       - proxy
 
   traefik:
-    image: traefik:v3.5
+    image: traefik:v3.5.6@sha256:16acb89c6db341182970d6fdafece31303b0a380a8ed7aa51682e225229bf1d2
     container_name: traefik
     restart: unless-stopped
     depends_on:

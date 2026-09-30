@@ -4,15 +4,12 @@
 
 services:
   listmonk:
-    image: listmonk/listmonk:latest
+    image: listmonk/listmonk:v6.1.0@sha256:179d00d9553c371b6fe88c9b145095d651e275bdd66db46b2e0b79daff316b6f
     container_name: listmonk
     restart: unless-stopped
-    depends_on:
-      listmonk-db:
-        condition: service_healthy
     environment:
       LISTMONK_app__address: 0.0.0.0:9000
-      LISTMONK_db__host: listmonk-db
+      LISTMONK_db__host: postgres
       LISTMONK_db__port: 5432
       LISTMONK_db__user: listmonk
       LISTMONK_db__password: ${LISTMONK_PG_PASSWORD}
@@ -29,7 +26,7 @@ services:
       - listmonk_uploads:/listmonk/uploads
     networks:
       - proxy
-      - tr_listmonk_internal
+      - data
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
@@ -43,29 +40,11 @@ services:
       - traefik.http.middlewares.tr-admin-auth.basicauth.users=${TRAEFIK_BASIC_AUTH}
       - traefik.http.middlewares.tr-admin-ipallow.ipallowlist.sourcerange=${ADMIN_IP}/32
 
-  listmonk-db:
-    image: postgres:16
-    container_name: listmonk-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: listmonk
-      POSTGRES_USER: listmonk
-      POSTGRES_PASSWORD: ${LISTMONK_PG_PASSWORD}
-    volumes:
-      - listmonk_db_data:/var/lib/postgresql/data
-    networks:
-      - tr_listmonk_internal
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U listmonk -d listmonk"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
 volumes:
-  listmonk_db_data:
   listmonk_uploads:
 
 networks:
   proxy:
     external: true
-  tr_listmonk_internal:
+  data:
+    external: true
